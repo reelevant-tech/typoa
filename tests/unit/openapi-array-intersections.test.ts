@@ -545,6 +545,15 @@ describe('Lossless intersections', () => {
       invalid: [{ name: 'x' }, { active: true }]
     }
   }
+  test('Should document ambiguous empty array union validation', async () => {
+    const value: unknown[] = []
+    const validate = ajv.compile({
+      $ref: 'spec#/components/schemas/Cases/properties/enumChoice'
+    })
+    assert.equal(validate(value), false)
+    assert.deepEqual(await parse(properties.enumChoice, value), [[]])
+  })
+
   for (const [name, { valid, invalid }] of Object.entries(samples)) {
     test(`Should validate retained constraints for ${name}`, async () => {
       options.features.enableThrowOnUnexpectedAdditionalData = true
