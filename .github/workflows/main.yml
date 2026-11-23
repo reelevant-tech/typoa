@@ -40,10 +40,10 @@ jobs:
                   cache: 'yarn'
 
             - name: install
-              run: yarn
+              run: yarn --frozen-lockfile
 
             - name: Install Express version
-              run: yarn add --dev --ignore-engines --no-lockfile express@${{ matrix.express }} @types/express@${{ matrix.types }}
+              run: yarn add --dev --ignore-engines --exact express@${{ matrix.express }} @types/express@${{ matrix.types }}
 
             - name: Verify Express version and dependency tree
               env:
@@ -98,7 +98,7 @@ jobs:
                   node-version: '20'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
-            - run: yarn add --dev --ignore-engines --no-lockfile express@${{ matrix.express }} @types/express@${{ matrix.types }}
+            - run: yarn add --dev --ignore-engines --exact express@${{ matrix.express }} @types/express@${{ matrix.types }}
             - name: Snapshots and generated client
               run: yarn compat
               env:

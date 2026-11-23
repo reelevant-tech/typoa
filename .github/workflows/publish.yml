@@ -74,7 +74,7 @@ jobs:
                   node-version: '20'
                   cache: 'yarn'
             - run: yarn --frozen-lockfile
-            - run: yarn add --dev --ignore-engines --no-lockfile express@${{ matrix.express }} @types/express@${{ matrix.types }}
+            - run: yarn add --dev --ignore-engines --exact express@${{ matrix.express }} @types/express@${{ matrix.types }}
             - name: Snapshots and generated client
               run: yarn compat
               env:
