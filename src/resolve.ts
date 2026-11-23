@@ -327,8 +327,7 @@ export function resolve(
     if (type.getIntersectionTypes().every(isPlainObjectType)) {
       return resolveObjectType(type, spec)
     }
-    // Same for arrays: `X[] & Y[]` is described as a single array of `X & Y`,
-    // so that the items of `X` do not reject the properties of `Y`.
+    // Flatten object arrays so closed items do not reject each other's properties.
     const members = type.getIntersectionTypes()
     const elementType = type.getNumberIndexType()
     if (
@@ -336,9 +335,9 @@ export function resolve(
       elementType &&
       !elementType.isNever()
     ) {
-      return {
-        type: 'array',
-        items: resolveArrayIntersectionItems(members, type, spec)
+      const items = resolveArrayIntersectionItems(members, type, spec)
+      if (items) {
+        return { type: 'array', items }
       }
     }
     return {
@@ -386,17 +385,17 @@ function resolveArrayIntersectionItems(
   members: Type[],
   type: Type | undefined,
   spec: OpenAPIV3.Document
-): Schema {
+): Schema | undefined {
   const elements = members.map(member => member.getArrayElementTypeOrThrow())
   const elementType = type?.getNumberIndexType()
   if (elements.every(element => element.isArray())) {
     const nestedElement = elementType?.getNumberIndexType()
-    if (!nestedElement || nestedElement.isNever()) {
-      return { allOf: elements.map(element => resolve(element, spec)) }
-    }
+    if (!nestedElement || nestedElement.isNever()) return undefined
+    const items = resolveArrayIntersectionItems(elements, elementType, spec)
+    if (!items) return undefined
     return {
       type: 'array',
-      items: resolveArrayIntersectionItems(elements, elementType, spec)
+      items
     }
   }
   if (
@@ -408,7 +407,7 @@ function resolveArrayIntersectionItems(
   ) {
     return resolve(elementType, spec)
   }
-  return intersectSchemas(elements.map(element => resolve(element, spec)))
+  return undefined
 }
 
 function intersectSchemas(schemas: Schema[]): Schema {
@@ -441,21 +440,6 @@ function combineSchemas(schemas: Schema[]): Schema {
       ) === index
   )
   if (unique.length === 1) return unique[0]
-  if (
-    unique.every(
-      schema =>
-        'type' in schema &&
-        schema.type === 'array' &&
-        Object.keys(schema).every(key => key === 'type' || key === 'items')
-    )
-  ) {
-    return {
-      type: 'array',
-      items: intersectSchemas(
-        unique.map(schema => (schema as OpenAPIV3.ArraySchemaObject).items)
-      )
-    }
-  }
   const narrowest = unique.find(schema =>
     unique.every(other => {
       if (JSON.stringify(schema) === JSON.stringify(other)) return true

@@ -79,6 +79,12 @@ interface JsonChoice {
 export interface Cases {
   direct: Array<'a'> & Kind[]
   tags: Kind.A[] & Kind[]
+  enumChoice: (Kind.A[] & Kind[]) | (Kind.B[] & Kind[])
+  mixed: Kind[] & string[]
+  primitives: string[] & number[]
+  three: Kind.A[] & Kind[] & string[]
+  objectPrimitive: Named[] & string[]
+  nestedMixed: Kind[][] & string[][]
   serialized: Serialized<Item> & { tags: Kind[] }
   choice: (Serialized<Item> & { tags: Kind[] }) | { other: boolean }
   objects: Named[] & Tagged[]

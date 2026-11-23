@@ -1,10 +1,13 @@
 import path from 'path'
-import { readFileSync } from 'fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
+import { execFileSync } from 'child_process'
 import { strict as assert } from 'node:assert'
 import { before, describe, test } from 'node:test'
 import Ajv from 'ajv'
 import type express from 'express'
 import { OpenAPIV3 } from 'openapi-types'
+import { generate as generateClient } from 'oatyp'
 import { generate } from '../../src'
 import { validateAndParse } from '../../src/runtime/validator'
 import { options } from '../../src/option'
@@ -15,13 +18,13 @@ describe('Lossless intersections', () => {
   const ajv = new Ajv({ strict: false })
   const literal = { type: 'string', enum: ['a'] }
   const kind = { $ref: '#/components/schemas/Kind' }
-  const tags = { type: 'array', items: { allOf: [literal, kind] } }
-  const direct = {
+  const tags = {
     allOf: [
       { type: 'array', items: literal },
       { type: 'array', items: kind }
     ]
   }
+  const direct = tags
   const object = (
     properties: Record<string, unknown>,
     required = Object.keys(properties),
@@ -61,9 +64,119 @@ describe('Lossless intersections', () => {
     ajv.addSchema({ components: spec.components }, 'spec')
   })
 
+  test('Should compile enum includes calls in a generated client', async () => {
+    const directory = mkdtempSync(path.join(tmpdir(), 'array-client-'))
+    const compile = () =>
+      execFileSync(
+        process.execPath,
+        [
+          require.resolve('typescript/bin/tsc'),
+          '--noEmit',
+          '--strict',
+          '--skipLibCheck',
+          '--target',
+          'es2022',
+          '--moduleResolution',
+          'node',
+          path.join(directory, 'snippet.ts')
+        ],
+        { encoding: 'utf8' }
+      )
+    const writeClient = async (document: OpenAPIV3.Document) => {
+      const openapiFilePath = path.join(directory, 'schema.json')
+      writeFileSync(openapiFilePath, JSON.stringify(document))
+      await generateClient({ outDir: directory, openapiFilePath })
+    }
+    try {
+      const filePath = path.join(directory, 'openapi.json')
+      await generate({
+        tsconfigFilePath: path.resolve(__dirname, '../fixtures/tsconfig.json'),
+        controllers: [
+          path.resolve(
+            __dirname,
+            '../fixtures/validation/array-intersection-client.ts'
+          )
+        ],
+        openapi: { filePath, service: { name: 'test', version: '1' } },
+        router: { filePath: path.join(directory, 'router.ts') }
+      })
+      const clientSpec = JSON.parse(
+        readFileSync(filePath, 'utf8')
+      ) as OpenAPIV3.Document
+      await writeClient(clientSpec)
+      writeFileSync(
+        path.join(directory, 'snippet.ts'),
+        "import { ClientValue, Kind, WithoutWriteonly } from './definitions'\n" +
+          'declare const value: ClientValue["tags"]\n' +
+          'declare const parsed: WithoutWriteonly<ClientValue>["tags"]\n' +
+          'value.includes(Kind.A)\nparsed.includes(Kind.A)\n'
+      )
+      compile()
+
+      const lossy = structuredClone(clientSpec)
+      const cases = lossy.components!.schemas!
+        .ClientValue as OpenAPIV3.SchemaObject
+      cases.properties!.tags = {
+        readOnly: true,
+        oneOf: ['a', 'b'].map(value => ({
+          type: 'array',
+          items: { type: 'string', enum: [value] }
+        }))
+      }
+      await writeClient(lossy)
+      assert.throws(
+        compile,
+        (error: unknown) =>
+          error instanceof Error &&
+          'stdout' in error &&
+          String(error.stdout).includes("parameter of type 'never'")
+      )
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
   const expected: Record<string, unknown> = {
     direct,
     tags,
+    enumChoice: {
+      oneOf: [
+        tags,
+        {
+          allOf: [
+            { type: 'array', items: { type: 'string', enum: ['b'] } },
+            { type: 'array', items: kind }
+          ]
+        }
+      ]
+    },
+    mixed: {
+      allOf: [
+        { type: 'array', items: kind },
+        { type: 'array', items: { type: 'string' } }
+      ]
+    },
+    primitives: {
+      allOf: [
+        { type: 'array', items: { type: 'string' } },
+        { type: 'array', items: { type: 'number' } }
+      ]
+    },
+    three: {
+      allOf: [...tags.allOf, { type: 'array', items: { type: 'string' } }]
+    },
+    objectPrimitive: {
+      allOf: [
+        { type: 'array', items: { $ref: '#/components/schemas/Named' } },
+        { type: 'array', items: { type: 'string' } }
+      ]
+    },
+    nestedMixed: {
+      allOf: [
+        { type: 'array', items: { type: 'array', items: kind } },
+        { type: 'array', items: { type: 'array', items: { type: 'string' } } }
+      ]
+    },
     serialized: object({ tags }),
     choice: {
       oneOf: [object({ tags }), object({ other: { type: 'boolean' } })]
@@ -75,8 +188,12 @@ describe('Lossless intersections', () => {
       type: 'array',
       items: { type: 'array', items: { ...named, nullable: true } }
     },
-    nested: { type: 'array', items: tags },
-    nestedDirect: { type: 'array', items: direct },
+    nested: {
+      allOf: tags.allOf.map(member => ({ type: 'array', items: member }))
+    },
+    nestedDirect: {
+      allOf: direct.allOf.map(member => ({ type: 'array', items: member }))
+    },
     nestedObjects: { type: 'array', items: { type: 'array', items: named } },
     enumValue: { type: 'string', enum: ['b'] },
     conflict: object({
@@ -282,6 +399,15 @@ describe('Lossless intersections', () => {
   })
 
   const samples: Record<string, { valid: unknown[]; invalid: unknown[] }> = {
+    enumChoice: {
+      valid: [['a'], ['b']],
+      invalid: [['a', 'b'], ['c'], [null]]
+    },
+    mixed: { valid: [[], ['a', 'b']], invalid: [['c'], [1], [null]] },
+    primitives: { valid: [[]], invalid: [['a'], [1], [null]] },
+    three: { valid: [[], ['a']], invalid: [['b'], ['c'], [1]] },
+    objectPrimitive: { valid: [[]], invalid: [[{ name: 'x' }], ['a']] },
+    nestedMixed: { valid: [[], [[]], [['a', 'b']]], invalid: [[['c']], [[1]]] },
     nullableObjects: {
       valid: [
         [],
