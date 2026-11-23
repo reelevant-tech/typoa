@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
 import express from 'express'
-import { validateAndParse } from '../../src/runtime/validator'
+import { ValidateError, validateAndParse } from '../../src/runtime/validator'
 
 const request = {
   body: { value: 1 },
@@ -98,3 +98,26 @@ test('Should not run diagnostic validation on successful requests', async () => 
   assert.deepEqual(args, [{ value: 'a' }])
   assert.equal(calls, 0)
 })
+
+for (const asynchronous of [false, true]) {
+  test(`Should evaluate a ${asynchronous ? 'rejecting' : 'throwing'} discriminator only once`, async () => {
+    let calls = 0
+    const failure = new ValidateError({}, 'Discriminator failed')
+    const discriminated = {
+      ...rules,
+      bodyDiscriminatorFn: () => {
+        calls++
+        if (asynchronous) return Promise.reject(failure)
+        throw failure
+      }
+    }
+    await assert.rejects(
+      validateAndParse(request, {}, discriminated, {
+        schemas: {},
+        rules: discriminated
+      }),
+      error => error === failure
+    )
+    assert.equal(calls, 1)
+  })
+}

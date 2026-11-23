@@ -45,7 +45,9 @@ export async function validateAndParse(
   let discriminatorResult: ReturnType<BodyDiscriminatorFunction> | undefined
   const bodyDiscriminatorFn = rules.bodyDiscriminatorFn
     ? (request: express.Request) =>
-        (discriminatorResult ??= rules.bodyDiscriminatorFn!(request))
+        (discriminatorResult ??= Promise.resolve().then(() =>
+          rules.bodyDiscriminatorFn!(request)
+        ))
     : undefined
   try {
     return await validateRequest(req, schemas, {
