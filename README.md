@@ -206,7 +206,11 @@ HTTP cases marked `legacy` in `cases.ts`. Its OpenAPI is deliberately not compar
 current flattening is retained. The regex-path controller is separate because
 alpha.71 cannot register its Express 4 route syntax on Express 5.
 
-CI runs all three commands on Express 4.17.1, 4.22.3 and 5.3.0. When adding a
+CI runs all three commands on Express 4.17.1, 4.22.3 and 5.3.0. The quality
+workflow runs the matrix on PRs. On main, the serialized publish workflow runs
+it after tests/lint and requires it before bumping the version or publishing.
+This prevents our own publication from changing npm latest during comparison;
+stale exceptions still fail after a release. When adding a
 regression case, add a stable ID and controller, inspect/update the snapshots on
 both majors, extend `type-usage.ts` where relevant, and explicitly review any
 new release exceptions.

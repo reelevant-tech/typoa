@@ -54,10 +54,40 @@ jobs:
             - name: lint
               run: yarn eslint .
 
-    # Only runs when both test and lint pass. Bumps the version, publishes it and
+    compatibility:
+        needs: [test, lint]
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - express: '4.17.1'
+                      types: '4'
+                    - express: '4.22.3'
+                      types: '4'
+                    - express: '5.3.0'
+                      types: '5'
+        steps:
+            - uses: actions/checkout@v5
+            - uses: actions/setup-node@v6
+              with:
+                  node-version: '20'
+                  cache: 'yarn'
+            - run: yarn --frozen-lockfile
+            - run: yarn add --dev --ignore-engines --no-lockfile express@${{ matrix.express }} @types/express@${{ matrix.types }}
+            - name: Snapshots and generated client
+              run: yarn compat
+              env:
+                  EXPRESS_VERSION: ${{ matrix.express }}
+            - name: Compare with npm latest
+              run: yarn compat:release
+            - name: Verify restored alpha.71 HTTP contracts
+              run: yarn compat:legacy
+
+    # Only runs after tests, lint and compatibility. Bumps the version, publishes it and
     # commits the bump on main so package.json stays in sync with npm
     publish:
-        needs: [test, lint]
+        needs: [test, lint, compatibility]
         runs-on: ubuntu-latest
         permissions:
             # Push the version commit on main

@@ -81,6 +81,7 @@ jobs:
                     lcov:coverage/lcov.info
 
     compatibility:
+        if: github.event_name == 'pull_request'
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
