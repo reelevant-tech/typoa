@@ -968,6 +968,21 @@ export function appendMetaToResolvedType(
   | OpenAPIV3.ReferenceObject
   | OpenAPIV3.ArraySchemaObject
   | OpenAPIV3.NonArraySchemaObject {
+  if (
+    metas.nullable === true &&
+    'allOf' in type &&
+    type.allOf &&
+    type.allOf.length > 0 &&
+    type.allOf.every(member => 'type' in member && member.type === 'array')
+  ) {
+    const remaining = { ...metas }
+    delete remaining.nullable
+    return Object.assign(type, remaining, {
+      allOf: type.allOf.map(member =>
+        appendMetaToResolvedType(member, { nullable: true })
+      )
+    })
+  }
   if ('$ref' in type) {
     // siblings aren't allowed with ref (ex: for readonly) see https://stackoverflow.com/a/51402417
     const ref = type.$ref

@@ -139,6 +139,9 @@ describe('Lossless intersections', () => {
   const expected: Record<string, unknown> = {
     direct,
     tags,
+    nullableTags: {
+      allOf: tags.allOf.map(member => ({ ...member, nullable: true }))
+    },
     enumChoice: {
       oneOf: [
         tags,
@@ -415,6 +418,7 @@ describe('Lossless intersections', () => {
   })
 
   const samples: Record<string, { valid: unknown[]; invalid: unknown[] }> = {
+    nullableTags: { valid: [null, [], ['a']], invalid: [['b'], 1, {}] },
     enumChoice: {
       valid: [['a'], ['b']],
       invalid: [['a', 'b'], ['c'], [null]]

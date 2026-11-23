@@ -79,6 +79,7 @@ interface JsonChoice {
 export interface Cases {
   direct: Array<'a'> & Kind[]
   tags: Kind.A[] & Kind[]
+  nullableTags: (Kind.A[] & Kind[]) | null
   enumChoice: (Kind.A[] & Kind[]) | (Kind.B[] & Kind[])
   mixed: Kind[] & string[]
   primitives: string[] & number[]

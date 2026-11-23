@@ -352,7 +352,11 @@ function validateAndParseValueAgainstSchema(
   const currentSchema = getFromRef(schema, schemas)
   // Nullable
   if (value === null) {
-    if (currentSchema.nullable) {
+    if (
+      currentSchema.nullable ||
+      (isArraySchema(currentSchema, schemas) &&
+        currentSchema.allOf?.every(member => getFromRef(member, schemas).nullable))
+    ) {
       // `null` is a valid value of a nullable schema and must survive as `null`.
       // Returning `currentSchema.default` when no default is declared yields
       // `undefined`, which `res.json()` drops and an ORM `save()` skips — a client
