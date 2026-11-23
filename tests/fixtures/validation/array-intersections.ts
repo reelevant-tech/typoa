@@ -19,6 +19,9 @@ interface Tagged {
 interface OptionalCount {
   count?: number
 }
+interface UndefinedCount {
+  count: number | undefined
+}
 class DefaultCount {
   count = 1
 }
@@ -114,6 +117,10 @@ export interface Cases {
   reversedDefaultObjects: DefaultCount[] & OptionalCount[]
   requiredDefaultObjects: { count: number }[] & DefaultCount[]
   reversedRequiredDefaultObjects: DefaultCount[] & { count: number }[]
+  undefinedDefaultObjects: DefaultCount[] & UndefinedCount[]
+  reversedUndefinedDefaultObjects: UndefinedCount[] & DefaultCount[]
+  undefinedDefault: DefaultCount & UndefinedCount
+  reversedUndefinedDefault: UndefinedCount & DefaultCount
   objectsWithIntersection: Named[] & (Named & Tagged)[]
   nullableObjectsWithIntersection: (Named | null)[] &
     ((Named & Tagged) | null)[]

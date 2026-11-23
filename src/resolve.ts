@@ -569,16 +569,25 @@ function resolveProperties(
         required =
           required &&
           declarations.some(declaration => {
-            if (Node.isPropertyDeclaration(declaration)) {
+            if (
+              Node.isPropertyDeclaration(declaration) &&
+              initializers.includes(declaration)
+            )
+              return false
+            if (
+              Node.isPropertyDeclaration(declaration) ||
+              Node.isPropertySignature(declaration)
+            ) {
+              const declarationType = declaration.getType()
               return (
                 !declaration.hasQuestionToken() &&
-                !initializers.includes(declaration)
+                !declarationType.isUndefined() &&
+                !declarationType
+                  .getUnionTypes()
+                  .some(type => type.isUndefined())
               )
             }
-            return (
-              !Node.isPropertySignature(declaration) ||
-              !declaration.hasQuestionToken()
-            )
+            return true
           })
       }
       // Add to spec

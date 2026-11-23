@@ -204,6 +204,19 @@ describe('Lossless intersections', () => {
       type: 'array',
       items: object({ count: { type: 'number', default: 1 } })
     },
+    undefinedDefaultObjects: {
+      type: 'array',
+      items: object({ count: { type: 'number', default: 1 } }, [])
+    },
+    reversedUndefinedDefaultObjects: {
+      type: 'array',
+      items: object({ count: { type: 'number', default: 1 } }, [])
+    },
+    undefinedDefault: object({ count: { type: 'number', default: 1 } }, []),
+    reversedUndefinedDefault: object(
+      { count: { type: 'number', default: 1 } },
+      []
+    ),
     objectsWithIntersection: { type: 'array', items: named },
     nullableObjectsWithIntersection: {
       type: 'array',
@@ -519,6 +532,22 @@ describe('Lossless intersections', () => {
       valid: [[], [{ count: 2 }]],
       invalid: [[{ count: 'a' }]]
     },
+    undefinedDefaultObjects: {
+      valid: [[], [{ count: 2 }]],
+      invalid: [[{ count: 'a' }], [null]]
+    },
+    reversedUndefinedDefaultObjects: {
+      valid: [[], [{ count: 2 }]],
+      invalid: [[{ count: 'a' }], [null]]
+    },
+    undefinedDefault: {
+      valid: [{ count: 2 }],
+      invalid: [{ count: 'a' }, null]
+    },
+    reversedUndefinedDefault: {
+      valid: [{ count: 2 }],
+      invalid: [{ count: 'a' }, null]
+    },
     requiredDefaultObjects: {
       valid: [[], [{ count: 2 }]],
       invalid: [[{}], [{ count: 'a' }]]
@@ -597,6 +626,29 @@ describe('Lossless intersections', () => {
       invalid: [{ name: 'x' }, { active: true }]
     }
   }
+  test('Should apply defaults when an intersection member allows undefined', async () => {
+    for (const name of [
+      'undefinedDefaultObjects',
+      'reversedUndefinedDefaultObjects'
+    ]) {
+      for (const value of [{}, { count: undefined }]) {
+        assert.equal(
+          ajv.validate(
+            { $ref: `spec#/components/schemas/Cases/properties/${name}` },
+            [value]
+          ),
+          true
+        )
+        assert.deepEqual(await parse(properties[name], [value]), [
+          [{ count: 1 }]
+        ])
+      }
+    }
+    for (const name of ['undefinedDefault', 'reversedUndefinedDefault']) {
+      assert.deepEqual(await parse(properties[name], {}), [{ count: 1 }])
+    }
+  })
+
   test('Should apply class defaults regardless of array member order', async () => {
     for (const name of ['defaultObjects', 'reversedDefaultObjects']) {
       assert.equal(
