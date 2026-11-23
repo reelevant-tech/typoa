@@ -75,10 +75,7 @@ export async function validateAndParse(
         ) {
           value = 'true' // allow empty values for param boolean
         }
-        if (
-          isArraySchema(schema, schemas) &&
-          typeof value === 'string'
-        ) {
+        if (isArraySchema(schema, schemas) && typeof value === 'string') {
           value = [value]
         }
         break
@@ -355,7 +352,9 @@ function validateAndParseValueAgainstSchema(
     if (
       currentSchema.nullable ||
       (isArraySchema(currentSchema, schemas) &&
-        currentSchema.allOf?.every(member => getFromRef(member, schemas).nullable))
+        currentSchema.allOf?.every(
+          member => getFromRef(member, schemas).nullable
+        ))
     ) {
       // `null` is a valid value of a nullable schema and must survive as `null`.
       // Returning `currentSchema.default` when no default is declared yields
