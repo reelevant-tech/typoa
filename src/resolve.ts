@@ -305,6 +305,9 @@ export function resolve(
       return resolveObjectType(type, spec)
     }
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
+      if (compositionDocuments.has(spec)) {
+        spec.components!.schemas![typeName] = {}
+      }
       if (
         helperName === 'Partial' ||
         helperName === 'Omit' ||
