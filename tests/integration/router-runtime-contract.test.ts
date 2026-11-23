@@ -156,6 +156,13 @@ after(async () => {
 
 const expected = baseline[expressPackage.version[0] as keyof typeof baseline]
 for (const input of requests) {
+  if (
+    input.body !== undefined &&
+    input.headers['content-length'] === undefined &&
+    input.headers['transfer-encoding'] === undefined
+  ) {
+    input.headers['content-length'] = String(Buffer.byteLength(input.body))
+  }
   test(`Should match alpha.71 for ${input.name}`, async () => {
     const address = server.address()
     assert.ok(address && typeof address !== 'string')
@@ -196,6 +203,9 @@ for (const input of requests) {
       req.on('error', reject)
       req.end(input.body)
     })
+    assert.ok(
+      typeof result === 'object' && result !== null && 'parsed' in result
+    )
     assert.deepEqual(
       result,
       expected.find(item => item.name === input.name)

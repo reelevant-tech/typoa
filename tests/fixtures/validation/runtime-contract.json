@@ -22,8 +22,13 @@
     },
     {
       "name": "GET json-object",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
     },
     {
       "name": "GET json-chunked-empty",
@@ -48,12 +53,22 @@
     {
       "name": "GET text-body",
       "status": 400,
-      "body": ""
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "5"
     },
     {
       "name": "GET missing-type-body",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "5"
     },
     {
       "name": "POST absent",
@@ -287,8 +302,13 @@
     },
     {
       "name": "DELETE json-object",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
     },
     {
       "name": "DELETE json-chunked-empty",
@@ -313,12 +333,22 @@
     {
       "name": "DELETE text-body",
       "status": 400,
-      "body": ""
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "5"
     },
     {
       "name": "DELETE missing-type-body",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "5"
     },
     {
       "name": "HEAD absent",
@@ -338,8 +368,11 @@
     },
     {
       "name": "HEAD json-object",
-      "status": 400,
-      "body": null
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
     },
     {
       "name": "HEAD json-chunked-empty",
@@ -359,12 +392,17 @@
     {
       "name": "HEAD text-body",
       "status": 400,
-      "body": null
+      "body": null,
+      "parsed": "{}",
+      "length": "5"
     },
     {
       "name": "HEAD missing-type-body",
-      "status": 400,
-      "body": null
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "5"
     },
     {
       "name": "required-property-empty",
@@ -523,8 +561,13 @@
     },
     {
       "name": "GET json-object",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
     },
     {
       "name": "GET json-chunked-empty",
@@ -549,12 +592,20 @@
     {
       "name": "GET text-body",
       "status": 400,
-      "body": ""
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "5"
     },
     {
       "name": "GET missing-type-body",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "5"
     },
     {
       "name": "POST absent",
@@ -774,8 +825,13 @@
     },
     {
       "name": "DELETE json-object",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
     },
     {
       "name": "DELETE json-chunked-empty",
@@ -800,12 +856,20 @@
     {
       "name": "DELETE text-body",
       "status": 400,
-      "body": ""
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "5"
     },
     {
       "name": "DELETE missing-type-body",
-      "status": 400,
-      "body": ""
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "5"
     },
     {
       "name": "HEAD absent",
@@ -825,8 +889,11 @@
     },
     {
       "name": "HEAD json-object",
-      "status": 400,
-      "body": null
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
     },
     {
       "name": "HEAD json-chunked-empty",
@@ -846,12 +913,17 @@
     {
       "name": "HEAD text-body",
       "status": 400,
-      "body": null
+      "body": null,
+      "parsed": "undefined",
+      "length": "5"
     },
     {
       "name": "HEAD missing-type-body",
-      "status": 400,
-      "body": null
+      "status": 200,
+      "body": null,
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "5"
     },
     {
       "name": "required-property-empty",
