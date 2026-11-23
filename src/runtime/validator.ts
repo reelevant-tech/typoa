@@ -75,11 +75,7 @@ export async function validateAndParse(
         ) {
           value = 'true' // allow empty values for param boolean
         }
-        if (
-          'type' in schema &&
-          schema.type === 'array' &&
-          typeof value === 'string'
-        ) {
+        if (isArraySchema(schema, schemas) && typeof value === 'string') {
           value = [value]
         }
         break
@@ -317,6 +313,32 @@ function getNestedValue(obj: any, path: string): any {
   return current
 }
 
+function isArraySchema(
+  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  const resolved = getFromRef(schema, schemas)
+  return (
+    resolved.type === 'array' ||
+    (resolved.allOf !== undefined &&
+      resolved.allOf.length > 0 &&
+      resolved.allOf.every(member => isArraySchema(member, schemas)))
+  )
+}
+
+function isNullableSchema(
+  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  const resolved = getFromRef(schema, schemas)
+  return (
+    resolved.nullable === true ||
+    (resolved.allOf !== undefined &&
+      resolved.allOf.length > 0 &&
+      resolved.allOf.every(member => isNullableSchema(member, schemas)))
+  )
+}
+
 type SafeValidatedValue =
   | {
       succeed: false
@@ -340,7 +362,7 @@ function validateAndParseValueAgainstSchema(
   const currentSchema = getFromRef(schema, schemas)
   // Nullable
   if (value === null) {
-    if (currentSchema.nullable) {
+    if (isNullableSchema(currentSchema, schemas)) {
       // `null` is a valid value of a nullable schema and must survive as `null`.
       // Returning `currentSchema.default` when no default is declared yields
       // `undefined`, which `res.json()` drops and an ORM `save()` skips — a client
@@ -504,7 +526,7 @@ function validateAndParseValueAgainstSchema(
     }
   }
   // Array
-  if (currentSchema.type === 'array') {
+  if (isArraySchema(currentSchema, schemas)) {
     if (!Array.isArray(value)) {
       return {
         succeed: false,
@@ -532,25 +554,27 @@ function validateAndParseValueAgainstSchema(
         fieldName: name
       }
     }
-    const values = value.map((item, i) =>
-      validateAndParseValueAgainstSchema(
-        `${name}.${i}`,
-        item,
-        currentSchema.items,
-        schemas,
-        'array',
-        logger
+    if (currentSchema.type === 'array') {
+      const values = value.map((item, i) =>
+        validateAndParseValueAgainstSchema(
+          `${name}.${i}`,
+          item,
+          currentSchema.items,
+          schemas,
+          'array',
+          logger
+        )
       )
-    )
-    const everyItemIsGood = values.every(value => value.succeed)
-    const firstFailure = values.find(value => value.succeed === false)
-    return everyItemIsGood
-      ? { succeed: true, value: values.map(({ value }) => value) }
-      : {
-          succeed: false,
-          errorMessage: firstFailure?.errorMessage ?? '',
-          fieldName: firstFailure?.fieldName ?? name
-        }
+      const everyItemIsGood = values.every(value => value.succeed)
+      const firstFailure = values.find(value => value.succeed === false)
+      return everyItemIsGood
+        ? { succeed: true, value: values.map(({ value }) => value) }
+        : {
+            succeed: false,
+            errorMessage: firstFailure?.errorMessage ?? '',
+            fieldName: firstFailure?.fieldName ?? name
+          }
+    }
   }
   // Object
   if (currentSchema.type === 'object') {

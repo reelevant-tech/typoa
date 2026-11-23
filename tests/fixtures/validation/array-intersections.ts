@@ -1,0 +1,175 @@
+import { Body, Controller, Get, Post, Query, Route } from '../../../src'
+
+export enum Kind {
+  A = 'a',
+  B = 'b'
+}
+
+type Serialized<T> = { [K in keyof T]: T[K] }
+type Envelope<T> = { data: T }
+interface Item {
+  tags: Kind.A[]
+}
+interface Named {
+  name: string
+}
+interface Tagged {
+  tags: string[]
+}
+interface OptionalCount {
+  count?: number
+}
+interface UndefinedCount {
+  count: number | undefined
+}
+class DefaultCount {
+  count = 1
+}
+interface MutableValue {
+  value: string
+}
+interface ReadonlyValue {
+  readonly value: string
+}
+interface MutablePair extends ReadonlyValue, Tagged {
+  value: string
+}
+interface HiddenValue {
+  /** @writeonly */
+  value: string
+}
+interface WritePair extends MutableValue, HiddenValue {}
+class BaseItem {
+  readonly value: string = 'x'
+}
+class MutableItem extends BaseItem {
+  value = 'x'
+}
+interface Short {
+  /** @minLength 2 */
+  name: string
+}
+interface Long {
+  /** @maxLength 4 */
+  name: string
+}
+interface Inherited extends Short, Long {}
+interface Narrowed extends Short {
+  /** @minLength 3 */
+  name: string
+}
+interface ShortList {
+  /** @minItems 1 */
+  tags: string[]
+}
+interface LongList {
+  /** @maxItems 2 */
+  tags: string[]
+}
+interface NullableShortList {
+  /** @minItems 1 */
+  tags: (Kind.A[] & Kind[]) | null
+}
+interface NullableLongList {
+  /** @maxItems 2 */
+  tags: (Kind.A[] & Kind[]) | null
+}
+interface NullableListPair extends NullableShortList, NullableLongList {}
+/** @additionalproperties true */
+interface Open {
+  name: string
+}
+/** @additionalproperties false */
+interface Closed {
+  name: string
+}
+interface ClosedPair extends Open, Closed {}
+interface Indexed extends Record<string, string> {
+  kind: 'a'
+}
+interface JsonValue {
+  toJSON(): string
+}
+interface JsonChoice {
+  toJSON(): { left: string } | { right: number }
+}
+
+export interface Cases {
+  direct: Array<'a'> & Kind[]
+  tags: Kind.A[] & Kind[]
+  nullableTags: (Kind.A[] & Kind[]) | null
+  /**
+   * @minItems 1
+   * @maxItems 2
+   */
+  boundedTags: Kind.A[] & Kind[]
+  inheritedNullableBounds: NullableListPair
+  enumChoice: (Kind.A[] & Kind[]) | (Kind.B[] & Kind[])
+  mixed: Kind[] & string[]
+  primitives: string[] & number[]
+  three: Kind.A[] & Kind[] & string[]
+  objectPrimitive: Named[] & string[]
+  nestedMixed: Kind[][] & string[][]
+  serialized: Serialized<Item> & { tags: Kind[] }
+  choice: (Serialized<Item> & { tags: Kind[] }) | { other: boolean }
+  objects: Named[] & Tagged[]
+  defaultObjects: OptionalCount[] & DefaultCount[]
+  reversedDefaultObjects: DefaultCount[] & OptionalCount[]
+  requiredDefaultObjects: { count: number }[] & DefaultCount[]
+  reversedRequiredDefaultObjects: DefaultCount[] & { count: number }[]
+  undefinedDefaultObjects: DefaultCount[] & UndefinedCount[]
+  reversedUndefinedDefaultObjects: UndefinedCount[] & DefaultCount[]
+  undefinedDefault: DefaultCount & UndefinedCount
+  reversedUndefinedDefault: UndefinedCount & DefaultCount
+  objectsWithIntersection: Named[] & (Named & Tagged)[]
+  nullableObjectsWithIntersection: (Named | null)[] &
+    ((Named & Tagged) | null)[]
+  nestedObjectsWithIntersection: Named[][] & (Named & Tagged)[][]
+  nullableObjects: (Named | null)[] & (Tagged | null)[]
+  mixedNullableObjects: (Named | null)[] & Tagged[]
+  nestedNullableObjects: (Named | null)[][] & (Tagged | null)[][]
+  nested: Kind.A[][] & Kind[][]
+  nestedDirect: Array<Array<'a'>> & Kind[][]
+  nestedObjects: Named[][] & Tagged[][]
+  enumValue: ('a' | 'b') & ('b' | 'c')
+  conflict: { value: string } & { value: number }
+  optionalConflict: { value?: string } & { value?: number }
+  required: { value?: string } & { value: string }
+  constraints: Short & Long
+  inherited: Inherited
+  narrowed: Narrowed
+  bounded: ShortList & LongList
+  indexed: Record<string, string> & Record<string, number>
+  indexedProperty: Record<string, string> & { count: number }
+  numericIndex: Record<number, string> & { name: number }
+  numericProperty: Record<number, string> & { 0: number }
+  nonNumericProperty: Record<number, string> & { '01': number; '1e2': number }
+  openIndex: Record<string, unknown> & { name: string }
+  anyIndex: Record<string, any> & { name: string }
+  inheritedIndex: Indexed
+  closed: Open & Closed
+  inheritedClosed: ClosedPair
+  modifiers: { readonly name: string | null } & { name?: string }
+  readMerge: MutableValue & ReadonlyValue
+  writeMerge: WritePair
+  mutableClass: MutableItem
+  mutableOverride: MutablePair
+  branded: string & { tag: string }
+  reference: JsonValue & { tag: string }
+  referenceProperty: Envelope<Named> & { note: string }
+  composedReference: JsonChoice & { active: boolean }
+  union: ({ name: string } | { count: number }) & { active: boolean }
+}
+
+@Route('intersections')
+export class IntersectionController extends Controller {
+  @Get('tags')
+  public query(@Query('tags') tags: Kind.A[] & Kind[]): Kind.A[] & Kind[] {
+    return tags
+  }
+
+  @Post()
+  public create(@Body() body: Cases): Cases {
+    return body
+  }
+}
