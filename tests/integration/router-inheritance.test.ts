@@ -135,7 +135,7 @@ describe('Flattened composed types at runtime', () => {
       .send({ b: 1 })
       .expect(400)
     assert.strictEqual(
-      res.body.fields['body.a'].message,
+      res.body.fields['body.0.a'].message,
       'Property a is required'
     )
   })
@@ -174,7 +174,7 @@ describe('Flattened composed types at runtime', () => {
       .send({ tracks: [{ name: 'a', artistIds: ['1'] }, { name: 'b' }] })
       .expect(400)
     assert.strictEqual(
-      res.body.fields['body.tracks.1.artistIds'].message,
+      res.body.fields['body.1.tracks.1.artistIds'].message,
       'Property artistIds is required'
     )
   })
@@ -218,8 +218,8 @@ describe('Flattened composed types at runtime', () => {
       .send({ tracks: [{ name: 'a', artistIds: ['1'], other: true }] })
       .expect(400)
     assert.strictEqual(
-      res.body.fields['body.tracks.0'].message,
-      'Additional properties are not allowed. Found: other'
+      res.body.fields['body.0.tracks.0'].message,
+      'Additional properties are not allowed. Found: artistIds, other'
     )
   })
 })

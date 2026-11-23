@@ -27,14 +27,49 @@ export class ValidateError extends Error {
   }
 }
 
+type ValidationRules = {
+  params: OpenAPIV3.ParameterObject[]
+  body?: OpenAPIV3.RequestBodyObject
+  bodyDiscriminatorFn?: BodyDiscriminatorFunction
+}
+
 export async function validateAndParse(
   req: express.Request,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
-  rules: {
-    params: OpenAPIV3.ParameterObject[]
-    body?: OpenAPIV3.RequestBodyObject
-    bodyDiscriminatorFn?: BodyDiscriminatorFunction
+  rules: ValidationRules,
+  diagnostics?: {
+    schemas: OpenAPIV3.ComponentsObject['schemas']
+    rules: ValidationRules
   }
+): Promise<any[]> {
+  let discriminatorResult: ReturnType<BodyDiscriminatorFunction> | undefined
+  const bodyDiscriminatorFn = rules.bodyDiscriminatorFn
+    ? (request: express.Request) =>
+        (discriminatorResult ??= rules.bodyDiscriminatorFn!(request))
+    : undefined
+  try {
+    return await validateRequest(req, schemas, {
+      ...rules,
+      bodyDiscriminatorFn
+    })
+  } catch (error) {
+    if (!(error instanceof ValidateError) || !diagnostics) throw error
+    try {
+      await validateRequest(req, diagnostics.schemas, {
+        ...diagnostics.rules,
+        bodyDiscriminatorFn
+      })
+    } catch (diagnosticError) {
+      if (diagnosticError instanceof ValidateError) throw diagnosticError
+    }
+    throw error
+  }
+}
+
+async function validateRequest(
+  req: express.Request,
+  schemas: OpenAPIV3.ComponentsObject['schemas'],
+  rules: ValidationRules
 ): Promise<any[]> {
   const logger = options.getCustomLogger()
 
@@ -184,16 +219,9 @@ async function validateBody(
   logger: CustomLogger
 ): Promise<unknown> {
   const body = req.body
-  // A body parser turns an empty request into `{}` (express.json() does when the
-  // client sends `Content-Type: application/json` and no payload), which would then
-  // fail the required properties of the schema although the body is optional.
-  if (
-    rule.required !== true &&
-    (typeof body === 'undefined' || req.headers['content-length'] === '0')
-  ) {
-    return undefined
-  }
-  const contentType = (req.headers['content-type'] ?? 'application/json').split(';')[0]
+  const contentType = (req.headers['content-type'] ?? 'application/json').split(
+    ';'
+  )[0]
 
   const expectedSchema = rule.content[contentType]?.schema
   if (typeof expectedSchema === 'undefined') {

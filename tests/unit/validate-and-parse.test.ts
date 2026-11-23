@@ -265,34 +265,44 @@ describe('when the request body is optional', () => {
   ): express.Request =>
     ({ body, headers, readableEnded: true }) as unknown as express.Request
 
-  test('an empty request parsed as {} is passed as undefined', async () => {
-    const args = await validateAndParse(
-      buildRequest(
-        {},
-        { 'content-type': 'application/json', 'content-length': '0' }
+  test('an empty parsed request still validates required properties', async () => {
+    await assert.rejects(
+      validateAndParse(
+        buildRequest(
+          {},
+          { 'content-type': 'application/json', 'content-length': '0' }
+        ),
+        userSchemas as any,
+        rules(false)
       ),
+      { name: 'ValidateError', message: 'Property name is required' }
+    )
+  })
+
+  test('a request that has not been parsed is passed as undefined', async () => {
+    const args = await validateAndParse(
+      {
+        ...buildRequest(undefined, { 'content-type': 'application/json' }),
+        readableEnded: false
+      } as express.Request,
       userSchemas as any,
       rules(false)
     )
     assert.deepStrictEqual(args, [undefined])
   })
 
-  test('a request without a parsed body is passed as undefined', async () => {
-    const args = await validateAndParse(
-      buildRequest(undefined, { 'content-type': 'application/json' }),
-      userSchemas as any,
-      rules(false)
+  test('an empty request with an unsupported content-type is rejected', async () => {
+    await assert.rejects(
+      validateAndParse(
+        buildRequest(
+          {},
+          { 'content-type': 'text/plain', 'content-length': '0' }
+        ),
+        userSchemas as any,
+        rules(false)
+      ),
+      { name: 'ValidateError', message: 'This content-type is not allowed' }
     )
-    assert.deepStrictEqual(args, [undefined])
-  })
-
-  test('an empty request with an unsupported content-type is passed as undefined', async () => {
-    const args = await validateAndParse(
-      buildRequest({}, { 'content-type': 'text/plain', 'content-length': '0' }),
-      userSchemas as any,
-      rules(false)
-    )
-    assert.deepStrictEqual(args, [undefined])
   })
 
   test('a body that is sent is still validated', async () => {

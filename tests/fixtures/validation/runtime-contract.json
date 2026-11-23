@@ -1,0 +1,992 @@
+{
+  "4": [
+    {
+      "name": "GET absent",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "GET json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "GET json-object",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "GET json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "GET text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "GET text-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "GET missing-type-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "POST absent",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "POST json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "POST json-object",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
+    },
+    {
+      "name": "POST json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "POST text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "POST text-body",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "5"
+    },
+    {
+      "name": "POST missing-type-body",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "5"
+    },
+    {
+      "name": "PUT absent",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PUT json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PUT json-object",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
+    },
+    {
+      "name": "PUT json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "PUT text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PUT text-body",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "5"
+    },
+    {
+      "name": "PUT missing-type-body",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "5"
+    },
+    {
+      "name": "PATCH absent",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PATCH json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PATCH json-object",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
+    },
+    {
+      "name": "PATCH json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "PATCH text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PATCH text-body",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "5"
+    },
+    {
+      "name": "PATCH missing-type-body",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "5"
+    },
+    {
+      "name": "DELETE absent",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "DELETE json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "DELETE json-object",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "DELETE json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "DELETE text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "DELETE text-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "DELETE missing-type-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "HEAD absent",
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "HEAD json-empty",
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "HEAD json-object",
+      "status": 400,
+      "body": null
+    },
+    {
+      "name": "HEAD json-chunked-empty",
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "HEAD text-empty",
+      "status": 400,
+      "body": null,
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "HEAD text-body",
+      "status": 400,
+      "body": null
+    },
+    {
+      "name": "HEAD missing-type-body",
+      "status": 400,
+      "body": null
+    },
+    {
+      "name": "required-property-empty",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.id": {
+            "message": "Property id is required",
+            "details": []
+          }
+        },
+        "message": "Property id is required"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "form-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "form-value",
+      "status": 200,
+      "body": {
+        "body": {
+          "tag": "a"
+        }
+      },
+      "controller": "{\"tag\":\"a\"}",
+      "parsed": "{\"tag\":\"a\"}",
+      "length": "5"
+    },
+    {
+      "name": "intersection-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.0.query": {
+            "message": "This property must be a string",
+            "details": []
+          }
+        },
+        "message": "This property must be a string"
+      },
+      "parsed": "{\"id\":\"a\",\"query\":{}}",
+      "length": "21"
+    },
+    {
+      "name": "nested-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.item.0.query": {
+            "message": "This property must be a string",
+            "details": []
+          }
+        },
+        "message": "This property must be a string"
+      },
+      "parsed": "{\"item\":{\"id\":\"a\",\"query\":{}}}",
+      "length": "30"
+    },
+    {
+      "name": "array-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.0.0.query": {
+            "message": "This property must be a string",
+            "details": []
+          }
+        },
+        "message": "This property must be a string"
+      },
+      "parsed": "[{\"id\":\"a\",\"query\":{}}]",
+      "length": "23"
+    },
+    {
+      "name": "union-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body": {
+            "message": "Found no matching schema for provided value",
+            "details": [
+              {
+                "errorMessage": "This property must be a string",
+                "fieldName": "body.0.query"
+              },
+              {
+                "errorMessage": "Property enabled is required",
+                "fieldName": "body.1.enabled"
+              }
+            ],
+            "value": {
+              "id": "a",
+              "query": {}
+            }
+          }
+        },
+        "message": "Found no matching schema for provided value"
+      },
+      "parsed": "{\"id\":\"a\",\"query\":{}}",
+      "length": "21"
+    },
+    {
+      "name": "query-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "filter": {
+            "message": "Found no matching schema for provided value",
+            "value": ["a", "b"],
+            "details": [
+              {
+                "errorMessage": "This property must be a string",
+                "fieldName": "filter.0"
+              },
+              {
+                "errorMessage": "This property must be a number",
+                "fieldName": "filter.1"
+              }
+            ]
+          }
+        },
+        "message": "Missing parameter"
+      },
+      "parsed": "{}",
+      "length": "absent"
+    }
+  ],
+  "5": [
+    {
+      "name": "GET absent",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "absent"
+    },
+    {
+      "name": "GET json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "GET json-object",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "GET json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "GET text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "GET text-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "GET missing-type-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "POST absent",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "POST json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "POST json-object",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
+    },
+    {
+      "name": "POST json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "POST text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "POST text-body",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "5"
+    },
+    {
+      "name": "POST missing-type-body",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "5"
+    },
+    {
+      "name": "PUT absent",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "PUT json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PUT json-object",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
+    },
+    {
+      "name": "PUT json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "PUT text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "PUT text-body",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "5"
+    },
+    {
+      "name": "PUT missing-type-body",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "5"
+    },
+    {
+      "name": "PATCH absent",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "PATCH json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "PATCH json-object",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "2"
+    },
+    {
+      "name": "PATCH json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "PATCH text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "PATCH text-body",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "5"
+    },
+    {
+      "name": "PATCH missing-type-body",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "5"
+    },
+    {
+      "name": "DELETE absent",
+      "status": 200,
+      "body": {},
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "absent"
+    },
+    {
+      "name": "DELETE json-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "DELETE json-object",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "DELETE json-chunked-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "DELETE text-empty",
+      "status": 400,
+      "body": {
+        "fields": {},
+        "message": "This content-type is not allowed"
+      },
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "DELETE text-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "DELETE missing-type-body",
+      "status": 400,
+      "body": ""
+    },
+    {
+      "name": "HEAD absent",
+      "status": 200,
+      "body": null,
+      "controller": "undefined",
+      "parsed": "undefined",
+      "length": "absent"
+    },
+    {
+      "name": "HEAD json-empty",
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "HEAD json-object",
+      "status": 400,
+      "body": null
+    },
+    {
+      "name": "HEAD json-chunked-empty",
+      "status": 200,
+      "body": null,
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "absent"
+    },
+    {
+      "name": "HEAD text-empty",
+      "status": 400,
+      "body": null,
+      "parsed": "undefined",
+      "length": "0"
+    },
+    {
+      "name": "HEAD text-body",
+      "status": 400,
+      "body": null
+    },
+    {
+      "name": "HEAD missing-type-body",
+      "status": 400,
+      "body": null
+    },
+    {
+      "name": "required-property-empty",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.id": {
+            "message": "Property id is required",
+            "details": []
+          }
+        },
+        "message": "Property id is required"
+      },
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "form-empty",
+      "status": 200,
+      "body": {
+        "body": {}
+      },
+      "controller": "{}",
+      "parsed": "{}",
+      "length": "0"
+    },
+    {
+      "name": "form-value",
+      "status": 200,
+      "body": {
+        "body": {
+          "tag": "a"
+        }
+      },
+      "controller": "{\"tag\":\"a\"}",
+      "parsed": "{\"tag\":\"a\"}",
+      "length": "5"
+    },
+    {
+      "name": "intersection-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.0.query": {
+            "message": "This property must be a string",
+            "details": []
+          }
+        },
+        "message": "This property must be a string"
+      },
+      "parsed": "{\"id\":\"a\",\"query\":{}}",
+      "length": "21"
+    },
+    {
+      "name": "nested-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.item.0.query": {
+            "message": "This property must be a string",
+            "details": []
+          }
+        },
+        "message": "This property must be a string"
+      },
+      "parsed": "{\"item\":{\"id\":\"a\",\"query\":{}}}",
+      "length": "30"
+    },
+    {
+      "name": "array-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body.0.0.query": {
+            "message": "This property must be a string",
+            "details": []
+          }
+        },
+        "message": "This property must be a string"
+      },
+      "parsed": "[{\"id\":\"a\",\"query\":{}}]",
+      "length": "23"
+    },
+    {
+      "name": "union-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "body": {
+            "message": "Found no matching schema for provided value",
+            "details": [
+              {
+                "errorMessage": "This property must be a string",
+                "fieldName": "body.0.query"
+              },
+              {
+                "errorMessage": "Property enabled is required",
+                "fieldName": "body.1.enabled"
+              }
+            ],
+            "value": {
+              "id": "a",
+              "query": {}
+            }
+          }
+        },
+        "message": "Found no matching schema for provided value"
+      },
+      "parsed": "{\"id\":\"a\",\"query\":{}}",
+      "length": "21"
+    },
+    {
+      "name": "query-invalid",
+      "status": 400,
+      "body": {
+        "fields": {
+          "filter": {
+            "message": "Found no matching schema for provided value",
+            "value": ["a", "b"],
+            "details": [
+              {
+                "errorMessage": "This property must be a string",
+                "fieldName": "filter.0"
+              },
+              {
+                "errorMessage": "This property must be a number",
+                "fieldName": "filter.1"
+              }
+            ]
+          }
+        },
+        "message": "Missing parameter"
+      },
+      "parsed": "undefined",
+      "length": "absent"
+    }
+  ]
+}

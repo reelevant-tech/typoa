@@ -19,6 +19,7 @@ import { {{name}} } from '{{relativePath}}'
 {{/each}}
 
 const schemas = {{json schemas}}
+const diagnosticSchemas = {{json diagnosticSchemas}}
 
 {{#if hasPathPatterns}}
 function matchPathParams (patterns: Record<string, string>, endpoint: string, caseSensitive: boolean) {
@@ -70,6 +71,14 @@ export function bindToRouter (router: express.Router) {
             params: {{json params}},
             body: {{#if body}}{{json body}}{{else}}undefined{{/if}},
             bodyDiscriminatorFn: {{#if bodyDiscriminator}}{{bodyDiscriminator.name}}{{else}}undefined{{/if}}
+          },
+          {
+            schemas: diagnosticSchemas as any,
+            rules: {
+              params: {{json diagnosticParams}},
+              body: {{#if diagnosticBody}}{{json diagnosticBody}}{{else}}undefined{{/if}},
+              bodyDiscriminatorFn: {{#if bodyDiscriminator}}{{bodyDiscriminator.name}}{{else}}undefined{{/if}}
+            }
           },
         ) as any
       )
