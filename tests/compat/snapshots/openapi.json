@@ -791,7 +791,7 @@
     },
     "/compat/optional": {
       "delete": {
-        "operationId": "Optional",
+        "operationId": "OptionalDelete",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -823,7 +823,7 @@
         "tags": []
       },
       "get": {
-        "operationId": "Optional",
+        "operationId": "OptionalGet",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -855,7 +855,7 @@
         "tags": []
       },
       "post": {
-        "operationId": "Optional",
+        "operationId": "OptionalPost",
         "parameters": [],
         "requestBody": {
           "content": {

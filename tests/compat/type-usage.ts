@@ -1,7 +1,10 @@
+import type { AxiosResponse } from 'axios'
+import Client from './client/api'
 import {
   ClientValue,
   Failure,
   Kind,
+  View,
   WithoutWriteonly
 } from './client/definitions'
 
@@ -22,3 +25,41 @@ const notNullable: string = value.nullable
 // @ts-expect-error Write-only properties must be absent from responses.
 void response.secret
 void [code, optional, nullable, missing, notNullable]
+
+const api = new Client({})
+const tags: Kind.A[] = [Kind.A]
+const calls = {
+  access: api.Default.access({}, { name: 'a', secret: 'hidden' }),
+  arrays: api.Default.arrays({}, { items: [{ name: 'a', tags: ['b'] }] }),
+  catalog: api.Default.catalog({}),
+  defaults: api.Default.defaults(
+    {},
+    { count: 0, enabled: false, label: '', limit: 2 }
+  ),
+  dictionary: api.Default.dictionary({}, { a: 1 }),
+  discriminated: api.Default.discriminated({}, { kind: 'text', text: 'a' }),
+  enumValue: api.Default.enumValue({}, { kind: Kind.A, tags }),
+  enumQuery: api.Default.enumQuery({ tags }),
+  failure: api.Default.failure({}),
+  form: api.Default.form({}, { name: 'a' }),
+  inherited: api.Default.inherited({}, { name: 'a', count: 1 }),
+  intersection: api.Default.intersection({}, { name: 'a', extra: 1 }),
+  nested: api.Default.nested({}, { rows: [[{ name: 'a', tags: ['b'] }]] }),
+  nullable: api.Default.nullable({}, { name: null, tags }),
+  optionalGet: api.Default.optionalGet({}),
+  optionalPost: api.Default.optionalPost({}, {}),
+  optionalDelete: api.Default.optionalDelete({}),
+  optionalItem: api.Default.optionalItem({}, { name: 'a' }),
+  path: api.Default.path({ id: 42, 'x-enabled': true }),
+  query: api.Default.query({ tags: [Kind.A], limit: 0, enabled: false }),
+  required: api.Default.required({}, { name: 'a' }),
+  response: api.Default.response({}),
+  union: api.Default.union({}, { kind: 'count', count: 1 })
+} satisfies Record<keyof Client['Default'], Promise<AxiosResponse<unknown>>>
+
+const responses: {
+  catalog: Promise<AxiosResponse<WithoutWriteonly<ClientValue>>>
+  failure: Promise<AxiosResponse<Failure>>
+  response: Promise<AxiosResponse<WithoutWriteonly<View>>>
+} = calls
+void responses

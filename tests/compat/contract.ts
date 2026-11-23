@@ -110,6 +110,11 @@ export function snapshot(file: string, actual: unknown) {
 
 export async function client(openapi: any) {
   await temporary(async directory => {
+    fs.symlinkSync(
+      path.join(root, 'node_modules'),
+      path.join(directory, 'node_modules'),
+      'junction'
+    )
     const schema = path.join(directory, 'openapi.json')
     fs.writeFileSync(schema, JSON.stringify(openapi))
     await generateClient({

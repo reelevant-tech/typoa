@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  OperationId,
   Post,
   Query,
   Response,
@@ -100,9 +101,9 @@ interface View {
 
 @Route('compat')
 export class ContractController extends Controller {
-  @Get('optional')
-  @Post('optional')
-  @Delete('optional')
+  @Get('optional', OperationId('OptionalGet'))
+  @Post('optional', OperationId('OptionalPost'))
+  @Delete('optional', OperationId('OptionalDelete'))
   optional(@Body() body?: Record<string, unknown>): unknown {
     received(body)
     return { body }
