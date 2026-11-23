@@ -28,6 +28,20 @@ void [code, optional, nullable, missing, notNullable]
 
 const api = new Client({})
 const tags: Kind.A[] = [Kind.A]
+const withoutOptional: ClientValue = {
+  kind: Kind.A,
+  tags,
+  nullable: null,
+  choice: { kind: 'text', text: 'a' },
+  secret: 'hidden'
+}
+const optionalCanBeOmitted: Record<never, never> extends Pick<
+  ClientValue,
+  'optional'
+>
+  ? true
+  : false = true
+void [withoutOptional, optionalCanBeOmitted]
 const calls = {
   access: api.Default.access({}, { name: 'a', secret: 'hidden' }),
   arrays: api.Default.arrays({}, { items: [{ name: 'a', tags: ['b'] }] }),
