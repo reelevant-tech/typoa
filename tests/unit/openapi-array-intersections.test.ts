@@ -186,6 +186,15 @@ describe('Lossless intersections', () => {
       oneOf: [object({ tags }), object({ other: { type: 'boolean' } })]
     },
     objects: { type: 'array', items: named },
+    objectsWithIntersection: { type: 'array', items: named },
+    nullableObjectsWithIntersection: {
+      type: 'array',
+      items: { ...named, nullable: true }
+    },
+    nestedObjectsWithIntersection: {
+      type: 'array',
+      items: { type: 'array', items: named }
+    },
     nullableObjects: { type: 'array', items: { ...named, nullable: true } },
     mixedNullableObjects: { type: 'array', items: named },
     nestedNullableObjects: {
@@ -465,6 +474,18 @@ describe('Lossless intersections', () => {
     objects: {
       valid: [[], [{ name: 'x', tags: [] }]],
       invalid: [[{}], [{ name: 'x' }]]
+    },
+    objectsWithIntersection: {
+      valid: [[], [{ name: 'x', tags: ['a'] }]],
+      invalid: [[{ name: 'x' }], [{ tags: ['a'] }], [{ name: 'x', tags: [1] }]]
+    },
+    nullableObjectsWithIntersection: {
+      valid: [[], [null], [{ name: 'x', tags: ['a'] }, null]],
+      invalid: [[{ name: 'x' }], [{ tags: ['a'] }], [{ name: 'x', tags: [1] }]]
+    },
+    nestedObjectsWithIntersection: {
+      valid: [[], [[]], [[{ name: 'x', tags: ['a'] }]]],
+      invalid: [[[null]], [[{ name: 'x' }]], [[{ name: 'x', tags: [1] }]]]
     },
     nestedObjects: {
       valid: [[], [[{ name: 'x', tags: [] }]]],

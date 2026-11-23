@@ -94,6 +94,10 @@ export interface Cases {
   serialized: Serialized<Item> & { tags: Kind[] }
   choice: (Serialized<Item> & { tags: Kind[] }) | { other: boolean }
   objects: Named[] & Tagged[]
+  objectsWithIntersection: Named[] & (Named & Tagged)[]
+  nullableObjectsWithIntersection: (Named | null)[] &
+    ((Named & Tagged) | null)[]
+  nestedObjectsWithIntersection: Named[][] & (Named & Tagged)[][]
   nullableObjects: (Named | null)[] & (Tagged | null)[]
   mixedNullableObjects: (Named | null)[] & Tagged[]
   nestedNullableObjects: (Named | null)[][] & (Tagged | null)[][]

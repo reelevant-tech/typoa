@@ -400,7 +400,7 @@ function resolveArrayIntersectionItems(
   }
   if (
     elements.every(element =>
-      isPlainObjectType(element.getNonNullableType())
+      isMergeableObjectType(element.getNonNullableType())
     ) &&
     elementType &&
     !elementType.getNonNullableType().isNever()
@@ -903,6 +903,12 @@ function getAdditionalPropertiesFromJsDoc(type: Type): boolean | undefined {
  * Object types whose properties can be merged into a single schema
  * when they are intersected.
  */
+function isMergeableObjectType(type: Type): boolean {
+  return type.isIntersection()
+    ? type.getIntersectionTypes().every(isMergeableObjectType)
+    : isPlainObjectType(type)
+}
+
 function isPlainObjectType(type: Type): boolean {
   if (
     (type.isObject() === false && type.isClassOrInterface() === false) ||
