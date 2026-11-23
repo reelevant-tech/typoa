@@ -188,6 +188,22 @@ describe('Lossless intersections', () => {
       oneOf: [object({ tags }), object({ other: { type: 'boolean' } })]
     },
     objects: { type: 'array', items: named },
+    defaultObjects: {
+      type: 'array',
+      items: object({ count: { type: 'number', default: 1 } }, [])
+    },
+    reversedDefaultObjects: {
+      type: 'array',
+      items: object({ count: { type: 'number', default: 1 } }, [])
+    },
+    requiredDefaultObjects: {
+      type: 'array',
+      items: object({ count: { type: 'number', default: 1 } })
+    },
+    reversedRequiredDefaultObjects: {
+      type: 'array',
+      items: object({ count: { type: 'number', default: 1 } })
+    },
     objectsWithIntersection: { type: 'array', items: named },
     nullableObjectsWithIntersection: {
       type: 'array',
@@ -495,6 +511,22 @@ describe('Lossless intersections', () => {
       valid: [[], [{ name: 'x', tags: [] }]],
       invalid: [[{}], [{ name: 'x' }]]
     },
+    defaultObjects: {
+      valid: [[], [{ count: 2 }]],
+      invalid: [[{ count: 'a' }]]
+    },
+    reversedDefaultObjects: {
+      valid: [[], [{ count: 2 }]],
+      invalid: [[{ count: 'a' }]]
+    },
+    requiredDefaultObjects: {
+      valid: [[], [{ count: 2 }]],
+      invalid: [[{}], [{ count: 'a' }]]
+    },
+    reversedRequiredDefaultObjects: {
+      valid: [[], [{ count: 2 }]],
+      invalid: [[{}], [{ count: 'a' }]]
+    },
     objectsWithIntersection: {
       valid: [[], [{ name: 'x', tags: ['a'] }]],
       invalid: [[{ name: 'x' }], [{ tags: ['a'] }], [{ name: 'x', tags: [1] }]]
@@ -565,6 +597,19 @@ describe('Lossless intersections', () => {
       invalid: [{ name: 'x' }, { active: true }]
     }
   }
+  test('Should apply class defaults regardless of array member order', async () => {
+    for (const name of ['defaultObjects', 'reversedDefaultObjects']) {
+      assert.equal(
+        ajv.validate(
+          { $ref: `spec#/components/schemas/Cases/properties/${name}` },
+          [{}]
+        ),
+        true
+      )
+      assert.deepEqual(await parse(properties[name], [{}]), [[{ count: 1 }]])
+    }
+  })
+
   test('Should document ambiguous empty array union validation', async () => {
     const value: unknown[] = []
     const validate = ajv.compile({

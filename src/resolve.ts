@@ -556,10 +556,30 @@ function resolveProperties(
       // JSDoc tags
       appendJsDocTags(jsDocTags, resolvedType)
       // initializer
-      if (Node.isPropertyDeclaration(node)) {
-        if (appendInitializer(node, resolvedType)) {
-          required = false
-        }
+      const declarations = property.getDeclarations()
+      const initializers = declarations
+        .filter(Node.isPropertyDeclaration)
+        .filter(declaration =>
+          declaration.getInitializer()?.getType().isLiteral()
+        )
+      if (
+        initializers.length > 0 &&
+        appendInitializer(initializers[0], resolvedType)
+      ) {
+        required =
+          required &&
+          declarations.some(declaration => {
+            if (Node.isPropertyDeclaration(declaration)) {
+              return (
+                !declaration.hasQuestionToken() &&
+                !initializers.includes(declaration)
+              )
+            }
+            return (
+              !Node.isPropertySignature(declaration) ||
+              !declaration.hasQuestionToken()
+            )
+          })
       }
       // Add to spec
       if (

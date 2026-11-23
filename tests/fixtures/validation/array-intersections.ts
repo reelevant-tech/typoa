@@ -16,6 +16,12 @@ interface Named {
 interface Tagged {
   tags: string[]
 }
+interface OptionalCount {
+  count?: number
+}
+class DefaultCount {
+  count = 1
+}
 interface MutableValue {
   value: string
 }
@@ -104,6 +110,10 @@ export interface Cases {
   serialized: Serialized<Item> & { tags: Kind[] }
   choice: (Serialized<Item> & { tags: Kind[] }) | { other: boolean }
   objects: Named[] & Tagged[]
+  defaultObjects: OptionalCount[] & DefaultCount[]
+  reversedDefaultObjects: DefaultCount[] & OptionalCount[]
+  requiredDefaultObjects: { count: number }[] & DefaultCount[]
+  reversedRequiredDefaultObjects: DefaultCount[] & { count: number }[]
   objectsWithIntersection: Named[] & (Named & Tagged)[]
   nullableObjectsWithIntersection: (Named | null)[] &
     ((Named & Tagged) | null)[]
