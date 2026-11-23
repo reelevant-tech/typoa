@@ -1,0 +1,1122 @@
+{
+  "access.readonly": {
+    "controller": {
+      "args": [
+        {
+          "name": "a",
+          "secret": "hidden"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "a",
+      "secret": "hidden"
+    },
+    "status": 200
+  },
+  "access.valid": {
+    "controller": {
+      "args": [
+        {
+          "name": "a",
+          "secret": "hidden"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "a",
+      "secret": "hidden"
+    },
+    "status": 200
+  },
+  "additional.loose": {
+    "controller": {
+      "args": [
+        {
+          "name": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "a"
+    },
+    "status": 200
+  },
+  "additional.strict": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body": {
+          "details": [],
+          "message": "Additional properties are not allowed. Found: extra",
+          "value": {
+            "extra": true,
+            "name": "a"
+          }
+        }
+      },
+      "message": "Additional properties are not allowed. Found: extra"
+    },
+    "status": 400
+  },
+  "arrays.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.items.0.tags": {
+          "details": [],
+          "message": "Property tags is required"
+        }
+      },
+      "message": "Property tags is required"
+    },
+    "status": 400
+  },
+  "arrays.strict-extra": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.items.0": {
+          "details": [],
+          "message": "Additional properties are not allowed. Found: tags, extra"
+        }
+      },
+      "message": "Additional properties are not allowed. Found: tags, extra"
+    },
+    "status": 400
+  },
+  "arrays.valid": {
+    "controller": {
+      "args": [
+        {
+          "items": [
+            {
+              "name": "a",
+              "tags": ["b"]
+            }
+          ]
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "items": [
+        {
+          "name": "a",
+          "tags": ["b"]
+        }
+      ]
+    },
+    "status": 200
+  },
+  "body.DELETE.empty-json": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.DELETE.missing": {
+    "controller": {
+      "args": [
+        {
+          "$undefined": true
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {},
+    "status": 200
+  },
+  "body.DELETE.object": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.DELETE.unsupported": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {},
+      "message": "This content-type is not allowed"
+    },
+    "status": 400
+  },
+  "body.GET.empty-json": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.GET.missing": {
+    "controller": {
+      "args": [
+        {
+          "$undefined": true
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {},
+    "status": 200
+  },
+  "body.GET.object": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.GET.unsupported": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {},
+      "message": "This content-type is not allowed"
+    },
+    "status": 400
+  },
+  "body.HEAD.empty-json": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": null,
+    "status": 200
+  },
+  "body.HEAD.missing": {
+    "controller": {
+      "args": [
+        {
+          "$undefined": true
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": null,
+    "status": 200
+  },
+  "body.HEAD.object": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": null,
+    "status": 200
+  },
+  "body.HEAD.unsupported": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": null,
+    "status": 400
+  },
+  "body.POST.empty-json": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.POST.missing": {
+    "controller": {
+      "args": [
+        {
+          "$undefined": true
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {},
+    "status": 200
+  },
+  "body.POST.object": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.POST.unsupported": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {},
+      "message": "This content-type is not allowed"
+    },
+    "status": 400
+  },
+  "body.form.empty": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.form.value": {
+    "controller": {
+      "args": [
+        {
+          "name": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {
+        "name": "a"
+      }
+    },
+    "status": 200
+  },
+  "body.optional-item.empty": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.name": {
+          "details": [],
+          "message": "Property name is required"
+        }
+      },
+      "message": "Property name is required"
+    },
+    "status": 400
+  },
+  "body.optional.chunked-empty": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "body": {}
+    },
+    "status": 200
+  },
+  "body.optional.unsupported-empty": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {},
+      "message": "This content-type is not allowed"
+    },
+    "status": 400
+  },
+  "body.required.empty": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.name": {
+          "details": [],
+          "message": "Property name is required"
+        }
+      },
+      "message": "Property name is required"
+    },
+    "status": 400
+  },
+  "body.required.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.name": {
+          "details": [],
+          "message": "This property must be a string",
+          "value": 1
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "body.required.valid": {
+    "controller": {
+      "args": [
+        {
+          "name": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "a"
+    },
+    "status": 200
+  },
+  "defaults.falsy": {
+    "controller": {
+      "args": [
+        {
+          "count": 0,
+          "enabled": false,
+          "label": "",
+          "limit": 0
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "count": 0,
+      "enabled": false,
+      "label": "",
+      "limit": 0
+    },
+    "status": 200
+  },
+  "defaults.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.count": {
+          "details": [],
+          "message": "This property must be a number",
+          "value": "invalid"
+        }
+      },
+      "message": "This property must be a number"
+    },
+    "status": 400
+  },
+  "defaults.missing": {
+    "controller": {
+      "args": [
+        {
+          "limit": 2
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "limit": 2
+    },
+    "status": 200
+  },
+  "dictionary.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.a": {
+          "details": [],
+          "message": "This property must be a number",
+          "value": "invalid"
+        }
+      },
+      "message": "This property must be a number"
+    },
+    "status": 400
+  },
+  "dictionary.strict": {
+    "controller": {
+      "args": [
+        {
+          "a": 1
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "a": 1
+    },
+    "status": 200
+  },
+  "dictionary.valid": {
+    "controller": {
+      "args": [
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "a": 1,
+      "b": 2
+    },
+    "status": 200
+  },
+  "discriminator.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.text": {
+          "details": [],
+          "message": "This property must be a string",
+          "value": 1
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "discriminator.text": {
+    "controller": {
+      "args": [
+        {
+          "kind": "text",
+          "text": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "kind": "text",
+      "text": "a"
+    },
+    "status": 200
+  },
+  "discriminator.throws": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {},
+      "message": "Unsupported kind"
+    },
+    "status": 400
+  },
+  "enum.empty": {
+    "controller": {
+      "args": [
+        {
+          "kind": "b",
+          "tags": []
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "kind": "b",
+      "tags": []
+    },
+    "status": 200
+  },
+  "enum.intersection-invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.tags.0.0": {
+          "details": [],
+          "message": "This property must be one of a"
+        }
+      },
+      "message": "This property must be one of a"
+    },
+    "status": 400
+  },
+  "enum.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.kind": {
+          "details": [],
+          "message": "This property must be one of a,b",
+          "value": "other"
+        }
+      },
+      "message": "This property must be one of a,b"
+    },
+    "status": 400
+  },
+  "enum.valid": {
+    "controller": {
+      "args": [
+        {
+          "kind": "a",
+          "tags": ["a"]
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "kind": "a",
+      "tags": ["a"]
+    },
+    "status": 200
+  },
+  "header.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "x-enabled": {
+          "message": "This property must be a boolean",
+          "value": "invalid"
+        }
+      },
+      "message": "Missing parameter"
+    },
+    "status": 400
+  },
+  "header.missing": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "x-enabled": {
+          "message": "Param is required"
+        }
+      },
+      "message": "Missing parameter"
+    },
+    "status": 400
+  },
+  "inheritance.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.name": {
+          "details": [],
+          "message": "Property name is required"
+        }
+      },
+      "message": "Property name is required"
+    },
+    "status": 400
+  },
+  "inheritance.valid": {
+    "controller": {
+      "args": [
+        {
+          "count": 1,
+          "name": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "count": 1,
+      "name": "a"
+    },
+    "status": 200
+  },
+  "intersection.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.name": {
+          "details": [],
+          "message": "This property must be a string"
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "intersection.valid": {
+    "controller": {
+      "args": [
+        {
+          "extra": 1,
+          "name": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "extra": 1,
+      "name": "a"
+    },
+    "status": 200
+  },
+  "nested.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.rows.0.0.1.tags": {
+          "details": [],
+          "message": "This property must be an array"
+        }
+      },
+      "message": "This property must be an array"
+    },
+    "status": 400
+  },
+  "nested.valid": {
+    "controller": {
+      "args": [
+        {
+          "rows": [
+            [
+              {
+                "name": "a",
+                "tags": ["b"]
+              }
+            ]
+          ]
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "rows": [
+        [
+          {
+            "name": "a",
+            "tags": ["b"]
+          }
+        ]
+      ]
+    },
+    "status": 200
+  },
+  "nullable.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.name": {
+          "details": [],
+          "message": "This property must be a string",
+          "value": 1
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "nullable.null": {
+    "controller": {
+      "args": [
+        {
+          "name": null,
+          "tags": null
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": null,
+      "tags": null
+    },
+    "status": 200
+  },
+  "nullable.values": {
+    "controller": {
+      "args": [
+        {
+          "name": "a",
+          "tags": ["a"]
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "a",
+      "tags": ["a"]
+    },
+    "status": 200
+  },
+  "path.regex-miss": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "message": "Not found"
+    },
+    "status": 404
+  },
+  "path.valid": {
+    "controller": {
+      "args": [42, true],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "enabled": true,
+      "id": 42
+    },
+    "status": 200
+  },
+  "query.array": {
+    "controller": {
+      "args": [["a", "b"], 0, false],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "enabled": false,
+      "limit": 0,
+      "tags": ["a", "b"]
+    },
+    "status": 200
+  },
+  "query.intersection-invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "tags": {
+          "message": "This property must be one of a",
+          "value": ["b"]
+        }
+      },
+      "message": "Missing parameter"
+    },
+    "status": 400
+  },
+  "query.intersection-single": {
+    "controller": {
+      "args": [["a"]],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "tags": ["a"]
+    },
+    "status": 200
+  },
+  "query.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "tags": {
+          "message": "This property must be one of a,b",
+          "value": ["other"]
+        }
+      },
+      "message": "Missing parameter"
+    },
+    "status": 400
+  },
+  "query.number-invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "limit": {
+          "message": "This property must be a number",
+          "value": "invalid"
+        }
+      },
+      "message": "Missing parameter"
+    },
+    "status": 400
+  },
+  "query.single": {
+    "controller": {
+      "args": [["a"], 2, true],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "enabled": true,
+      "limit": 2,
+      "tags": ["a"]
+    },
+    "status": 200
+  },
+  "response.catalog": {
+    "controller": {
+      "args": [],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "choice": {
+        "kind": "text",
+        "text": "a"
+      },
+      "kind": "a",
+      "nullable": null,
+      "secret": "hidden"
+    },
+    "status": 200
+  },
+  "response.required-code": {
+    "controller": {
+      "args": [],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "code": 400,
+      "message": "Invalid item",
+      "status": "fail"
+    },
+    "status": 400
+  },
+  "response.serialization": {
+    "controller": {
+      "args": [],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "created": "2020-01-02T03:04:05.000Z",
+      "secret": "hidden"
+    },
+    "status": 200
+  },
+  "union.count": {
+    "controller": {
+      "args": [
+        {
+          "count": 1,
+          "kind": "count"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "count": 1,
+      "kind": "count"
+    },
+    "status": 200
+  },
+  "union.invalid": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body": {
+          "details": [
+            {
+              "errorMessage": "This property must be a string",
+              "fieldName": "body.0.text"
+            },
+            {
+              "errorMessage": "This property must be one of count",
+              "fieldName": "body.1.kind"
+            }
+          ],
+          "message": "Found no matching schema for provided value",
+          "value": {
+            "kind": "text",
+            "text": 1
+          }
+        }
+      },
+      "message": "Found no matching schema for provided value"
+    },
+    "status": 400
+  },
+  "union.text": {
+    "controller": {
+      "args": [
+        {
+          "kind": "text",
+          "text": "a"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "kind": "text",
+      "text": "a"
+    },
+    "status": 200
+  }
+}

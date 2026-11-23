@@ -1,0 +1,1093 @@
+{
+  "components": {
+    "schemas": {
+      "Access": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": ["id", "name"],
+        "type": "object"
+      },
+      "AnyValue": {
+        "description": "Can be any value",
+        "nullable": true
+      },
+      "Child": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["count", "name"],
+        "type": "object"
+      },
+      "ClientValue": {
+        "additionalProperties": false,
+        "properties": {
+          "choice": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TextItem"
+              },
+              {
+                "$ref": "#/components/schemas/CountItem"
+              }
+            ]
+          },
+          "kind": {
+            "$ref": "#/components/schemas/Kind"
+          },
+          "nullable": {
+            "nullable": true,
+            "type": "string"
+          },
+          "optional": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "tags": {
+            "oneOf": [
+              {
+                "allOf": [
+                  {
+                    "items": {
+                      "enum": ["a"],
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/Kind"
+                    },
+                    "type": "array"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "items": {
+                      "enum": ["b"],
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/Kind"
+                    },
+                    "type": "array"
+                  }
+                ]
+              }
+            ],
+            "readOnly": true
+          }
+        },
+        "required": ["kind", "tags", "nullable", "choice", "secret"],
+        "type": "object"
+      },
+      "CountItem": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "kind": {
+            "enum": ["count"],
+            "type": "string"
+          }
+        },
+        "required": ["kind", "count"],
+        "type": "object"
+      },
+      "Defaults": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "default": 0,
+            "type": "number"
+          },
+          "enabled": {
+            "default": null,
+            "type": "boolean"
+          },
+          "label": {
+            "default": "",
+            "type": "string"
+          },
+          "limit": {
+            "default": 2,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "Failure": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "enum": ["fail"],
+            "type": "string"
+          }
+        },
+        "required": ["code", "message", "status"],
+        "type": "object"
+      },
+      "Item": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "type": "object"
+      },
+      "Kind": {
+        "enum": ["a", "b"],
+        "type": "string"
+      },
+      "TextItem": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": ["text"],
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": ["kind", "text"],
+        "type": "object"
+      },
+      "View": {
+        "additionalProperties": false,
+        "properties": {
+          "created": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "secret": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": ["id", "created"],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "compatibility",
+    "version": "1"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/compat/access": {
+      "post": {
+        "operationId": "Access",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Access"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/array-intersection": {
+      "post": {
+        "operationId": "Arrays",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "items": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "tags": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": ["name", "tags"],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": ["items"],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/catalog": {
+      "get": {
+        "operationId": "Catalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/defaults": {
+      "post": {
+        "operationId": "Defaults",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Defaults"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/dictionary": {
+      "post": {
+        "operationId": "Dictionary",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/discriminated": {
+      "post": {
+        "operationId": "Discriminated",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TextItem"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CountItem"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/enum": {
+      "post": {
+        "operationId": "EnumValue",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "$ref": "#/components/schemas/Kind"
+                  },
+                  "tags": {
+                    "allOf": [
+                      {
+                        "items": {
+                          "enum": ["a"],
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "items": {
+                          "$ref": "#/components/schemas/Kind"
+                        },
+                        "type": "array"
+                      }
+                    ]
+                  }
+                },
+                "required": ["kind", "tags"],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/enum-query": {
+      "get": {
+        "operationId": "EnumQuery",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tags",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "items": {
+                    "enum": ["a"],
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/Kind"
+                  },
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/failure": {
+      "get": {
+        "operationId": "Failure",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "enum": ["fail"],
+                      "type": "string"
+                    }
+                  },
+                  "required": ["code", "message", "status"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Ok"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "enum": ["fail"],
+                      "type": "string"
+                    }
+                  },
+                  "required": ["code", "message", "status"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/form": {
+      "post": {
+        "operationId": "Form",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/inherited": {
+      "post": {
+        "operationId": "Inherited",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Child"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/intersection": {
+      "post": {
+        "operationId": "Intersection",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name"],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/nested": {
+      "post": {
+        "operationId": "Nested",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "rows": {
+                    "items": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": ["name", "tags"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": ["rows"],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/nullable": {
+      "post": {
+        "operationId": "Nullable",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "tags": {
+                    "allOf": [
+                      {
+                        "items": {
+                          "enum": ["a"],
+                          "type": "string"
+                        },
+                        "nullable": true,
+                        "type": "array"
+                      },
+                      {
+                        "items": {
+                          "$ref": "#/components/schemas/Kind"
+                        },
+                        "nullable": true,
+                        "type": "array"
+                      }
+                    ]
+                  }
+                },
+                "required": ["name", "tags"],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/optional": {
+      "delete": {
+        "operationId": "Optional",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      },
+      "get": {
+        "operationId": "Optional",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      },
+      "post": {
+        "operationId": "Optional",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/optional-item": {
+      "post": {
+        "operationId": "OptionalItem",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/path/{id}": {
+      "get": {
+        "operationId": "Path",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-enabled",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/query": {
+      "get": {
+        "operationId": "Query",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tags",
+            "required": true,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/Kind"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "enabled",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/required": {
+      "post": {
+        "operationId": "Required",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/response": {
+      "get": {
+        "operationId": "Response",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/View"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/union": {
+      "post": {
+        "operationId": "Union",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TextItem"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CountItem"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    }
+  }
+}
