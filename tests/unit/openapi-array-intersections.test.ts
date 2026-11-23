@@ -142,6 +142,7 @@ describe('Lossless intersections', () => {
     nullableTags: {
       allOf: tags.allOf.map(member => ({ ...member, nullable: true }))
     },
+    boundedTags: { ...tags, minItems: 1, maxItems: 2 },
     enumChoice: {
       oneOf: [
         tags,
@@ -419,6 +420,10 @@ describe('Lossless intersections', () => {
 
   const samples: Record<string, { valid: unknown[]; invalid: unknown[] }> = {
     nullableTags: { valid: [null, [], ['a']], invalid: [['b'], 1, {}] },
+    boundedTags: {
+      valid: [['a'], ['a', 'a']],
+      invalid: [[], ['a', 'a', 'a'], ['b']]
+    },
     enumChoice: {
       valid: [['a'], ['b']],
       invalid: [['a', 'b'], ['c'], [null]]

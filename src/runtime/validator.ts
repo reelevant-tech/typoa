@@ -520,7 +520,7 @@ function validateAndParseValueAgainstSchema(
     }
   }
   // Array
-  if (currentSchema.type === 'array') {
+  if (isArraySchema(currentSchema, schemas)) {
     if (!Array.isArray(value)) {
       return {
         succeed: false,
@@ -548,25 +548,27 @@ function validateAndParseValueAgainstSchema(
         fieldName: name
       }
     }
-    const values = value.map((item, i) =>
-      validateAndParseValueAgainstSchema(
-        `${name}.${i}`,
-        item,
-        currentSchema.items,
-        schemas,
-        'array',
-        logger
+    if (currentSchema.type === 'array') {
+      const values = value.map((item, i) =>
+        validateAndParseValueAgainstSchema(
+          `${name}.${i}`,
+          item,
+          currentSchema.items,
+          schemas,
+          'array',
+          logger
+        )
       )
-    )
-    const everyItemIsGood = values.every(value => value.succeed)
-    const firstFailure = values.find(value => value.succeed === false)
-    return everyItemIsGood
-      ? { succeed: true, value: values.map(({ value }) => value) }
-      : {
-          succeed: false,
-          errorMessage: firstFailure?.errorMessage ?? '',
-          fieldName: firstFailure?.fieldName ?? name
-        }
+      const everyItemIsGood = values.every(value => value.succeed)
+      const firstFailure = values.find(value => value.succeed === false)
+      return everyItemIsGood
+        ? { succeed: true, value: values.map(({ value }) => value) }
+        : {
+            succeed: false,
+            errorMessage: firstFailure?.errorMessage ?? '',
+            fieldName: firstFailure?.fieldName ?? name
+          }
+    }
   }
   // Object
   if (currentSchema.type === 'object') {

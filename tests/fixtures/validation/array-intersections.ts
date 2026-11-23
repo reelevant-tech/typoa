@@ -80,6 +80,11 @@ export interface Cases {
   direct: Array<'a'> & Kind[]
   tags: Kind.A[] & Kind[]
   nullableTags: (Kind.A[] & Kind[]) | null
+  /**
+   * @minItems 1
+   * @maxItems 2
+   */
+  boundedTags: Kind.A[] & Kind[]
   enumChoice: (Kind.A[] & Kind[]) | (Kind.B[] & Kind[])
   mixed: Kind[] & string[]
   primitives: string[] & number[]
