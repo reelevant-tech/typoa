@@ -76,8 +76,7 @@ export async function validateAndParse(
           value = 'true' // allow empty values for param boolean
         }
         if (
-          'type' in schema &&
-          schema.type === 'array' &&
+          isArraySchema(schema, schemas) &&
           typeof value === 'string'
         ) {
           value = [value]
@@ -315,6 +314,19 @@ function getNestedValue(obj: any, path: string): any {
     }
   }
   return current
+}
+
+function isArraySchema(
+  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  const resolved = getFromRef(schema, schemas)
+  return (
+    resolved.type === 'array' ||
+    (resolved.allOf !== undefined &&
+      resolved.allOf.length > 0 &&
+      resolved.allOf.every(member => isArraySchema(member, schemas)))
+  )
 }
 
 type SafeValidatedValue =

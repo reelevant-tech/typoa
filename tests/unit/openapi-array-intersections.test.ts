@@ -353,6 +353,22 @@ describe('Lossless intersections', () => {
       }
     )
 
+  test('Should wrap a single query value for intersected arrays', async () => {
+    const operation = spec.paths['/intersections/tags']!.get!
+    const params = operation.parameters as OpenAPIV3.ParameterObject[]
+    assert.deepEqual(params[0].schema, tags)
+    const parseQuery = (query: Record<string, unknown>) =>
+      validateAndParse(
+        { query } as express.Request,
+        spec.components!.schemas!,
+        { params }
+      )
+    assert.deepEqual(await parseQuery({ tags: 'a' }), [['a']])
+    assert.deepEqual(await parseQuery({ tags: ['a', 'a'] }), [['a', 'a']])
+    await assert.rejects(parseQuery({ tags: 'b' }))
+    await assert.rejects(parseQuery({}))
+  })
+
   test('Should validate open index signatures without weakening named properties', async () => {
     for (const name of ['openIndex', 'anyIndex']) {
       for (const value of [

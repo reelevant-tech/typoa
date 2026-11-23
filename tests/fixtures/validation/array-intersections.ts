@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Route } from '../../../src'
+import { Body, Controller, Get, Post, Query, Route } from '../../../src'
 
 export enum Kind {
   A = 'a',
@@ -126,6 +126,11 @@ export interface Cases {
 
 @Route('intersections')
 export class IntersectionController extends Controller {
+  @Get('tags')
+  public query(@Query('tags') tags: Kind.A[] & Kind[]): Kind.A[] & Kind[] {
+    return tags
+  }
+
   @Post()
   public create(@Body() body: Cases): Cases {
     return body
