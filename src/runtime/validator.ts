@@ -326,6 +326,19 @@ function isArraySchema(
   )
 }
 
+function isNullableSchema(
+  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  const resolved = getFromRef(schema, schemas)
+  return (
+    resolved.nullable === true ||
+    (resolved.allOf !== undefined &&
+      resolved.allOf.length > 0 &&
+      resolved.allOf.every(member => isNullableSchema(member, schemas)))
+  )
+}
+
 type SafeValidatedValue =
   | {
       succeed: false
@@ -349,13 +362,7 @@ function validateAndParseValueAgainstSchema(
   const currentSchema = getFromRef(schema, schemas)
   // Nullable
   if (value === null) {
-    if (
-      currentSchema.nullable ||
-      (isArraySchema(currentSchema, schemas) &&
-        currentSchema.allOf?.every(
-          member => getFromRef(member, schemas).nullable
-        ))
-    ) {
+    if (isNullableSchema(currentSchema, schemas)) {
       // `null` is a valid value of a nullable schema and must survive as `null`.
       // Returning `currentSchema.default` when no default is declared yields
       // `undefined`, which `res.json()` drops and an ORM `save()` skips — a client

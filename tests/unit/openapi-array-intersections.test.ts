@@ -25,6 +25,9 @@ describe('Lossless intersections', () => {
     ]
   }
   const direct = tags
+  const nullableTags = {
+    allOf: tags.allOf.map(member => ({ ...member, nullable: true }))
+  }
   const object = (
     properties: Record<string, unknown>,
     required = Object.keys(properties),
@@ -139,10 +142,9 @@ describe('Lossless intersections', () => {
   const expected: Record<string, unknown> = {
     direct,
     tags,
-    nullableTags: {
-      allOf: tags.allOf.map(member => ({ ...member, nullable: true }))
-    },
+    nullableTags,
     boundedTags: { ...tags, minItems: 1, maxItems: 2 },
+    inheritedNullableBounds: { $ref: '#/components/schemas/NullableListPair' },
     enumChoice: {
       oneOf: [
         tags,
@@ -382,6 +384,20 @@ describe('Lossless intersections', () => {
     await assert.rejects(parseQuery({}))
   })
 
+  test('Should preserve nullable arrays through inherited bound compositions', () => {
+    assert.deepEqual(
+      spec.components!.schemas!.NullableListPair,
+      object({
+        tags: {
+          allOf: [
+            { ...nullableTags, minItems: 1 },
+            { ...nullableTags, maxItems: 2 }
+          ]
+        }
+      })
+    )
+  })
+
   test('Should validate open index signatures without weakening named properties', async () => {
     for (const name of ['openIndex', 'anyIndex']) {
       for (const value of [
@@ -429,6 +445,10 @@ describe('Lossless intersections', () => {
 
   const samples: Record<string, { valid: unknown[]; invalid: unknown[] }> = {
     nullableTags: { valid: [null, [], ['a']], invalid: [['b'], 1, {}] },
+    inheritedNullableBounds: {
+      valid: [{ tags: null }, { tags: ['a'] }, { tags: ['a', 'a'] }],
+      invalid: [{}, { tags: [] }, { tags: ['a', 'a', 'a'] }, { tags: ['b'] }]
+    },
     boundedTags: {
       valid: [['a'], ['a', 'a']],
       invalid: [[], ['a', 'a', 'a'], ['b']]

@@ -57,6 +57,15 @@ interface LongList {
   /** @maxItems 2 */
   tags: string[]
 }
+interface NullableShortList {
+  /** @minItems 1 */
+  tags: (Kind.A[] & Kind[]) | null
+}
+interface NullableLongList {
+  /** @maxItems 2 */
+  tags: (Kind.A[] & Kind[]) | null
+}
+interface NullableListPair extends NullableShortList, NullableLongList {}
 /** @additionalproperties true */
 interface Open {
   name: string
@@ -85,6 +94,7 @@ export interface Cases {
    * @maxItems 2
    */
   boundedTags: Kind.A[] & Kind[]
+  inheritedNullableBounds: NullableListPair
   enumChoice: (Kind.A[] & Kind[]) | (Kind.B[] & Kind[])
   mixed: Kind[] & string[]
   primitives: string[] & number[]
