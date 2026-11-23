@@ -77,3 +77,8 @@ const responses: {
   response: Promise<AxiosResponse<WithoutWriteonly<View>>>
 } = calls
 void responses
+
+type CatalogData = Awaited<ReturnType<Client['Default']['catalog']>>['data']
+const catalogOmitsSecret: 'secret' extends keyof CatalogData ? true : false =
+  false
+void catalogOmitsSecret

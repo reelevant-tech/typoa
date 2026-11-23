@@ -108,7 +108,10 @@ export function snapshot(file: string, actual: unknown) {
   )
 }
 
-export async function client(openapi: any) {
+export async function client(
+  openapi: any,
+  transformApi?: (source: string) => string
+) {
   await temporary(async directory => {
     fs.symlinkSync(
       path.join(root, 'node_modules'),
@@ -121,6 +124,10 @@ export async function client(openapi: any) {
       openapiFilePath: schema,
       outDir: path.join(directory, 'client')
     })
+    if (transformApi) {
+      const api = path.join(directory, 'client/api.ts')
+      fs.writeFileSync(api, transformApi(fs.readFileSync(api, 'utf8')))
+    }
     fs.copyFileSync(
       path.join(__dirname, 'type-usage.ts'),
       path.join(directory, 'type-usage.ts')
