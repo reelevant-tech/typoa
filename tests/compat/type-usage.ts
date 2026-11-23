@@ -1,10 +1,12 @@
-import type { AxiosResponse } from 'axios'
+import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 import Client from './client/api'
 import {
+  AnyValue,
   ClientValue,
   Failure,
   Kind,
   View,
+  WithoutReadonly,
   WithoutWriteonly
 } from './client/definitions'
 
@@ -82,3 +84,21 @@ type CatalogData = Awaited<ReturnType<Client['Default']['catalog']>>['data']
 const catalogOmitsSecret: 'secret' extends keyof CatalogData ? true : false =
   false
 void catalogOmitsSecret
+
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+    ? true
+    : false
+const optionalPostSignature: Equal<
+  Parameters<Client['Default']['optionalPost']>,
+  [
+    Record<string, never>,
+    Record<string, WithoutReadonly<AnyValue>>,
+    AxiosRequestConfig?
+  ]
+> = true
+const optionalItemSignature: Equal<
+  Parameters<Client['Default']['optionalItem']>,
+  [Record<string, never>, { name: string }, AxiosRequestConfig?]
+> = true
+void [optionalPostSignature, optionalItemSignature]

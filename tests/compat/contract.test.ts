@@ -26,6 +26,27 @@ test('Generated-router HTTP, OpenAPI and generated-client compatibility', async 
     }
   )
   const required = JSON.parse(JSON.stringify(actual.openapi))
+  await assert.rejects(
+    client(actual.openapi, source => {
+      const changed = source.replace(
+        /(private optionalPost\([\s\S]*?)\bdata:/,
+        '$1data?:'
+      )
+      assert.notEqual(changed, source)
+      return changed
+    }),
+    error => {
+      assert.ok(error instanceof Error)
+      assert.match(
+        error.message,
+        /Type 'true' is not assignable to type 'false'/
+      )
+      console.log(
+        'COMPAT POST SIGNATURE NEGATIVE PROBE: optional data rejected'
+      )
+      return true
+    }
+  )
   required.components.schemas.ClientValue.required.push('optional')
   await assert.rejects(client(required), error => {
     assert.ok(error instanceof Error)
