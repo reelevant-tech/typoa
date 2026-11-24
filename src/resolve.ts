@@ -22,6 +22,10 @@ const intermediateNames = new WeakMap<
   OpenAPIV3.Document,
   Map<ts.Type, string>
 >()
+const nullableIntermediates = new WeakMap<
+  OpenAPIV3.Document,
+  Map<string, { name: string; references: OpenAPIV3.SchemaObject[] }>
+>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
@@ -40,9 +44,19 @@ export function keepIntermediateSchemas(
   intermediateDocuments.add(additions)
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
   intermediateNames.set(additions, new Map())
+  nullableIntermediates.set(additions, new Map())
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
+  }
+  for (const [source, variant] of nullableIntermediates.get(additions)!) {
+    const schema = additions.components.schemas[source]
+    if ('type' in schema && schema.type === 'object') {
+      additions.components.schemas[variant.name] = { ...schema, nullable: true }
+      for (const reference of variant.references) reference.type = 'object'
+    } else {
+      for (const reference of variant.references) delete reference.nullable
+    }
   }
   for (const [name, schema] of Object.entries(additions.components.schemas)) {
     if (schemas[name] === undefined) schemas[name] = schema
@@ -68,7 +82,25 @@ function resolveNullableType(
   spec: OpenAPIV3.Document
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
   if (isNull) {
-    return appendMetaToResolvedType(resolve(nonNullableType, spec), {
+    const schema = resolve(nonNullableType, spec)
+    if (intermediateDocuments.has(spec) && '$ref' in schema) {
+      const source = schema.$ref.slice('#/components/schemas/'.length)
+      const variants = nullableIntermediates.get(spec)!
+      let variant = variants.get(source)
+      if (!variant) {
+        const name = intermediateName(spec, `${source}_Nullable`)
+        spec.components!.schemas![name] = {}
+        variant = { name, references: [] }
+        variants.set(source, variant)
+      }
+      const reference: OpenAPIV3.SchemaObject = {
+        allOf: [{ $ref: buildRef(variant.name) }],
+        nullable: true
+      }
+      variant.references.push(reference)
+      return reference
+    }
+    return appendMetaToResolvedType(schema, {
       nullable: true
     })
   }
@@ -620,12 +652,7 @@ function resolveProperties(
           if (isUndefined) {
             required = false
           }
-          if (isNull) {
-            return appendMetaToResolvedType(resolve(nonNullableType, spec), {
-              nullable: true
-            })
-          }
-          return resolve(nonNullableType, spec)
+          return resolveNullableType(nonNullableType, isUndefined, isNull, spec)
         }
       )
       if (isReadonly) {
