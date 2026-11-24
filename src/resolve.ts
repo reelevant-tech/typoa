@@ -25,7 +25,7 @@ const intermediateNames = new WeakMap<
 const reservedIntermediateNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
 const nullableIntermediates = new WeakMap<
   OpenAPIV3.Document,
-  Map<string, { name: string; references: OpenAPIV3.SchemaObject[] }>
+  Map<string, string>
 >()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
@@ -54,13 +54,44 @@ export function keepIntermediateSchemas(
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
   }
-  for (const [source, variant] of nullableIntermediates.get(additions)!) {
-    const schema = additions.components.schemas[source]
-    if ('type' in schema && schema.type === 'object') {
-      additions.components.schemas[variant.name] = { ...schema, nullable: true }
-      for (const reference of variant.references) reference.type = 'object'
+  for (const [source, name] of nullableIntermediates.get(additions)!) {
+    const anyOf: Schema[] = [
+      { $ref: buildRef(source) },
+      { type: 'string', nullable: true, enum: [null] }
+    ]
+    let schema: Schema | undefined = additions.components.schemas[source]
+    const visited = new Set<string>()
+    while (schema && '$ref' in schema) {
+      if (visited.has(schema.$ref)) {
+        schema = undefined
+        break
+      }
+      visited.add(schema.$ref)
+      schema =
+        additions.components.schemas[
+          schema.$ref.slice('#/components/schemas/'.length)
+        ]
+    }
+    if (schema && 'type' in schema && schema.type) {
+      const body: OpenAPIV3.SchemaObject =
+        schema.type === 'object'
+          ? {
+              type: 'object',
+              properties: schema.properties,
+              required: schema.required,
+              additionalProperties: schema.additionalProperties
+            }
+          : schema.type === 'array'
+            ? { type: 'array', items: schema.items }
+            : { type: schema.type }
+      body.nullable = true
+      body.anyOf = anyOf
+      additions.components.schemas[name] =
+        body.type === 'array'
+          ? { type: 'array', items: {}, nullable: true, allOf: [body] }
+          : { type: body.type, nullable: true, allOf: [body] }
     } else {
-      for (const reference of variant.references) delete reference.nullable
+      additions.components.schemas[name] = { anyOf }
     }
   }
   for (const [name, schema] of Object.entries(additions.components.schemas)) {
@@ -94,19 +125,13 @@ function resolveNullableType(
     if (intermediateDocuments.has(spec) && '$ref' in schema) {
       const source = schema.$ref.slice('#/components/schemas/'.length)
       const variants = nullableIntermediates.get(spec)!
-      let variant = variants.get(source)
-      if (!variant) {
-        const name = intermediateName(spec, `${source}_Nullable`)
+      let name = variants.get(source)
+      if (!name) {
+        name = intermediateName(spec, `${source}_Nullable`)
         spec.components!.schemas![name] = {}
-        variant = { name, references: [] }
-        variants.set(source, variant)
+        variants.set(source, name)
       }
-      const reference: OpenAPIV3.SchemaObject = {
-        allOf: [{ $ref: buildRef(variant.name) }],
-        nullable: true
-      }
-      variant.references.push(reference)
-      return reference
+      return { $ref: buildRef(name) }
     }
     return appendMetaToResolvedType(schema, {
       nullable: true
