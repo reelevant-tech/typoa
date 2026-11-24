@@ -943,6 +943,16 @@ function resolveMappedObjectType(
   subjectType: Type,
   typeArguments?: Type[]
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (
+    intermediateDocuments.has(spec) &&
+    helperName === 'Partial' &&
+    subjectType.isTypeParameter()
+  ) {
+    const schema = resolveObjectType(type, spec)
+    if ('type' in schema && schema.type === 'object')
+      schema.additionalProperties = true
+    return schema
+  }
   // Check if we're omitting or picking the toJSON property
   let shouldSkipToJSON = false
   if (
