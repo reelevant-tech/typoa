@@ -22,6 +22,7 @@ const intermediateNames = new WeakMap<
   OpenAPIV3.Document,
   Map<ts.Type, string>
 >()
+const reservedIntermediateNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
 const nullableIntermediates = new WeakMap<
   OpenAPIV3.Document,
   Map<string, { name: string; references: OpenAPIV3.SchemaObject[] }>
@@ -44,6 +45,10 @@ export function keepIntermediateSchemas(
   intermediateDocuments.add(additions)
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
   intermediateNames.set(additions, new Map())
+  reservedIntermediateNames.set(
+    additions,
+    new Set(componentTypes.get(compositionSpec)?.keys())
+  )
   nullableIntermediates.set(additions, new Map())
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
     if (schemas[name] !== undefined) continue
@@ -66,7 +71,10 @@ export function keepIntermediateSchemas(
 function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
   let name = prefix
   let index = 2
-  while (spec.components!.schemas![name] !== undefined)
+  while (
+    spec.components!.schemas![name] !== undefined ||
+    reservedIntermediateNames.get(spec)?.has(name)
+  )
     name = `${prefix}_${index++}`
   return name
 }
