@@ -1,0 +1,190 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "intermediates",
+    "version": "1"
+  },
+  "paths": {
+    "/intermediates/serialized": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Serialized"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Serialized"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Serialized"
+      }
+    },
+    "/intermediates/nested": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Nested"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Nested"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Nested"
+      }
+    },
+    "/intermediates/intersection": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": ["name", "tags"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["name", "tags"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Intersection"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Serialized": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["id", "count", "name", "tags"],
+        "additionalProperties": false
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ignored": {
+            "type": "boolean"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "Container_Item": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Item"
+          }
+        },
+        "required": ["data"],
+        "additionalProperties": false
+      },
+      "Nested": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "number"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Container_Item"
+          }
+        },
+        "required": ["active", "code", "data"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

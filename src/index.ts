@@ -16,7 +16,11 @@ import fs from 'fs'
 import { CodeGenControllers } from './types'
 import handlebars from 'handlebars'
 import { getRelativeFilePath, resolveProperty } from './utils'
-import { preserveComposition, resolve } from './resolve'
+import {
+  keepIntermediateSchemas,
+  preserveComposition,
+  resolve
+} from './resolve'
 
 export type OpenAPIConfiguration = {
   tsconfigFilePath: string
@@ -48,6 +52,10 @@ export type OpenAPIConfiguration = {
      * (could be useful when using the spec to generate typescript openapi clients...)
      */
     additionalExportedTypeNames?: string[]
+    /**
+     * Keep named intermediate types as flattened component schemas (default: true).
+     */
+    keepIntermediateSchemas?: boolean
     /**
      * Add support for x-enum-varnames
      */
@@ -352,6 +360,12 @@ export async function generate(config: OpenAPIConfiguration) {
       rows.map(row => `| ${row.join(' | ')} |`).join('\n')
     spec.info.description = `# Errors\n${markdown}`
   }
+  const routerSchemas = { ...spec.components!.schemas }
+  for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
+  if (config.openapi.keepIntermediateSchemas !== false) {
+    keepIntermediateSchemas(spec, diagnosticSpec)
+  }
+
   // Write OpenAPI file(s)
   const jsonContent = JSON.stringify(spec, null, '\t')
 
@@ -375,8 +389,6 @@ export async function generate(config: OpenAPIConfiguration) {
       await fs.promises.writeFile(resolvedPath, jsonContent)
     }
   }
-
-  for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
 
   // Codegen
   const templateFilePath = config.router.templateFilePath
@@ -433,7 +445,7 @@ export async function generate(config: OpenAPIConfiguration) {
         })
       }
     }),
-    schemas: spec.components!.schemas,
+    schemas: routerSchemas,
     diagnosticSchemas: diagnosticSpec.components!.schemas,
     middlewares: Object.values(codegenControllers)
       .flatMap(controller =>

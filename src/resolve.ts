@@ -16,9 +16,85 @@ import { options } from './option'
 import { buildRef } from './runtime/ref'
 
 const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
+const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
+const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
+const intermediateNames = new WeakMap<
+  OpenAPIV3.Document,
+  Map<ts.Type, string>
+>()
+const reservedIntermediateNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
+const nullableIntermediates = new WeakMap<
+  OpenAPIV3.Document,
+  Map<string, string>
+>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
+  componentTypes.set(spec, new Map())
+}
+
+export function keepIntermediateSchemas(
+  spec: OpenAPIV3.Document,
+  compositionSpec: OpenAPIV3.Document
+): void {
+  const schemas = spec.components!.schemas!
+  const additions = {
+    ...spec,
+    components: { ...spec.components, schemas: structuredClone(schemas) }
+  }
+  intermediateDocuments.add(additions)
+  componentTypes.set(additions, new Map(componentTypes.get(spec)))
+  intermediateNames.set(additions, new Map())
+  reservedIntermediateNames.set(
+    additions,
+    new Set(Object.keys(compositionSpec.components!.schemas!))
+  )
+  nullableIntermediates.set(additions, new Map())
+  for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
+    if (schemas[name] !== undefined) continue
+    resolve(type, additions)
+  }
+  // OpenAPI 3.0 null-only schema that oatyp also infers as null.
+  const nullSchema: OpenAPIV3.SchemaObject = {
+    allOf: [
+      { type: 'boolean', nullable: true },
+      { type: 'string', nullable: true }
+    ]
+  }
+  for (const [source, name] of nullableIntermediates.get(additions)!) {
+    let schema: Schema | undefined = additions.components.schemas[source]
+    const visited = new Set<string>()
+    while (schema && '$ref' in schema) {
+      if (visited.has(schema.$ref)) {
+        schema = undefined
+        break
+      }
+      visited.add(schema.$ref)
+      schema =
+        additions.components.schemas[
+          schema.$ref.slice('#/components/schemas/'.length)
+        ]
+    }
+    const value =
+      schema && 'enum' in schema ? schema : { $ref: buildRef(source) }
+    additions.components.schemas[name] = {
+      oneOf: [{ allOf: [value, { not: nullSchema }] }, nullSchema]
+    }
+  }
+  for (const [name, schema] of Object.entries(additions.components.schemas)) {
+    if (schemas[name] === undefined) schemas[name] = schema
+  }
+}
+
+function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
+  let name = prefix
+  let index = 2
+  while (
+    spec.components!.schemas![name] !== undefined ||
+    reservedIntermediateNames.get(spec)?.has(name)
+  )
+    name = `${prefix}_${index++}`
+  return name
 }
 
 function capitalizeFirstLetter(str: string): string {
@@ -32,7 +108,19 @@ function resolveNullableType(
   spec: OpenAPIV3.Document
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
   if (isNull) {
-    return appendMetaToResolvedType(resolve(nonNullableType, spec), {
+    const schema = resolve(nonNullableType, spec)
+    if (intermediateDocuments.has(spec) && '$ref' in schema) {
+      const source = schema.$ref.slice('#/components/schemas/'.length)
+      const variants = nullableIntermediates.get(spec)!
+      let name = variants.get(source)
+      if (!name) {
+        name = intermediateName(spec, `${source}_Nullable`)
+        spec.components!.schemas![name] = {}
+        variants.set(source, name)
+      }
+      return { $ref: buildRef(name) }
+    }
+    return appendMetaToResolvedType(schema, {
       nullable: true
     })
   }
@@ -103,6 +191,22 @@ export function resolve(
   spec: OpenAPIV3.Document,
   resolveNullableTypeFn = resolveNullableType
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (
+    intermediateDocuments.has(spec) &&
+    (type.getFlags() &
+      (ts.TypeFlags.TypeParameter |
+        ts.TypeFlags.Index |
+        ts.TypeFlags.IndexedAccess |
+        ts.TypeFlags.Conditional |
+        ts.TypeFlags.Substitution)) !==
+      0
+  ) {
+    const constraint =
+      (type.getFlags() & ts.TypeFlags.Index) === 0
+        ? type.getConstraint()
+        : undefined
+    return constraint ? resolve(constraint, spec) : {}
+  }
   // Promises
   if (type.getSymbol()?.getEscapedName() === 'Promise') {
     return resolve(type.getTypeArguments()[0], spec)
@@ -304,27 +408,44 @@ export function resolve(
       // For other and anonymous types, don't use ref
       return resolveObjectType(type, spec)
     }
-    if (typeof spec.components!.schemas![typeName] === 'undefined') {
-      if (compositionDocuments.has(spec)) {
-        spec.components!.schemas![typeName] = {}
-      }
+    const resolveSchema = () => {
       if (
         helperName === 'Partial' ||
         helperName === 'Omit' ||
         helperName === 'Pick'
       ) {
         const typeArguments = type.getAliasTypeArguments()
-        const subjectType = typeArguments[0]
-        spec.components!.schemas![typeName] = resolveMappedObjectType(
+        return resolveMappedObjectType(
           type,
           spec,
           helperName,
-          subjectType,
+          typeArguments[0],
           typeArguments
         )
-      } else {
-        spec.components!.schemas![typeName] = resolveObjectType(type, spec)
       }
+      return resolveObjectType(type, spec)
+    }
+    const previous = componentTypes.get(spec)?.get(typeName)
+    if (
+      intermediateDocuments.has(spec) &&
+      previous &&
+      previous.compilerType !== type.compilerType
+    ) {
+      const names = intermediateNames.get(spec)!
+      let name = names.get(type.compilerType)
+      if (!name) {
+        name = intermediateName(spec, `${typeName}_Intermediate`)
+        names.set(type.compilerType, name)
+      }
+      typeName = name
+    }
+    if (typeof spec.components!.schemas![typeName] === 'undefined') {
+      if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
+      componentTypes.get(spec)!.set(typeName, type)
+      if (compositionDocuments.has(spec) || intermediateDocuments.has(spec)) {
+        spec.components!.schemas![typeName] = {}
+      }
+      spec.components!.schemas![typeName] = resolveSchema()
     }
     // Return
     return { $ref: buildRef(typeName) }
@@ -551,12 +672,7 @@ function resolveProperties(
           if (isUndefined) {
             required = false
           }
-          if (isNull) {
-            return appendMetaToResolvedType(resolve(nonNullableType, spec), {
-              nullable: true
-            })
-          }
-          return resolve(nonNullableType, spec)
+          return resolveNullableType(nonNullableType, isUndefined, isNull, spec)
         }
       )
       if (isReadonly) {
@@ -854,6 +970,24 @@ function resolveMappedObjectType(
   subjectType: Type,
   typeArguments?: Type[]
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  const unboundPartial =
+    intermediateDocuments.has(spec) &&
+    helperName === 'Partial' &&
+    subjectType.isTypeParameter()
+  const finish = (schema: Schema): Schema => {
+    if (!unboundPartial) return schema
+    const resolved =
+      '$ref' in schema
+        ? spec.components!.schemas![
+            schema.$ref.slice('#/components/schemas/'.length)
+          ]
+        : schema
+    if (!resolved || !('type' in resolved) || resolved.type !== 'object')
+      return {}
+    const result = { ...resolved, additionalProperties: true }
+    delete result.required
+    return result
+  }
   // Check if we're omitting or picking the toJSON property
   let shouldSkipToJSON = false
   if (
@@ -883,7 +1017,7 @@ function resolveMappedObjectType(
     if ('$ref' in toJSONReturnType) {
       // For reference types, we need to create a new schema with the transformation applied
       // This is more complex, so for now we'll fall back to normal resolution
-      return resolveObjectType(type, spec)
+      return finish(resolveObjectType(type, spec))
     }
     if (toJSONReturnType.type === 'object' && toJSONReturnType.properties) {
       const transformedSchema = { ...toJSONReturnType }
@@ -898,11 +1032,11 @@ function resolveMappedObjectType(
         // which cannot be determined generically without analyzing the toJSON implementation
       }
 
-      return transformedSchema
+      return finish(transformedSchema)
     }
   }
   // Fall back to normal object resolution if no toJSON or transformation failed
-  return resolveObjectType(type, spec)
+  return finish(resolveObjectType(type, spec))
 }
 
 /**

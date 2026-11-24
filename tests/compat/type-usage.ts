@@ -3,12 +3,18 @@ import Client from './client/api'
 import {
   AnyValue,
   ClientValue,
+  Envelope,
   Failure,
   Kind,
+  Tagged,
   View,
   WithoutReadonly,
   WithoutWriteonly
 } from './client/definitions'
+
+const envelope: Envelope = { message: 'Invalid item' }
+const tagged: Tagged = { tags: [] }
+void [envelope, tagged]
 
 declare const value: ClientValue
 declare const response: WithoutWriteonly<ClientValue>
