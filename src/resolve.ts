@@ -16,9 +16,31 @@ import { options } from './option'
 import { buildRef } from './runtime/ref'
 
 const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
+const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
+const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
+  componentTypes.set(spec, new Map())
+}
+
+export function keepIntermediateSchemas(
+  spec: OpenAPIV3.Document,
+  compositionSpec: OpenAPIV3.Document
+): void {
+  const schemas = spec.components!.schemas!
+  const additions = {
+    ...spec,
+    components: { ...spec.components, schemas: structuredClone(schemas) }
+  }
+  intermediateDocuments.add(additions)
+  for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
+    if (schemas[name] !== undefined) continue
+    resolve(type, additions)
+  }
+  for (const [name, schema] of Object.entries(additions.components.schemas)) {
+    if (schemas[name] === undefined) schemas[name] = schema
+  }
 }
 
 function capitalizeFirstLetter(str: string): string {
@@ -103,6 +125,10 @@ export function resolve(
   spec: OpenAPIV3.Document,
   resolveNullableTypeFn = resolveNullableType
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (intermediateDocuments.has(spec) && type.isTypeParameter()) {
+    const constraint = type.getConstraint()
+    return constraint ? resolve(constraint, spec) : {}
+  }
   // Promises
   if (type.getSymbol()?.getEscapedName() === 'Promise') {
     return resolve(type.getTypeArguments()[0], spec)
@@ -305,7 +331,8 @@ export function resolve(
       return resolveObjectType(type, spec)
     }
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
-      if (compositionDocuments.has(spec)) {
+      componentTypes.get(spec)?.set(typeName, type)
+      if (compositionDocuments.has(spec) || intermediateDocuments.has(spec)) {
         spec.components!.schemas![typeName] = {}
       }
       if (

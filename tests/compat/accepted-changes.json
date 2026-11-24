@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "caseId": "openapi",
+    "expressMajor": "4",
+    "reason": "Keep named intermediate component schemas by default; only Envelope and Tagged are added, with all existing schemas and operations unchanged.",
+    "sinceVersion": "1.0.0-alpha.82",
+    "before": "b174938e3cf9d1976f7fc43b15ea794e9e55bc3a98daa5d405b2b5f0d8a74a20",
+    "after": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7"
+  },
+  {
+    "caseId": "openapi",
+    "expressMajor": "5",
+    "reason": "Keep named intermediate component schemas by default; only Envelope and Tagged are added, with all existing schemas and operations unchanged.",
+    "sinceVersion": "1.0.0-alpha.82",
+    "before": "b174938e3cf9d1976f7fc43b15ea794e9e55bc3a98daa5d405b2b5f0d8a74a20",
+    "after": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7"
+  }
+]

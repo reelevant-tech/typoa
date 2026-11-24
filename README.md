@@ -30,6 +30,19 @@ And all of this issues are caused by the custom type resolver of tsoa, in this p
 
 ## How to use
 
+### Additional component schemas
+
+`openapi.additionalExportedTypeNames` lists additional exported TypeScript types
+to include in `components.schemas`, even when no operation uses them.
+
+By default, `openapi.keepIntermediateSchemas` also keeps named bases, generic
+instantiations and Omit/Pick members encountered while flattening inherited and
+intersection types. Their component names are retained for generated-client
+imports, but their contents use the current flattened schemas, not closed-object
+`allOf` composition. Existing operation schemas and generated routers are unchanged.
+Set `openapi.keepIntermediateSchemas: false` to emit only the components otherwise
+needed by operations and `additionalExportedTypeNames`.
+
 ### Define your controllers
 
 You only need to add the `@Route()` decorator at the top of your controller class and `@Get()`, `@Post()`... at the top

@@ -330,9 +330,16 @@ describe('Interface inheritance', () => {
     )
   })
 
-  test('Should no longer emit a schema only used as a base', () => {
-    for (const name of ['Foo', 'A', 'Article', 'Constrained', 'Dictionary']) {
-      assert.strictEqual(spec.components.schemas[name], undefined, name)
+  test('Should retain named base schemas with flattened contents', () => {
+    for (const name of [
+      'Foo',
+      'A',
+      'Article_Without_Revisions',
+      'Constrained',
+      'Dictionary'
+    ]) {
+      assert.ok(spec.components.schemas[name], name)
+      assert.strictEqual(spec.components.schemas[name].allOf, undefined, name)
     }
   })
 

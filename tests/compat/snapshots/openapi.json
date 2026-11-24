@@ -142,6 +142,19 @@
         },
         "type": "object"
       },
+      "Envelope": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["message"],
+        "type": "object"
+      },
       "Failure": {
         "additionalProperties": false,
         "properties": {
@@ -172,6 +185,19 @@
       "Kind": {
         "enum": ["a", "b"],
         "type": "string"
+      },
+      "Tagged": {
+        "additionalProperties": false,
+        "properties": {
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["tags"],
+        "type": "object"
       },
       "TextItem": {
         "additionalProperties": false,
