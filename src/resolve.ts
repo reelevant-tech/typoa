@@ -125,8 +125,20 @@ export function resolve(
   spec: OpenAPIV3.Document,
   resolveNullableTypeFn = resolveNullableType
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
-  if (intermediateDocuments.has(spec) && type.isTypeParameter()) {
-    const constraint = type.getConstraint()
+  if (
+    intermediateDocuments.has(spec) &&
+    (type.getFlags() &
+      (ts.TypeFlags.TypeParameter |
+        ts.TypeFlags.Index |
+        ts.TypeFlags.IndexedAccess |
+        ts.TypeFlags.Conditional |
+        ts.TypeFlags.Substitution)) !==
+      0
+  ) {
+    const constraint =
+      (type.getFlags() & ts.TypeFlags.Index) === 0
+        ? type.getConstraint()
+        : undefined
     return constraint ? resolve(constraint, spec) : {}
   }
   // Promises
