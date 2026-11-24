@@ -14,7 +14,7 @@ interface ObjectValue {
 }
 
 interface ScalarValue {
-  toJSON(): string
+  toJSON(): string | null
 }
 
 interface ArrayValue {

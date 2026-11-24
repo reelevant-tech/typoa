@@ -17,7 +17,10 @@ test('Restored nullable enums and serialized values retain their non-null constr
     after.spec,
     "import { Parent } from './definitions'\n" +
       "const value: Parent = { kind: 'second', object: { id: 'a' }, scalar: 'a', list: ['a'] }; void value\n" +
-      'const empty: Parent = { kind: null, object: null, scalar: null, list: null }; void empty\n'
+      'const empty: Parent = { kind: null, object: null, scalar: null, list: null }; void empty\n' +
+      "// @ts-expect-error a nullable enum rejects other strings\nconst invalid: Parent['kind'] = 'other'; void invalid\n" +
+      "// @ts-expect-error a nullable enum rejects booleans\nconst flag: Parent['kind'] = true; void flag\n" +
+      "// @ts-expect-error a nullable enum rejects arrays\nconst list: Parent['kind'] = []; void list\n"
   )
   const ajv = new Ajv({ strict: false })
   ajv.addSchema({ components: after.spec.components }, 'spec')
