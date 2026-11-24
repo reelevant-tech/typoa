@@ -5,7 +5,9 @@ interface Box<T> {
 }
 
 interface Parent {
+  /** @description Primary box */
   box: Box<number>
+  other?: Box<number>
 }
 
 interface Child extends Parent {

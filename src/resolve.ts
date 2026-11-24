@@ -405,6 +405,7 @@ export function resolve(
       const schema: OpenAPIV3.SchemaObject = {}
       cache.set(type.compilerType, schema)
       Object.assign(schema, resolveSchema())
+      cache.delete(type.compilerType)
       return schema
     }
     if (typeof spec.components!.schemas![typeName] === 'undefined') {

@@ -14,11 +14,20 @@ test('Restored bases do not reuse a narrower instantiation with the same compone
     'Parent'
   ])
   await SwaggerParser.validate(structuredClone(after.spec))
+  assert.equal(
+    after.spec.components.schemas.Parent.properties.box.description,
+    'Primary box'
+  )
+  assert.equal(
+    after.spec.components.schemas.Parent.properties.other.description,
+    undefined
+  )
   const ajv = new Ajv({ strict: false })
   ajv.addSchema({ components: after.spec.components }, 'spec')
   const parent = ajv.compile({ $ref: 'spec#/components/schemas/Parent' })
   const child = ajv.compile({ $ref: 'spec#/components/schemas/Child' })
   for (const value of [1, 2, 42]) assert.equal(parent({ box: { value } }), true)
+  assert.equal(parent({ box: { value: 2 }, other: { value: 3 } }), true)
   assert.equal(child({ box: { value: 1 } }), true)
   assert.equal(child({ box: { value: 2 } }), false)
   assert.equal(parent({}), false)
