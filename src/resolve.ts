@@ -47,7 +47,7 @@ export function keepIntermediateSchemas(
   intermediateNames.set(additions, new Map())
   reservedIntermediateNames.set(
     additions,
-    new Set(componentTypes.get(compositionSpec)?.keys())
+    new Set(Object.keys(compositionSpec.components!.schemas!))
   )
   nullableIntermediates.set(additions, new Map())
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
