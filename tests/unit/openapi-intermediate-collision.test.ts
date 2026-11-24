@@ -35,3 +35,25 @@ test('Restored bases do not reuse a narrower instantiation with the same compone
   assert.equal(parent({ box: { value: 2, extra: true } }), false)
   assert.equal(parent({ box: { value: 2 }, extra: true }), false)
 })
+
+test('Recursive generic collisions reference the restored inline base rather than the narrowed component', async () => {
+  const before = await intermediate('recursive-collision', false)
+  const after = await intermediate('recursive-collision')
+  assertAdditive(before, after)
+  await SwaggerParser.validate(structuredClone(after.spec))
+  const ajv = new Ajv({ strict: false })
+  ajv.addSchema({ components: after.spec.components }, 'spec')
+  const validate = ajv.compile({ $ref: 'spec#/components/schemas/Parent' })
+  assert.equal(validate({ box: { value: 2 } }), true)
+  assert.equal(
+    validate({ box: { value: 2, next: { value: 3, next: { value: 4 } } } }),
+    true
+  )
+  assert.equal(validate({}), false)
+  assert.equal(validate({ box: { value: 2, next: {} } }), false)
+  assert.equal(validate({ box: { value: 2, next: { value: 'a' } } }), false)
+  assert.equal(
+    validate({ box: { value: 2, next: { value: 3, extra: true } } }),
+    false
+  )
+})
