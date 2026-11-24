@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import { strict as assert } from 'node:assert'
+import { performance } from 'node:perf_hooks'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import Ajv from 'ajv'
 import {
@@ -38,4 +39,39 @@ test('Nullable recursive children do not make parents or siblings nullable', asy
     validate({ box: { value: 2, next: { value: 3, extra: true } } }),
     false
   )
+})
+
+test('Nullable recursive validation visits each populated level once', async t => {
+  const { spec } = await intermediate('nullable-collision')
+  assert.ok(JSON.stringify(spec).length < 20_000)
+  const source = spec.components.schemas.Parent.properties.box.$ref
+    .split('/')
+    .pop()
+  spec.components.schemas[source].counted = true
+  let visits = 0
+  const ajv = new Ajv({ strict: false })
+  ajv.addKeyword({
+    keyword: 'counted',
+    schemaType: 'boolean',
+    type: 'object',
+    validate: () => {
+      visits++
+      return true
+    }
+  })
+  ajv.addSchema({ components: spec.components }, 'spec')
+  const validate = ajv.compile({ $ref: 'spec#/components/schemas/Parent' })
+  for (const depth of [10, 20]) {
+    let box: any = null
+    for (let i = 0; i < depth; i++) box = { value: i, next: box }
+    visits = 0
+    const start = performance.now()
+    assert.equal(validate({ box }), true)
+    const elapsed = performance.now() - start
+    t.diagnostic(
+      `depth=${depth} visits=${visits} elapsed=${elapsed.toFixed(3)}ms`
+    )
+    assert.equal(visits, depth)
+    assert.ok(elapsed < 1000, `Validation took ${elapsed}ms`)
+  }
 })

@@ -54,11 +54,14 @@ export function keepIntermediateSchemas(
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
   }
-  for (const [source, name] of nullableIntermediates.get(additions)!) {
-    const anyOf: Schema[] = [
-      { $ref: buildRef(source) },
-      { type: 'string', nullable: true, enum: [null] }
+  // OpenAPI 3.0 null-only schema that oatyp also infers as null.
+  const nullSchema: OpenAPIV3.SchemaObject = {
+    allOf: [
+      { type: 'boolean', nullable: true },
+      { type: 'string', nullable: true }
     ]
+  }
+  for (const [source, name] of nullableIntermediates.get(additions)!) {
     let schema: Schema | undefined = additions.components.schemas[source]
     const visited = new Set<string>()
     while (schema && '$ref' in schema) {
@@ -72,26 +75,10 @@ export function keepIntermediateSchemas(
           schema.$ref.slice('#/components/schemas/'.length)
         ]
     }
-    if (schema && 'type' in schema && schema.type) {
-      const body: OpenAPIV3.SchemaObject =
-        schema.type === 'object'
-          ? {
-              type: 'object',
-              properties: schema.properties,
-              required: schema.required,
-              additionalProperties: schema.additionalProperties
-            }
-          : schema.type === 'array'
-            ? { type: 'array', items: schema.items }
-            : { type: schema.type }
-      body.nullable = true
-      body.anyOf = anyOf
-      additions.components.schemas[name] =
-        body.type === 'array'
-          ? { type: 'array', items: {}, nullable: true, allOf: [body] }
-          : { type: body.type, nullable: true, allOf: [body] }
-    } else {
-      additions.components.schemas[name] = { anyOf }
+    const value =
+      schema && 'enum' in schema ? schema : { $ref: buildRef(source) }
+    additions.components.schemas[name] = {
+      oneOf: [{ allOf: [value, { not: nullSchema }] }, nullSchema]
     }
   }
   for (const [name, schema] of Object.entries(additions.components.schemas)) {
