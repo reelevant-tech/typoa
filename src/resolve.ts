@@ -950,15 +950,23 @@ function resolveMappedObjectType(
   subjectType: Type,
   typeArguments?: Type[]
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
-  if (
+  const unboundPartial =
     intermediateDocuments.has(spec) &&
     helperName === 'Partial' &&
     subjectType.isTypeParameter()
-  ) {
-    const schema = resolveObjectType(type, spec)
-    if ('type' in schema && schema.type === 'object')
-      schema.additionalProperties = true
-    return schema
+  const finish = (schema: Schema): Schema => {
+    if (!unboundPartial) return schema
+    const resolved =
+      '$ref' in schema
+        ? spec.components!.schemas![
+            schema.$ref.slice('#/components/schemas/'.length)
+          ]
+        : schema
+    if (!resolved || !('type' in resolved) || resolved.type !== 'object')
+      return {}
+    const result = { ...resolved, additionalProperties: true }
+    delete result.required
+    return result
   }
   // Check if we're omitting or picking the toJSON property
   let shouldSkipToJSON = false
@@ -989,7 +997,7 @@ function resolveMappedObjectType(
     if ('$ref' in toJSONReturnType) {
       // For reference types, we need to create a new schema with the transformation applied
       // This is more complex, so for now we'll fall back to normal resolution
-      return resolveObjectType(type, spec)
+      return finish(resolveObjectType(type, spec))
     }
     if (toJSONReturnType.type === 'object' && toJSONReturnType.properties) {
       const transformedSchema = { ...toJSONReturnType }
@@ -1004,11 +1012,11 @@ function resolveMappedObjectType(
         // which cannot be determined generically without analyzing the toJSON implementation
       }
 
-      return transformedSchema
+      return finish(transformedSchema)
     }
   }
   // Fall back to normal object resolution if no toJSON or transformation failed
-  return resolveObjectType(type, spec)
+  return finish(resolveObjectType(type, spec))
 }
 
 /**
