@@ -4,7 +4,9 @@ interface Serializable {
   toJSON(): { id: string; count: number }
 }
 
-interface Item extends Serializable {}
+interface Item extends Serializable {
+  tag?: string
+}
 
 interface Base<T extends Serializable> {
   data: Partial<T>
