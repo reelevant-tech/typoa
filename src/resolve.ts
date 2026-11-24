@@ -15,6 +15,12 @@ import { getConfig } from '.'
 import { options } from './option'
 import { buildRef } from './runtime/ref'
 
+const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
+
+export function preserveComposition(spec: OpenAPIV3.Document): void {
+  compositionDocuments.add(spec)
+}
+
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
@@ -299,6 +305,9 @@ export function resolve(
       return resolveObjectType(type, spec)
     }
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
+      if (compositionDocuments.has(spec)) {
+        spec.components!.schemas![typeName] = {}
+      }
       if (
         helperName === 'Partial' ||
         helperName === 'Omit' ||
@@ -324,6 +333,11 @@ export function resolve(
     // `allOf` validates the whole value against every member, so a member with
     // `additionalProperties: false` would reject the properties of the others.
     // Object intersections are flattened into a single schema instead.
+    if (compositionDocuments.has(spec)) {
+      return {
+        allOf: type.getIntersectionTypes().map(member => resolve(member, spec))
+      }
+    }
     if (type.getIntersectionTypes().every(isPlainObjectType)) {
       return resolveObjectType(type, spec)
     }
@@ -507,10 +521,12 @@ function resolveProperties(
         return schema // ignore functions
       }
       const jsDocTags = property.compilerSymbol.getJsDocTags()
-      reportMisspelledJsDocTags(
-        jsDocTags,
-        `${type.getSymbol()?.getName() ?? type.getText()}.${property.getName()}`
-      )
+      if (!compositionDocuments.has(spec)) {
+        reportMisspelledJsDocTags(
+          jsDocTags,
+          `${type.getSymbol()?.getName() ?? type.getText()}.${property.getName()}`
+        )
+      }
       // Handle readonly / getters props / @readonly tag
       const modifierFlags =
         property.getValueDeclaration()?.getCombinedModifierFlags() ??
@@ -973,6 +989,27 @@ function resolveObjectType(
       | MethodDeclaration
       | MethodSignature
     return resolve(node.getReturnType(), spec)
+  }
+  if (compositionDocuments.has(spec)) {
+    const declarations = type.getSymbol()?.getDeclarations() ?? []
+    const interfaces = declarations.filter(Node.isInterfaceDeclaration)
+    const bases = interfaces
+      .flatMap(declaration =>
+        declaration.getExtends().map(base => resolve(base.getType(), spec))
+      )
+      .filter((base): base is OpenAPIV3.ReferenceObject => '$ref' in base)
+    if (bases.length > 0) {
+      const names = new Set(
+        interfaces.flatMap(declaration =>
+          declaration.getProperties().map(property => property.getName())
+        )
+      )
+      const own = resolveProperties(type, spec, names)
+      delete own.additionalProperties
+      return {
+        allOf: names.size > 0 ? [...bases, { type: 'object', ...own }] : bases
+      }
+    }
   }
   // Inherited properties are flattened into the schema rather than composed with
   // `allOf`: `allOf` validates the whole value against every member, so a base with

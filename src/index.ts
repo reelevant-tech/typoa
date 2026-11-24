@@ -16,7 +16,7 @@ import fs from 'fs'
 import { CodeGenControllers } from './types'
 import handlebars from 'handlebars'
 import { getRelativeFilePath, resolveProperty } from './utils'
-import { resolve } from './resolve'
+import { preserveComposition, resolve } from './resolve'
 
 export type OpenAPIConfiguration = {
   tsconfigFilePath: string
@@ -157,6 +157,13 @@ export async function generate(config: OpenAPIConfiguration) {
   }
   // Codegen object
   const codegenControllers: CodeGenControllers = {}
+  const diagnosticControllers: CodeGenControllers = {}
+  const diagnosticSpec = createSpec({
+    name: config.openapi.service.name,
+    version: config.openapi.service.version
+  })
+  preserveComposition(diagnosticSpec)
+  const deferredDiagnostics: (() => void)[] = []
   const controllersPathByName: Record<string, string> = {}
 
   // Iterate over controllers and patch spec
@@ -172,6 +179,14 @@ export async function generate(config: OpenAPIConfiguration) {
             const routeDecorator = controller.getDecorator('Route')
             if (routeDecorator === undefined) continue // skip
             addController(controller, spec, codegenControllers, config.router)
+            deferredDiagnostics.push(() =>
+              addController(
+                controller,
+                diagnosticSpec,
+                diagnosticControllers,
+                config.router
+              )
+            )
             controllersPathByName[controller.getName()!] = filePath
           }
         })
@@ -208,17 +223,23 @@ export async function generate(config: OpenAPIConfiguration) {
     // Add to spec
     const name = declaration.getName()!
     const type = declaration.getType()
-    const resolved = resolve(
-      type.isAny()
-        ? (declaration.getSymbol()?.getDeclaredType() ?? type)
-        : type,
-      spec
-    )
-    if (
-      !('$ref' in resolved) ||
-      resolved.$ref.substr('#/components/schemas/'.length) !== name
-    ) {
-      spec.components!.schemas![name] = resolved
+    for (const target of [spec, diagnosticSpec]) {
+      const addExportedType = () => {
+        const resolved = resolve(
+          type.isAny()
+            ? (declaration.getSymbol()?.getDeclaredType() ?? type)
+            : type,
+          target
+        )
+        if (
+          !('$ref' in resolved) ||
+          resolved.$ref.substr('#/components/schemas/'.length) !== name
+        ) {
+          target.components!.schemas![name] = resolved
+        }
+      }
+      if (target === spec) addExportedType()
+      else deferredDiagnostics.push(addExportedType)
     }
   }
   // Export all responses
@@ -355,6 +376,8 @@ export async function generate(config: OpenAPIConfiguration) {
     }
   }
 
+  for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
+
   // Codegen
   const templateFilePath = config.router.templateFilePath
     ? path.resolve(root, config.router.templateFilePath)
@@ -398,11 +421,20 @@ export async function generate(config: OpenAPIConfiguration) {
               method.bodyDiscriminator.path
             )
           }
-          return method
+          const diagnosticMethod = diagnosticControllers[controllerName].find(
+            candidate =>
+              candidate.name === method.name && candidate.verb === method.verb
+          )!
+          return {
+            ...method,
+            diagnosticParams: diagnosticMethod.params,
+            diagnosticBody: diagnosticMethod.body
+          }
         })
       }
     }),
     schemas: spec.components!.schemas,
+    diagnosticSchemas: diagnosticSpec.components!.schemas,
     middlewares: Object.values(codegenControllers)
       .flatMap(controller =>
         controller.flatMap(method => method.middlewares || [])

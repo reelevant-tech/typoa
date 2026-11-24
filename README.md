@@ -173,3 +173,44 @@ import { Route, Get, Controller, setRuntimeOptions } from 'typoa/runtime'
 
 Keep `import { generate } from 'typoa'` in your generation script only.
 The generated router imports from `typoa/runtime` by default (override with `router.runtimeImport`).
+
+### Compatibility checks
+
+`yarn compat` runs the generic controllers in `tests/compat` through generated
+routers on a real listening HTTP server. It compares status, JSON payload and
+controller arguments (including explicit undefined/Date markers) with committed
+Express-major snapshots, and checks the complete OpenAPI document. It also runs
+oatyp alpha.33 and `tsc --noEmit` on `type-usage.ts`. These tests are included in
+`yarn test`; no network access is needed for the snapshot/client checks.
+
+Review intentional changes before running
+`UPDATE_COMPAT_SNAPSHOTS=1 yarn compat`. Run this once with Express 4 installed
+and once with Express 5; the OpenAPI snapshot is shared. Missing snapshots fail
+without this flag. The snapshots characterize existing behavior, including
+limitations such as omitted falsy defaults; they are not an endorsement of it.
+
+`yarn compat:release` installs **`typoa@latest` from npm** in a disposable directory
+with lifecycle scripts disabled, generates the same fixtures with both versions,
+and compares the complete OpenAPI document and every HTTP result. All differences
+fail unless explicitly listed in `tests/compat/accepted-changes.json` with
+`caseId`, `expressMajor`, `reason`, `sinceVersion`, and exact `before`/`after`
+SHA-256 digests printed by the comparison. `openapi` identifies the document;
+other IDs identify HTTP cases. Use the next intended release for `sinceVersion`.
+Exceptions fail if they disappear or their digests change, and **all entries
+whose sinceVersion is at or below npm latest fail as stale**, even for another
+Express major. Remove them after publication; do not extend their expiry to
+silence a failure. There is no automatic exception-update command.
+
+`yarn compat:legacy` independently installs published alpha.71 and checks the
+HTTP cases marked `legacy` in `cases.ts`. Its OpenAPI is deliberately not compared:
+current flattening is retained. The regex-path controller is separate because
+alpha.71 cannot register its Express 4 route syntax on Express 5.
+
+CI runs all three commands on Express 4.17.1, 4.22.3 and 5.3.0. The quality
+workflow runs the matrix on PRs to any branch, including stacked PRs. On main, the serialized publish workflow runs
+it after tests/lint and requires it before bumping the version or publishing.
+This prevents our own publication from changing npm latest during comparison;
+stale exceptions still fail after a release. When adding a
+regression case, add a stable ID and controller, inspect/update the snapshots on
+both majors, extend `type-usage.ts` where relevant, and explicitly review any
+new release exceptions.

@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import express from 'express'
+import expressPackage from 'express/package.json'
 import request from 'supertest'
 import { strict as assert } from 'node:assert'
 import { before, describe, test } from 'node:test'
@@ -201,17 +202,23 @@ describe('Optional body validation', () => {
   })
 
   for (const route of ['body-optional', 'body-undefined']) {
-    test(`${route}: no body with a JSON content-type is accepted`, async () => {
+    test(`${route}: an empty JSON body still validates required properties`, async () => {
       const res = await request(app)
         .put(`/nullable/${route}`)
         .set('Content-Type', 'application/json')
-        .expect(200)
-      assert.deepEqual(res.body, { received: false })
+        .expect(400)
+      assert.deepEqual(res.body, {
+        fields: {
+          'body.name': { message: 'Property name is required', details: [] }
+        }
+      })
     })
 
-    test(`${route}: no body and no content-type is accepted`, async () => {
+    test(`${route}: no content-type preserves the parser's body value`, async () => {
       const res = await request(app).put(`/nullable/${route}`).expect(200)
-      assert.deepEqual(res.body, { received: false })
+      assert.deepEqual(res.body, {
+        received: !expressPackage.version.startsWith('5.')
+      })
     })
 
     test(`${route}: a body that is sent is still validated`, async () => {
