@@ -1,6 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { tmpdir } from 'node:os'
+import { execFileSync } from 'node:child_process'
 import { strict as assert } from 'node:assert'
+import { generate as generateClient } from 'oatyp'
 import { generate } from '../../src'
 
 export async function intermediate(
@@ -40,4 +43,28 @@ export function assertAdditive(before: any, after: any) {
     ])
   )
   assert.deepEqual(stripped, before.spec)
+}
+
+export async function assertClientCompiles(spec: any, source: string) {
+  const directory = fs.mkdtempSync(path.join(tmpdir(), 'intermediate-client-'))
+  try {
+    const openapiFilePath = path.join(directory, 'schema.json')
+    fs.writeFileSync(openapiFilePath, JSON.stringify(spec))
+    await generateClient({ outDir: directory, openapiFilePath })
+    const file = path.join(directory, 'usage.ts')
+    fs.writeFileSync(file, source)
+    execFileSync(process.execPath, [
+      require.resolve('typescript/bin/tsc'),
+      '--noEmit',
+      '--strict',
+      '--skipLibCheck',
+      '--target',
+      'es2022',
+      '--moduleResolution',
+      'node',
+      file
+    ])
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true })
+  }
 }

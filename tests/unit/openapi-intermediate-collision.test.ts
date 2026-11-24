@@ -2,7 +2,11 @@ import { test } from 'node:test'
 import { strict as assert } from 'node:assert'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import Ajv from 'ajv'
-import { assertAdditive, intermediate } from './intermediate-helpers'
+import {
+  assertAdditive,
+  assertClientCompiles,
+  intermediate
+} from './intermediate-helpers'
 
 test('Restored bases do not reuse a narrower instantiation with the same component name', async () => {
   const before = await intermediate('collision', false)
@@ -10,6 +14,7 @@ test('Restored bases do not reuse a narrower instantiation with the same compone
   assertAdditive(before, after)
   assert.deepEqual(Object.keys(after.spec.components.schemas).sort(), [
     'Box',
+    'Box_Intermediate',
     'Child',
     'Parent'
   ])
@@ -36,11 +41,21 @@ test('Restored bases do not reuse a narrower instantiation with the same compone
   assert.equal(parent({ box: { value: 2 }, extra: true }), false)
 })
 
-test('Recursive generic collisions reference the restored inline base rather than the narrowed component', async () => {
+test('Recursive generic collisions use named components that compile in a generated client', async () => {
   const before = await intermediate('recursive-collision', false)
   const after = await intermediate('recursive-collision')
   assertAdditive(before, after)
   await SwaggerParser.validate(structuredClone(after.spec))
+  const refs = JSON.stringify(after.spec).match(
+    /#\/components\/schemas\/[^"\s]+/g
+  )!
+  for (const ref of refs)
+    assert.equal(ref.slice('#/components/schemas/'.length).includes('/'), false)
+  await assertClientCompiles(
+    after.spec,
+    "import { Parent } from './definitions'\n" +
+      'const value: Parent = { box: { value: 2, next: { value: 3 } } }; void value\n'
+  )
   const ajv = new Ajv({ strict: false })
   ajv.addSchema({ components: after.spec.components }, 'spec')
   const validate = ajv.compile({ $ref: 'spec#/components/schemas/Parent' })

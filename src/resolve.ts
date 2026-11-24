@@ -18,9 +18,9 @@ import { buildRef } from './runtime/ref'
 const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
 const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
 const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
-const inlineSchemas = new WeakMap<
+const intermediateNames = new WeakMap<
   OpenAPIV3.Document,
-  Map<ts.Type, OpenAPIV3.SchemaObject>
+  Map<ts.Type, string>
 >()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
@@ -39,42 +39,22 @@ export function keepIntermediateSchemas(
   }
   intermediateDocuments.add(additions)
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
-  inlineSchemas.set(additions, new Map())
+  intermediateNames.set(additions, new Map())
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
   }
-  for (const [name, schema] of Object.entries(
-    referenceInlineCycles(additions.components.schemas)
-  )) {
+  for (const [name, schema] of Object.entries(additions.components.schemas)) {
     if (schemas[name] === undefined) schemas[name] = schema
   }
 }
 
-function referenceInlineCycles(
-  schemas: NonNullable<OpenAPIV3.ComponentsObject['schemas']>
-) {
-  const ancestors = new Map<object, string>()
-  function visit(value: unknown, path: string): unknown {
-    if (value === null || typeof value !== 'object') return value
-    const previous = ancestors.get(value)
-    if (previous) return { $ref: previous }
-    ancestors.set(value, path)
-    const result = Array.isArray(value)
-      ? value.map((entry, index) => visit(entry, `${path}/${index}`))
-      : Object.fromEntries(
-          Object.entries(value).map(([key, entry]) => [
-            key,
-            visit(
-              entry,
-              `${path}/${encodeURIComponent(key.replace(/~/g, '~0').replace(/\//g, '~1'))}`
-            )
-          ])
-        )
-    ancestors.delete(value)
-    return result
-  }
-  return visit(schemas, '#/components/schemas') as typeof schemas
+function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
+  let name = prefix
+  let index = 2
+  while (spec.components!.schemas![name] !== undefined)
+    name = `${prefix}_${index++}`
+  return name
 }
 
 function capitalizeFirstLetter(str: string): string {
@@ -399,14 +379,13 @@ export function resolve(
       previous &&
       previous.compilerType !== type.compilerType
     ) {
-      const cache = inlineSchemas.get(spec)!
-      const cached = cache.get(type.compilerType)
-      if (cached) return cached
-      const schema: OpenAPIV3.SchemaObject = {}
-      cache.set(type.compilerType, schema)
-      Object.assign(schema, resolveSchema())
-      cache.delete(type.compilerType)
-      return schema
+      const names = intermediateNames.get(spec)!
+      let name = names.get(type.compilerType)
+      if (!name) {
+        name = intermediateName(spec, `${typeName}_Intermediate`)
+        names.set(type.compilerType, name)
+      }
+      typeName = name
     }
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
       if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
