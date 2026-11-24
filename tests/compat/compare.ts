@@ -13,6 +13,10 @@ async function main() {
         capture(entry, legacy),
         capture(undefined, legacy)
       ])
+      assert.notEqual(before.runtime.entry, after.runtime.entry)
+      console.log(
+        `COMPAT RUNTIME: npm ${version}=${before.runtime.hash}; working tree=${after.runtime.hash}; import=typoa/runtime`
+      )
       if (legacy) {
         assert.deepEqual(
           canonical(after.http),

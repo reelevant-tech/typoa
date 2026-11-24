@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process'
 import { strict as assert } from 'node:assert'
 import { generate as generateClient } from 'oatyp'
 import expressPackage from 'express/package.json'
-import { canonical, Snapshot } from './policy'
+import { canonical, digest, Snapshot } from './policy'
 import { scenarios } from './cases'
 
 export const root = path.resolve(__dirname, '../..')
@@ -25,9 +25,11 @@ export function temporary<T>(
 }
 
 export function capture(
-  entry = path.join(root, 'src/index.ts'),
+  entry: string | undefined = undefined,
   legacy = false
-): Promise<Snapshot> {
+): Promise<
+  Snapshot & { runtime: { entry: string; runtime: string; hash: string } }
+> {
   return temporary(async directory => {
     assert.equal(
       new Set(scenarios.map(s => s.id)).size,
@@ -38,7 +40,7 @@ export function capture(
       fs.copyFileSync(path.join(__dirname, name), path.join(directory, name))
     fs.writeFileSync(
       path.join(directory, 'runtime.ts'),
-      `export * from ${JSON.stringify(entry)}\n`
+      "export * from 'typoa'\n"
     )
     fs.writeFileSync(
       path.join(directory, 'tsconfig.json'),
@@ -47,16 +49,59 @@ export function capture(
         include: ['*.ts']
       })
     )
-    fs.symlinkSync(
-      path.join(root, 'node_modules'),
-      path.join(directory, 'node_modules'),
-      'junction'
-    )
+    const modules = path.join(directory, 'node_modules')
+    fs.mkdirSync(modules)
+    for (const name of fs.readdirSync(path.join(root, 'node_modules'))) {
+      if (
+        name !== 'typoa' &&
+        fs.statSync(path.join(root, 'node_modules', name)).isDirectory()
+      )
+        fs.symlinkSync(
+          path.join(root, 'node_modules', name),
+          path.join(modules, name),
+          'junction'
+        )
+    }
+    let packageRoot: string
+    if (entry) {
+      packageRoot = path.resolve(path.dirname(entry), '..')
+    } else {
+      packageRoot = path.join(directory, 'package')
+      fs.mkdirSync(packageRoot)
+      fs.copyFileSync(
+        path.join(root, 'package.json'),
+        path.join(packageRoot, 'package.json')
+      )
+      execFileSync(process.execPath, [
+        require.resolve('typescript/bin/tsc'),
+        '--project',
+        path.join(root, 'tsconfig.build.json'),
+        '--outDir',
+        path.join(packageRoot, 'build')
+      ])
+      fs.cpSync(
+        path.join(root, 'src/template'),
+        path.join(packageRoot, 'build/template'),
+        { recursive: true }
+      )
+    }
+    fs.symlinkSync(packageRoot, path.join(modules, 'typoa'), 'junction')
+    const identity = {
+      entry: fs.realpathSync(path.join(packageRoot, 'build/index.js')),
+      runtime: fs.realpathSync(
+        path.join(packageRoot, 'build/runtime/index.js')
+      ),
+      hash: digest(
+        ['build/index.js', 'build/runtime/validator.js'].map(name =>
+          fs.readFileSync(path.join(packageRoot, name), 'utf8')
+        )
+      )
+    }
     const config = path.join(directory, 'config.json')
     fs.writeFileSync(
       config,
       JSON.stringify({
-        entry,
+        identity,
         legacy,
         directory,
         express: require.resolve('express')
@@ -75,6 +120,7 @@ export function capture(
           cwd: directory,
           env: {
             ...process.env,
+            TYPOA_RUNTIME_IMPORT: undefined,
             TSX_TSCONFIG_PATH: path.join(directory, 'tsconfig.json')
           },
           encoding: 'utf8',
@@ -87,9 +133,11 @@ export function capture(
         `Compatibility capture failed\n${String((error as any).stdout)}\n${String((error as any).stderr)}`
       )
     }
-    return JSON.parse(
+    const result = JSON.parse(
       fs.readFileSync(path.join(directory, 'result.json'), 'utf8')
     )
+    assert.deepEqual(result.runtime, identity, 'Wrong typoa package loaded')
+    return result
   })
 }
 

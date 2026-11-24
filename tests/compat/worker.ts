@@ -4,14 +4,28 @@ import http from 'node:http'
 import { createRequire } from 'node:module'
 import { strict as assert } from 'node:assert'
 import { scenarios } from './cases'
-import { canonical } from './policy'
+import { canonical, digest } from './policy'
 
 async function run() {
   const load = createRequire(__filename)
   const config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
-  const api = load(config.entry)
-  const express = load(config.express)
   const file = (name: string) => path.join(config.directory, name)
+  const consumer = createRequire(file('router.ts'))
+  const entry = fs.realpathSync(consumer.resolve('typoa'))
+  const runtime = fs.realpathSync(consumer.resolve('typoa/runtime'))
+  const identity = {
+    entry,
+    runtime,
+    hash: digest(
+      [entry, path.join(path.dirname(runtime), 'validator.js')].map(name =>
+        fs.readFileSync(name, 'utf8')
+      )
+    )
+  }
+  assert.deepEqual(identity, config.identity, 'Wrong typoa package resolved')
+  const api = consumer('typoa')
+  assert.equal(api.Validator, consumer('typoa/runtime').Validator)
+  const express = load(config.express)
   await api.generate({
     tsconfigFilePath: file('tsconfig.json'),
     controllers: [
@@ -25,10 +39,13 @@ async function run() {
     },
     router: {
       filePath: file('router.ts'),
-      runtimeImport: config.entry,
       validateResponse: true
     }
   })
+  assert.match(
+    fs.readFileSync(file('router.ts'), 'utf8'),
+    /import \{ RuntimeResponse, Validator \} from ['"]typoa\/runtime['"]/
+  )
   const state = load(file('controllers.ts'))
   const app = express()
   app.use((_req: any, res: any, next: any) => {
@@ -119,6 +136,7 @@ async function run() {
       file('result.json'),
       JSON.stringify(
         canonical({
+          runtime: identity,
           openapi: JSON.parse(fs.readFileSync(file('openapi.json'), 'utf8')),
           http: results
         })
