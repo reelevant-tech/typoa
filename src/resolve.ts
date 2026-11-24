@@ -18,6 +18,10 @@ import { buildRef } from './runtime/ref'
 const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
 const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
 const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
+const inlineSchemas = new WeakMap<
+  OpenAPIV3.Document,
+  Map<ts.Type, OpenAPIV3.SchemaObject>
+>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
@@ -34,13 +38,43 @@ export function keepIntermediateSchemas(
     components: { ...spec.components, schemas: structuredClone(schemas) }
   }
   intermediateDocuments.add(additions)
+  componentTypes.set(additions, new Map(componentTypes.get(spec)))
+  inlineSchemas.set(additions, new Map())
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
   }
-  for (const [name, schema] of Object.entries(additions.components.schemas)) {
+  for (const [name, schema] of Object.entries(
+    referenceInlineCycles(additions.components.schemas)
+  )) {
     if (schemas[name] === undefined) schemas[name] = schema
   }
+}
+
+function referenceInlineCycles(
+  schemas: NonNullable<OpenAPIV3.ComponentsObject['schemas']>
+) {
+  const ancestors = new Map<object, string>()
+  function visit(value: unknown, path: string): unknown {
+    if (value === null || typeof value !== 'object') return value
+    const previous = ancestors.get(value)
+    if (previous) return { $ref: previous }
+    ancestors.set(value, path)
+    const result = Array.isArray(value)
+      ? value.map((entry, index) => visit(entry, `${path}/${index}`))
+      : Object.fromEntries(
+          Object.entries(value).map(([key, entry]) => [
+            key,
+            visit(
+              entry,
+              `${path}/${encodeURIComponent(key.replace(/~/g, '~0').replace(/\//g, '~1'))}`
+            )
+          ])
+        )
+    ancestors.delete(value)
+    return result
+  }
+  return visit(schemas, '#/components/schemas') as typeof schemas
 }
 
 function capitalizeFirstLetter(str: string): string {
@@ -342,28 +376,44 @@ export function resolve(
       // For other and anonymous types, don't use ref
       return resolveObjectType(type, spec)
     }
-    if (typeof spec.components!.schemas![typeName] === 'undefined') {
-      componentTypes.get(spec)?.set(typeName, type)
-      if (compositionDocuments.has(spec) || intermediateDocuments.has(spec)) {
-        spec.components!.schemas![typeName] = {}
-      }
+    const resolveSchema = () => {
       if (
         helperName === 'Partial' ||
         helperName === 'Omit' ||
         helperName === 'Pick'
       ) {
         const typeArguments = type.getAliasTypeArguments()
-        const subjectType = typeArguments[0]
-        spec.components!.schemas![typeName] = resolveMappedObjectType(
+        return resolveMappedObjectType(
           type,
           spec,
           helperName,
-          subjectType,
+          typeArguments[0],
           typeArguments
         )
-      } else {
-        spec.components!.schemas![typeName] = resolveObjectType(type, spec)
       }
+      return resolveObjectType(type, spec)
+    }
+    const previous = componentTypes.get(spec)?.get(typeName)
+    if (
+      intermediateDocuments.has(spec) &&
+      previous &&
+      previous.compilerType !== type.compilerType
+    ) {
+      const cache = inlineSchemas.get(spec)!
+      const cached = cache.get(type.compilerType)
+      if (cached) return cached
+      const schema: OpenAPIV3.SchemaObject = {}
+      cache.set(type.compilerType, schema)
+      Object.assign(schema, resolveSchema())
+      return schema
+    }
+    if (typeof spec.components!.schemas![typeName] === 'undefined') {
+      if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
+      componentTypes.get(spec)!.set(typeName, type)
+      if (compositionDocuments.has(spec) || intermediateDocuments.has(spec)) {
+        spec.components!.schemas![typeName] = {}
+      }
+      spec.components!.schemas![typeName] = resolveSchema()
     }
     // Return
     return { $ref: buildRef(typeName) }
