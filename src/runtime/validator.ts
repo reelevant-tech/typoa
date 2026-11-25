@@ -436,6 +436,27 @@ function getNestedValue(obj: any, path: string): any {
   return current
 }
 
+function isWildcardSchema(
+  schema: Schema,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  const visited = new Set<string>()
+  while ('$ref' in schema) {
+    if (visited.has(schema.$ref)) return false
+    visited.add(schema.$ref)
+    const target = schemas?.[schema.$ref.slice('#/components/schemas/'.length)]
+    if (!target) return false
+    schema = target
+  }
+  return (
+    schema.description === 'Can be any value' &&
+    schema.nullable === true &&
+    Object.keys(schema).every(
+      key => key === 'description' || key === 'nullable'
+    )
+  )
+}
+
 function isNullableSchema(
   schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
   schemas: OpenAPIV3.ComponentsObject['schemas']
@@ -709,8 +730,7 @@ function validateAndParseValueAgainstSchema(
       const isNotDefined = typeof propValue === 'undefined'
       const propSchema = currentSchema.properties![propName]
       const isAnyValue =
-        '$ref' in propSchema &&
-        propSchema.$ref === '#/components/schemas/AnyValue'
+        '$ref' in propSchema && isWildcardSchema(propSchema, schemas)
       if (
         currentSchema.required?.includes(propName) &&
         isNotDefined === true &&
@@ -903,7 +923,7 @@ function validateAndParseValueAgainstSchema(
     return { succeed: true, value: matchingValue }
   }
 
-  if ('$ref' in schema && schema?.$ref !== '#/components/schemas/AnyValue') {
+  if ('$ref' in schema && !isWildcardSchema(schema, schemas)) {
     logger.warn(
       `Schema of ${name} is not yet supported, skipping value validation`
     )

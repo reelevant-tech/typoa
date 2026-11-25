@@ -51,8 +51,8 @@ export type Value_Recursive_Nullable_Intermediate_Intermediate = number
 export type AnyValue = number
 
 interface WildcardHolder {
-  value?: unknown
-  other?: any
+  value: unknown
+  other: any
 }
 
 @Route('/items')
