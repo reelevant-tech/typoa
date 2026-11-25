@@ -208,17 +208,8 @@ export function resolve(
   if (compositionDocuments.has(spec) || flattenedDocuments.has(spec)) {
     return resolveRecursive(type, spec, resolveNullableTypeFn)
   }
-  const candidate = {
-    ...spec,
-    components: {
-      ...spec.components,
-      schemas: structuredClone(spec.components!.schemas!)
-    }
-  }
   try {
-    const schema = resolveLegacy(type, candidate, resolveNullableTypeFn)
-    spec.components = candidate.components
-    return schema
+    return resolveLegacy(type, spec, resolveNullableTypeFn)
   } catch (error) {
     if (
       !(error instanceof RangeError) ||
