@@ -216,8 +216,9 @@ whose sinceVersion is at or below npm latest fail as stale**, even for another
 Express major. Remove them after publication; do not extend their expiry to
 silence a failure. There is no automatic exception-update command.
 
-`yarn compat:legacy` independently installs published alpha.71 and checks the
-HTTP cases marked `legacy` in `cases.ts`, including the compositional cases.
+`yarn compat:legacy` independently installs published alpha.71 and checks
+all HTTP cases except the separate regex-path controller and the recursive
+fixtures that alpha.71 cannot generate, including all compositional cases.
 The default `yarn test` and `yarn compat` check the compositional HTTP snapshots
 offline; only `yarn compat:legacy` installs alpha.71 for a live comparison.
 Its OpenAPI is deliberately not compared:

@@ -338,3 +338,12 @@ export const scenarios: Scenario[] = [
   { id: 'response.required-code', method: 'GET', path: 'failure' },
   { id: 'response.serialization', method: 'GET', path: 'response' }
 ]
+
+for (const scenario of scenarios) {
+  scenario.legacy = ![
+    'path.valid',
+    'path.regex-miss',
+    'header.invalid',
+    'header.missing'
+  ].includes(scenario.id)
+}

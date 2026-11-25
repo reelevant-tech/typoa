@@ -611,7 +611,7 @@
       "args": [
         {
           "kind": "b",
-          "tags": []
+          "tags": {}
         }
       ],
       "called": true,
@@ -619,7 +619,7 @@
     },
     "payload": {
       "kind": "b",
-      "tags": []
+      "tags": {}
     },
     "status": 200
   },
@@ -667,7 +667,9 @@
       "args": [
         {
           "kind": "a",
-          "tags": ["a"]
+          "tags": {
+            "0": "a"
+          }
         }
       ],
       "called": true,
@@ -675,7 +677,9 @@
     },
     "payload": {
       "kind": "a",
-      "tags": ["a"]
+      "tags": {
+        "0": "a"
+      }
     },
     "status": 200
   },
@@ -878,7 +882,9 @@
       "args": [
         {
           "name": "a",
-          "tags": ["a"]
+          "tags": {
+            "0": "a"
+          }
         }
       ],
       "called": true,
@@ -886,7 +892,9 @@
     },
     "payload": {
       "name": "a",
-      "tags": ["a"]
+      "tags": {
+        "0": "a"
+      }
     },
     "status": 200
   },
@@ -939,8 +947,8 @@
     "payload": {
       "fields": {
         "tags": {
-          "message": "This property must be one of a",
-          "value": ["b"]
+          "message": "This property must be an array",
+          "value": "b"
         }
       },
       "message": "Missing parameter"
@@ -949,14 +957,22 @@
   },
   "query.intersection-single": {
     "controller": {
-      "args": [["a"]],
-      "called": true,
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
       "discriminatorCalls": 0
     },
     "payload": {
-      "tags": ["a"]
+      "fields": {
+        "tags": {
+          "message": "This property must be an array",
+          "value": "a"
+        }
+      },
+      "message": "Missing parameter"
     },
-    "status": 200
+    "status": 400
   },
   "query.invalid": {
     "controller": {

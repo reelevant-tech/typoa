@@ -370,7 +370,7 @@ describe('when merging the values of an allOf', () => {
     required: properties
   })
 
-  test('an array stays an array and its items are merged', async () => {
+  test('array intersections use alpha.71 indexed objects', async () => {
     const value = await parseBody(
       {
         allOf: [
@@ -383,13 +383,13 @@ describe('when merging the values of an allOf', () => {
         { name: 'b', label: 'B' }
       ]
     )
-    assert.deepStrictEqual(value, [
-      { name: 'a', label: 'A' },
-      { name: 'b', label: 'B' }
-    ])
+    assert.deepStrictEqual(value, {
+      0: { name: 'a', label: 'A' },
+      1: { name: 'b', label: 'B' }
+    })
   })
 
-  test('the items are merged whatever the order of the members', async () => {
+  test('later array members replace earlier indexed values like alpha.71', async () => {
     const value = await parseBody(
       {
         allOf: [
@@ -399,16 +399,16 @@ describe('when merging the values of an allOf', () => {
       },
       [{ name: 'a', label: 'A' }]
     )
-    assert.deepStrictEqual(value, [{ name: 'a', label: 'A' }])
+    assert.deepStrictEqual(value, { 0: { name: 'a' } })
   })
 
-  test('an empty array stays an empty array', async () => {
+  test('empty array intersections become empty objects like alpha.71', async () => {
     const schema = { type: 'array', items: { type: 'string' } }
     const value = await parseBody({ allOf: [schema, schema] }, [])
-    assert.deepStrictEqual(value, [])
+    assert.deepStrictEqual(value, {})
   })
 
-  test('an array of primitives is kept', async () => {
+  test('primitive array intersections use indexed objects like alpha.71', async () => {
     const value = await parseBody(
       {
         allOf: [
@@ -418,10 +418,10 @@ describe('when merging the values of an allOf', () => {
       },
       ['a', 'b']
     )
-    assert.deepStrictEqual(value, ['a', 'b'])
+    assert.deepStrictEqual(value, { 0: 'a', 1: 'b' })
   })
 
-  test('nested arrays are kept', async () => {
+  test('nested arrays remain indexed values in the alpha.71 shallow merge', async () => {
     const schema = {
       type: 'array',
       items: { type: 'array', items: item(['name']) }
@@ -430,10 +430,10 @@ describe('when merging the values of an allOf', () => {
       [{ name: 'a' }, { name: 'b' }],
       []
     ])
-    assert.deepStrictEqual(value, [[{ name: 'a' }, { name: 'b' }], []])
+    assert.deepStrictEqual(value, { 0: [{ name: 'a' }, { name: 'b' }], 1: [] })
   })
 
-  test('an array property of an object stays an array', async () => {
+  test('array intersection properties use alpha.71 indexed objects', async () => {
     const value = (await parseBody(
       {
         type: 'object',
@@ -447,12 +447,11 @@ describe('when merging the values of an allOf', () => {
         }
       },
       { tracks: [{ name: 'a', label: 'A' }] }
-    )) as { tracks: unknown[] }
-    assert.ok(Array.isArray(value.tracks))
-    assert.deepStrictEqual(value.tracks, [{ name: 'a', label: 'A' }])
+    )) as { tracks: unknown }
+    assert.deepStrictEqual(value.tracks, { 0: { label: 'A' } })
   })
 
-  test('a string is not spread into an object of characters', async () => {
+  test('string intersections use alpha.71 character objects', async () => {
     const value = await parseBody(
       {
         allOf: [
@@ -462,10 +461,10 @@ describe('when merging the values of an allOf', () => {
       },
       'abc'
     )
-    assert.strictEqual(value, 'abc')
+    assert.deepStrictEqual(value, { 0: 'a', 1: 'b', 2: 'c' })
   })
 
-  test('a Date of a response stays a Date', () => {
+  test('Date intersections use the alpha.71 shallow merge', () => {
     const date = new Date('2026-01-01T00:00:00.000Z')
     const value = validateAndParseResponse(
       date,
@@ -488,7 +487,7 @@ describe('when merging the values of an allOf', () => {
       '200',
       'application/json'
     )
-    assert.strictEqual(value, date)
+    assert.deepStrictEqual(value, {})
   })
 
   test('objects are still merged', async () => {

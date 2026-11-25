@@ -112,7 +112,11 @@ async function validateRequest(
         ) {
           value = 'true' // allow empty values for param boolean
         }
-        if (isArraySchema(schema, schemas) && typeof value === 'string') {
+        if (
+          'type' in schema &&
+          schema.type === 'array' &&
+          typeof value === 'string'
+        ) {
           value = [value]
         }
         break
@@ -432,19 +436,6 @@ function getNestedValue(obj: any, path: string): any {
   return current
 }
 
-function isArraySchema(
-  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
-  schemas: OpenAPIV3.ComponentsObject['schemas']
-): boolean {
-  const resolved = getFromRef(schema, schemas)
-  return (
-    resolved.type === 'array' ||
-    (resolved.allOf !== undefined &&
-      resolved.allOf.length > 0 &&
-      resolved.allOf.every(member => isArraySchema(member, schemas)))
-  )
-}
-
 function isNullableSchema(
   schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
   schemas: OpenAPIV3.ComponentsObject['schemas']
@@ -645,7 +636,7 @@ function validateAndParseValueAgainstSchema(
     }
   }
   // Array
-  if (isArraySchema(currentSchema, schemas)) {
+  if (currentSchema.type === 'array') {
     if (!Array.isArray(value)) {
       return {
         succeed: false,
@@ -860,7 +851,7 @@ function validateAndParseValueAgainstSchema(
     // All succeeded, merge values
     return {
       succeed: true,
-      value: mergeAllOfValues(schemasValues.map(v => v.value))
+      value: Object.assign({}, ...schemasValues.map(v => v.value))
     }
   }
   // OneOf
@@ -919,32 +910,6 @@ function validateAndParseValueAgainstSchema(
   }
 
   return { succeed: true, value }
-}
-
-/**
- * Merges the values parsed by every member of an `allOf`. Each member only keeps
- * the properties it declares, so objects are merged together. `Object.assign` must
- * not be applied to anything else: it turns an array into `{ 0: ..., 1: ... }` and
- * a string into an object of characters. Arrays are merged item by item, and any
- * other value (string, number, Date, ...) is kept as parsed by the last member.
- */
-function mergeAllOfValues(values: unknown[]): unknown {
-  if (values.every(value => Array.isArray(value))) {
-    const arrays = values as unknown[][]
-    return arrays[0].map((_, i) =>
-      mergeAllOfValues(arrays.map(array => array[i]))
-    )
-  }
-  const isObject = (value: unknown) =>
-    typeof value === 'object' &&
-    value !== null &&
-    Array.isArray(value) === false &&
-    value instanceof Date === false &&
-    Buffer.isBuffer(value) === false
-  if (values.every(isObject)) {
-    return Object.assign({}, ...(values as Record<string, unknown>[]))
-  }
-  return values[values.length - 1]
 }
 
 function validateAndParseFormat(

@@ -397,7 +397,7 @@ describe('Lossless intersections', () => {
       }
     )
 
-  test('Should wrap a single query value for intersected arrays', async () => {
+  test('Should preserve alpha.71 scalar rejection and indexed arrays in queries', async () => {
     const operation = spec.paths['/intersections/tags']!.get!
     const params = operation.parameters as OpenAPIV3.ParameterObject[]
     assert.deepEqual(params[0].schema, tags)
@@ -407,8 +407,10 @@ describe('Lossless intersections', () => {
         spec.components!.schemas!,
         { params }
       )
-    assert.deepEqual(await parseQuery({ tags: 'a' }), [['a']])
-    assert.deepEqual(await parseQuery({ tags: ['a', 'a'] }), [['a', 'a']])
+    await assert.rejects(parseQuery({ tags: 'a' }))
+    assert.deepEqual(await parseQuery({ tags: ['a', 'a'] }), [
+      { 0: 'a', 1: 'a' }
+    ])
     await assert.rejects(parseQuery({ tags: 'b' }))
     await assert.rejects(parseQuery({}))
   })
@@ -465,32 +467,79 @@ describe('Lossless intersections', () => {
           valid,
           `${name}: ${JSON.stringify(value)}`
         )
-        if (valid)
-          assert.deepEqual(await parse(properties[name], value), [value])
-        else await assert.rejects(parse(properties[name], value))
+        if (valid) {
+          const indexed = Object.fromEntries(array.entries())
+          const parsed =
+            name === 'serialized' || name === 'choice'
+              ? { tags: indexed }
+              : name === 'nested'
+                ? { 0: array }
+                : indexed
+          assert.deepEqual(await parse(properties[name], value), [parsed])
+        } else await assert.rejects(parse(properties[name], value))
       }
     }
   })
 
-  const samples: Record<string, { valid: unknown[]; invalid: unknown[] }> = {
-    nullableTags: { valid: [null, [], ['a']], invalid: [['b'], 1, {}] },
+  const samples: Record<
+    string,
+    {
+      valid: unknown[]
+      invalid: unknown[]
+      parsed?: unknown[]
+      legacyAccepted?: Record<number, unknown>
+    }
+  > = {
+    nullableTags: {
+      valid: [null, [], ['a']],
+      invalid: [['b'], 1, {}],
+      parsed: [null, {}, { 0: 'a' }]
+    },
     inheritedNullableBounds: {
       valid: [{ tags: null }, { tags: ['a'] }, { tags: ['a', 'a'] }],
-      invalid: [{}, { tags: [] }, { tags: ['a', 'a', 'a'] }, { tags: ['b'] }]
+      invalid: [{}, { tags: [] }, { tags: ['a', 'a', 'a'] }, { tags: ['b'] }],
+      parsed: [
+        { tags: null },
+        { tags: { 0: 'a' } },
+        { tags: { 0: 'a', 1: 'a' } }
+      ],
+      legacyAccepted: {
+        1: { tags: {} },
+        2: { tags: { 0: 'a', 1: 'a', 2: 'a' } }
+      }
     },
     boundedTags: {
       valid: [['a'], ['a', 'a']],
-      invalid: [[], ['a', 'a', 'a'], ['b']]
+      invalid: [[], ['a', 'a', 'a'], ['b']],
+      parsed: [{ 0: 'a' }, { 0: 'a', 1: 'a' }],
+      legacyAccepted: { 0: {}, 1: { 0: 'a', 1: 'a', 2: 'a' } }
     },
     enumChoice: {
       valid: [['a'], ['b']],
-      invalid: [['a', 'b'], ['c'], [null]]
+      invalid: [['a', 'b'], ['c'], [null]],
+      parsed: [{ 0: 'a' }, { 0: 'b' }]
     },
-    mixed: { valid: [[], ['a', 'b']], invalid: [['c'], [1], [null]] },
-    primitives: { valid: [[]], invalid: [['a'], [1], [null]] },
-    three: { valid: [[], ['a']], invalid: [['b'], ['c'], [1]] },
-    objectPrimitive: { valid: [[]], invalid: [[{ name: 'x' }], ['a']] },
-    nestedMixed: { valid: [[], [[]], [['a', 'b']]], invalid: [[['c']], [[1]]] },
+    mixed: {
+      valid: [[], ['a', 'b']],
+      invalid: [['c'], [1], [null]],
+      parsed: [{}, { 0: 'a', 1: 'b' }]
+    },
+    primitives: { valid: [[]], invalid: [['a'], [1], [null]], parsed: [{}] },
+    three: {
+      valid: [[], ['a']],
+      invalid: [['b'], ['c'], [1]],
+      parsed: [{}, { 0: 'a' }]
+    },
+    objectPrimitive: {
+      valid: [[]],
+      invalid: [[{ name: 'x' }], ['a']],
+      parsed: [{}]
+    },
+    nestedMixed: {
+      valid: [[], [[]], [['a', 'b']]],
+      invalid: [[['c']], [[1]]],
+      parsed: [{}, { 0: [] }, { 0: ['a', 'b'] }]
+    },
     nullableObjects: {
       valid: [
         [],
@@ -578,7 +627,8 @@ describe('Lossless intersections', () => {
     required: { valid: [{ value: 'x' }], invalid: [{}, { value: {} }] },
     inherited: {
       valid: [{ name: 'ab' }],
-      invalid: [{ name: 'a' }, { name: 'abcde' }]
+      invalid: [{ name: 'a' }, { name: 'abcde' }],
+      parsed: [{ name: { 0: 'a', 1: 'b' } }]
     },
     bounded: {
       valid: [{ tags: ['a'] }, { tags: ['a', 'b'] }],
@@ -668,14 +718,17 @@ describe('Lossless intersections', () => {
       $ref: 'spec#/components/schemas/Cases/properties/enumChoice'
     })
     assert.equal(validate(value), false)
-    assert.deepEqual(await parse(properties.enumChoice, value), [[]])
+    assert.deepEqual(await parse(properties.enumChoice, value), [{}])
   })
 
-  for (const [name, { valid, invalid }] of Object.entries(samples)) {
+  for (const [
+    name,
+    { valid, invalid, parsed, legacyAccepted }
+  ] of Object.entries(samples)) {
     test(`Should validate retained constraints for ${name}`, async () => {
       options.features.enableThrowOnUnexpectedAdditionalData = true
       try {
-        for (const value of valid) {
+        for (const [index, value] of valid.entries()) {
           assert.equal(
             ajv.validate(
               { $ref: `spec#/components/schemas/Cases/properties/${name}` },
@@ -683,9 +736,11 @@ describe('Lossless intersections', () => {
             ),
             true
           )
-          assert.deepEqual(await parse(properties[name], value), [value])
+          assert.deepEqual(await parse(properties[name], value), [
+            parsed ? parsed[index] : value
+          ])
         }
-        for (const value of invalid) {
+        for (const [index, value] of invalid.entries()) {
           assert.equal(
             ajv.validate(
               { $ref: `spec#/components/schemas/Cases/properties/${name}` },
@@ -693,7 +748,11 @@ describe('Lossless intersections', () => {
             ),
             false
           )
-          await assert.rejects(parse(properties[name], value))
+          if (legacyAccepted && index in legacyAccepted)
+            assert.deepEqual(await parse(properties[name], value), [
+              legacyAccepted[index]
+            ])
+          else await assert.rejects(parse(properties[name], value))
         }
       } finally {
         options.features.enableThrowOnUnexpectedAdditionalData = false
