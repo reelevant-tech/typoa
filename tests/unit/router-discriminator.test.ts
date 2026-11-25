@@ -38,9 +38,9 @@ test('Should successfully generate with valid discriminator function', async () 
   const spec = (await import(config.openapi.filePath)).default
 
   // Verify the generated spec includes discriminator handling
-  assert.ok(spec.paths['/123'])
-  assert.ok(spec.paths['/123'].patch)
-  assert.ok(spec.paths['/123'].patch.requestBody)
+  assert.ok(spec.paths['/middleware/123'])
+  assert.ok(spec.paths['/middleware/123'].patch)
+  assert.ok(spec.paths['/middleware/123'].patch.requestBody)
 })
 
 test('Should fail generate with not found discriminator function', async () => {

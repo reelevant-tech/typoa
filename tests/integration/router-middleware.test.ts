@@ -57,7 +57,7 @@ before(async () => {
 describe('Content type and middleware', () => {
   test('Should reject unsupported content type', async () => {
     await request(app)
-      .patch('/123')
+      .patch('/middleware/123')
       .set('Content-Type', 'text/html')
       .send('hey')
       .expect(400)
@@ -67,7 +67,7 @@ describe('Content type and middleware', () => {
 
   test('Should use discriminator function correctly', async () => {
     const res = await request(app)
-      .patch('/123?one')
+      .patch('/middleware/123?one')
       .send({ type: 'one' })
       .expect(200)
 
@@ -76,7 +76,7 @@ describe('Content type and middleware', () => {
 
   test('Should reject invalid discriminator', async () => {
     const res = await request(app)
-      .patch('/123?one')
+      .patch('/middleware/123?one')
       .send({ type: 'two' })
       .expect(400)
 
