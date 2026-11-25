@@ -4,7 +4,7 @@ import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
 import express from 'express'
 import request from 'supertest'
-import { generate } from '../../src'
+import { generate, setRuntimeOptions } from '../../src'
 import { NullableParsingController } from '../fixtures/validation/nullable-parsing'
 import { createErrorHandler } from '../integration/shared'
 
@@ -26,18 +26,21 @@ test('Nullable fallback parses enums and objects exactly like their nonnullable 
       },
       router: {
         filePath: filePath.replace('.json', '.ts'),
-        runtimeImport: '../../src'
+        runtimeImport: '../../src',
+        validateResponse: true
       }
     })
     const records: unknown[] = []
-    const originals = (['plain', 'nullable'] as const).map(method => {
-      const original = NullableParsingController.prototype[method]
-      NullableParsingController.prototype[method] = function (body: any) {
-        records.push(body)
-        return original.call(this, body)
+    const originals = (['plain', 'nullable', 'response'] as const).map(
+      method => {
+        const original = NullableParsingController.prototype[method]
+        NullableParsingController.prototype[method] = function (body: any) {
+          records.push(body)
+          return original.call(this, body)
+        }
+        return [method, original] as const
       }
-      return [method, original] as const
-    })
+    )
     try {
       const app = express()
       app.use(express.json())
@@ -94,8 +97,34 @@ test('Nullable fallback parses enums and objects exactly like their nonnullable 
             .expect(400)
       }
       assert.equal(records.length, before)
+      setRuntimeOptions({
+        features: { enableThrowOnUnexpectedAdditionalData: true }
+      })
+      const input = {
+        node: { value: 1 },
+        mode: 'first',
+        value: { count: 2, flag: 'false', extra: true }
+      }
+      const parsed = {
+        node: { value: 1 },
+        mode: 'first',
+        value: { count: 2, flag: false }
+      }
+      for (const route of ['nullable', 'nullable-response']) {
+        const before = records.length
+        const result = await request(app)
+          .post(`/nullable-parsing/${route}`)
+          .send(input)
+          .expect(200)
+        assert.deepEqual(result.body, parsed)
+        assert.deepEqual(records.at(-1), route === 'nullable' ? parsed : input)
+        assert.equal(records.length, before + 1)
+      }
       assert.ok(fs.existsSync(filePath))
     } finally {
+      setRuntimeOptions({
+        features: { enableThrowOnUnexpectedAdditionalData: false }
+      })
       for (const [method, original] of originals)
         NullableParsingController.prototype[method] = original
     }

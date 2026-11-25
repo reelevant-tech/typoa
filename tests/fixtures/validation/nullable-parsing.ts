@@ -11,6 +11,7 @@ interface RecursiveNode<T> {
   next?: T extends 1 ? undefined : RecursiveNode<T>
 }
 
+/** @additionalproperties false */
 interface ParsedValue {
   count: number
   flag: boolean
@@ -42,5 +43,10 @@ export class NullableParsingController extends Controller {
   @Post('/nullable')
   nullable(@Body() body: NullableEnvelope): NullableEnvelope {
     return body
+  }
+
+  @Post('/nullable-response')
+  response(@Body() body: unknown): NullableEnvelope {
+    return body as NullableEnvelope
   }
 }

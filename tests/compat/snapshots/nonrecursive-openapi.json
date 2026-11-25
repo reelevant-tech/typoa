@@ -52,6 +52,21 @@
         "required": ["name"],
         "type": "object"
       },
+      "ClosedEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Closed"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": ["value"],
+        "type": "object"
+      },
       "Item": {
         "allOf": [
           {
@@ -156,6 +171,66 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/nonrecursive-nullable-request": {
+      "post": {
+        "operationId": "NullableRequest",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClosedEnvelope"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedEnvelope"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/nonrecursive-nullable-response": {
+      "post": {
+        "operationId": "NullableResponse",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnyValue"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClosedEnvelope"
                 }
               }
             },

@@ -107,6 +107,113 @@
     },
     "status": 200
   },
+  "nonrecursive-nullable-request.extra": {
+    "controller": {
+      "args": [
+        {
+          "value": {
+            "name": "Item"
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "value": {
+        "name": "Item"
+      }
+    },
+    "status": 200
+  },
+  "nonrecursive-nullable-request.null": {
+    "controller": {
+      "args": [
+        {
+          "value": null
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "value": null
+    },
+    "status": 200
+  },
+  "nonrecursive-nullable-request.valid": {
+    "controller": {
+      "args": [
+        {
+          "value": {
+            "name": "Item"
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "value": {
+        "name": "Item"
+      }
+    },
+    "status": 200
+  },
+  "nonrecursive-nullable-response.extra": {
+    "controller": {
+      "args": [
+        {
+          "value": {
+            "extra": true,
+            "name": "Item"
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "value": {
+        "name": "Item"
+      }
+    },
+    "status": 200
+  },
+  "nonrecursive-nullable-response.null": {
+    "controller": {
+      "args": [
+        {
+          "value": null
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "value": null
+    },
+    "status": 200
+  },
+  "nonrecursive-nullable-response.valid": {
+    "controller": {
+      "args": [
+        {
+          "value": {
+            "name": "Item"
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "value": {
+        "name": "Item"
+      }
+    },
+    "status": 200
+  },
   "nonrecursive-strict.extra": {
     "controller": {
       "args": [

@@ -518,7 +518,7 @@ function validateAndParseValueAgainstSchema(
       value,
       currentSchema.anyOf[0],
       schemas,
-      parentType,
+      'allOf',
       logger
     )
   }

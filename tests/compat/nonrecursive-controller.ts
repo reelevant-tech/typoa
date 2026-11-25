@@ -28,9 +28,24 @@ interface Closed {
   name: string
 }
 interface Pair extends Open, Closed {}
+interface ClosedEnvelope {
+  value: Closed | null
+}
 
 @Route('compat')
 export class NonrecursiveController extends Controller {
+  @Post('nonrecursive-nullable-request')
+  nullableRequest(@Body() body: ClosedEnvelope): ClosedEnvelope {
+    received(body)
+    return body
+  }
+
+  @Post('nonrecursive-nullable-response')
+  nullableResponse(@Body() body: unknown): ClosedEnvelope {
+    received(body)
+    return body as ClosedEnvelope
+  }
+
   @Post('nonrecursive-strict')
   strict(@Body() body: Pair): unknown {
     received(body)

@@ -177,16 +177,16 @@
   },
   {
     "caseId": "nonrecursive.openapi",
-    "before": "eb5f4d45926076f5010b382a4a7ee8cc77094e867f8ebbc418200a4951b7abed",
-    "after": "9f498401a6c9109e2153e1e7d28b6c98742699438cc662ac99c4402efd8c2895",
+    "before": "67f2c7bf72c9de0375f1870be0db8f18822b2ec17d89a5de93e413a121e9515f",
+    "after": "24605d7fd72f2ccc8ef1d24a3247c9e5be8118509f6bb9d9ca168e4433341c65",
     "expressMajor": "4",
     "reason": "Restore alpha.71 OpenAPI generic inheritance and component reuse, including historical allOf overrides and undefined-property representation.",
     "sinceVersion": "1.0.0-alpha.83"
   },
   {
     "caseId": "nonrecursive.openapi",
-    "before": "eb5f4d45926076f5010b382a4a7ee8cc77094e867f8ebbc418200a4951b7abed",
-    "after": "9f498401a6c9109e2153e1e7d28b6c98742699438cc662ac99c4402efd8c2895",
+    "before": "67f2c7bf72c9de0375f1870be0db8f18822b2ec17d89a5de93e413a121e9515f",
+    "after": "24605d7fd72f2ccc8ef1d24a3247c9e5be8118509f6bb9d9ca168e4433341c65",
     "expressMajor": "5",
     "reason": "Restore alpha.71 OpenAPI generic inheritance and component reuse, including historical allOf overrides and undefined-property representation.",
     "sinceVersion": "1.0.0-alpha.83"
