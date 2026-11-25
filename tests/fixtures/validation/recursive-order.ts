@@ -13,6 +13,15 @@ interface RecursiveItem {
   next?: RecursiveItem
 }
 
+interface Chain {
+  value: number
+  next: Chain | undefined
+}
+
+interface Holder {
+  root: Chain | undefined
+}
+
 type RecursiveValue = string | RecursiveValue[]
 type RecursiveMapping = { [K in 'next']?: RecursiveMapping }
 
@@ -35,6 +44,11 @@ export class RecursiveOrderController extends Controller {
 
   @Post('/mapping')
   mapping(@Body() body: RecursiveMapping): RecursiveMapping {
+    return body
+  }
+
+  @Post('/optional')
+  optional(@Body() body: Holder): Holder {
     return body
   }
 }

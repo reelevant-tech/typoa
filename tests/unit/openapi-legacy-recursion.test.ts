@@ -34,10 +34,18 @@ for (const keepIntermediateSchemas of [false, true]) {
       spec.components.schemas.RecursiveItem.properties.next.$ref,
       '#/components/schemas/RecursiveItem'
     )
+    assert.deepEqual(spec.components.schemas.Chain.required, ['value'])
+    assert.equal(spec.components.schemas.Holder.required, undefined)
     await SwaggerParser.validate(structuredClone(spec))
     for (const [route, valid, invalid] of [
       ['value', ['a', ['b']], [1]],
-      ['mapping', { next: {} }, { next: 1 }]
+      ['mapping', { next: {} }, { next: 1 }],
+      ['optional', { root: { value: 1 } }, { root: { value: 1, next: {} } }],
+      [
+        'optional',
+        { root: { value: 1, next: { value: 2 } } },
+        { root: { value: 'invalid' } }
+      ]
     ] as const) {
       const rules = {
         params: [{ in: 'body' as any, name: 'body' }],

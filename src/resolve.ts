@@ -227,6 +227,9 @@ function resolveRecursive(
   spec: OpenAPIV3.Document,
   resolveNullableTypeFn = resolveNullableType
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (type.isNullable()) {
+    return resolveRecursiveType(type, spec, resolveNullableTypeFn)
+  }
   let active = activeResolutions.get(spec)
   if (!active) {
     active = new Map()
