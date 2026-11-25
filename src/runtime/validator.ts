@@ -42,30 +42,19 @@ export async function validateAndParse(
     rules: ValidationRules
   }
 ): Promise<any[]> {
+  const runtimeSchemas = diagnostics?.schemas ?? schemas
+  const runtimeRules = diagnostics?.rules ?? rules
   let discriminatorResult: ReturnType<BodyDiscriminatorFunction> | undefined
-  const bodyDiscriminatorFn = rules.bodyDiscriminatorFn
+  const bodyDiscriminatorFn = runtimeRules.bodyDiscriminatorFn
     ? (request: express.Request) =>
         (discriminatorResult ??= Promise.resolve().then(() =>
-          rules.bodyDiscriminatorFn!(request)
+          runtimeRules.bodyDiscriminatorFn!(request)
         ))
     : undefined
-  try {
-    return await validateRequest(req, schemas, {
-      ...rules,
-      bodyDiscriminatorFn
-    })
-  } catch (error) {
-    if (!(error instanceof ValidateError) || !diagnostics) throw error
-    try {
-      await validateRequest(req, diagnostics.schemas, {
-        ...diagnostics.rules,
-        bodyDiscriminatorFn
-      })
-    } catch (diagnosticError) {
-      if (diagnosticError instanceof ValidateError) throw diagnosticError
-    }
-    throw error
-  }
+  return await validateRequest(req, runtimeSchemas, {
+    ...runtimeRules,
+    bodyDiscriminatorFn
+  })
 }
 
 async function validateRequest(

@@ -1,18 +1,18 @@
 [
   {
-    "caseId": "openapi",
+    "caseId": "arrays.valid",
     "expressMajor": "4",
-    "reason": "Keep named intermediate component schemas by default; only Envelope and Tagged are added, with all existing schemas and operations unchanged.",
-    "sinceVersion": "1.0.0-alpha.82",
-    "before": "b174938e3cf9d1976f7fc43b15ea794e9e55bc3a98daa5d405b2b5f0d8a74a20",
-    "after": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7"
+    "reason": "Restore alpha.71 compositional parsing: the later array intersection member supplies the controller argument items, retaining tags rather than merging name from the earlier member. Published OpenAPI is unchanged.",
+    "sinceVersion": "1.0.0-alpha.83",
+    "before": "7d48e6867ee38922d5a8d8e0c75c8b8fd529a996c8edde3c5a32a94e96319f77",
+    "after": "97fc95d18123eb24e4c4345af6220fc206274fee4faef81bf2411ed7c9156c7f"
   },
   {
-    "caseId": "openapi",
+    "caseId": "arrays.valid",
     "expressMajor": "5",
-    "reason": "Keep named intermediate component schemas by default; only Envelope and Tagged are added, with all existing schemas and operations unchanged.",
-    "sinceVersion": "1.0.0-alpha.82",
-    "before": "b174938e3cf9d1976f7fc43b15ea794e9e55bc3a98daa5d405b2b5f0d8a74a20",
-    "after": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7"
+    "reason": "Restore alpha.71 compositional parsing: the later array intersection member supplies the controller argument items, retaining tags rather than merging name from the earlier member. Published OpenAPI is unchanged.",
+    "sinceVersion": "1.0.0-alpha.83",
+    "before": "7d48e6867ee38922d5a8d8e0c75c8b8fd529a996c8edde3c5a32a94e96319f77",
+    "after": "97fc95d18123eb24e4c4345af6220fc206274fee4faef81bf2411ed7c9156c7f"
   }
 ]

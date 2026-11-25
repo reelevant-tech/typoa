@@ -1,0 +1,344 @@
+{
+  "compositional-discriminated.dictionary": {
+    "controller": {
+      "args": [
+        {
+          "tags": {
+            "kinds": {
+              "item": {
+                "foo": "x",
+                "nested": {
+                  "a": 1
+                },
+                "required": true
+              }
+            }
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "tags": {
+        "kinds": {
+          "item": {
+            "foo": "x",
+            "nested": {
+              "a": 1
+            },
+            "required": true
+          }
+        }
+      }
+    },
+    "status": 200
+  },
+  "compositional-discriminated.empty": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 1
+    },
+    "payload": {},
+    "status": 200
+  },
+  "compositional-discriminated.invalid-date-0": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.1.stamp": {
+          "details": [],
+          "message": "This property must be a valid date"
+        }
+      },
+      "message": "This property must be a valid date"
+    },
+    "status": 400
+  },
+  "compositional-discriminated.invalid-date-1": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.1.stamp": {
+          "details": [],
+          "message": "This property must be a string"
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "compositional-discriminated.invalid-date-2": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.1.stamp": {
+          "details": [],
+          "message": "This property must be a string"
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "compositional-discriminated.invalid-dictionary": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.1.tags.0.kinds.item.required": {
+          "details": [],
+          "message": "This property must be a boolean"
+        }
+      },
+      "message": "This property must be a boolean"
+    },
+    "status": 400
+  },
+  "compositional-discriminated.valid-date": {
+    "controller": {
+      "args": [
+        {
+          "stamp": "2026-01-02T03:04:05.000Z"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "stamp": "2026-01-02T03:04:05.000Z"
+    },
+    "status": 200
+  },
+  "compositional.array-strict": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.items.0": {
+          "details": [],
+          "message": "Additional properties are not allowed. Found: tags"
+        }
+      },
+      "message": "Additional properties are not allowed. Found: tags"
+    },
+    "status": 400
+  },
+  "compositional.array-strict-extra": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.items.0": {
+          "details": [],
+          "message": "Additional properties are not allowed. Found: tags, extra"
+        }
+      },
+      "message": "Additional properties are not allowed. Found: tags, extra"
+    },
+    "status": 400
+  },
+  "compositional.dictionary": {
+    "controller": {
+      "args": [
+        {
+          "tags": {
+            "kinds": {
+              "item": {
+                "foo": "x",
+                "nested": {
+                  "a": 1
+                },
+                "required": true
+              }
+            }
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "tags": {
+        "kinds": {
+          "item": {
+            "foo": "x",
+            "nested": {
+              "a": 1
+            },
+            "required": true
+          }
+        }
+      }
+    },
+    "status": 200
+  },
+  "compositional.empty": {
+    "controller": {
+      "args": [{}],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {},
+    "status": 200
+  },
+  "compositional.inherited-strict": {
+    "controller": {
+      "args": [
+        {
+          "count": 1,
+          "name": "Item"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "count": 1,
+      "name": "Item"
+    },
+    "status": 200
+  },
+  "compositional.inherited-strict-extra": {
+    "controller": {
+      "args": [
+        {
+          "count": 1,
+          "name": "Item"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "count": 1,
+      "name": "Item"
+    },
+    "status": 200
+  },
+  "compositional.invalid-date-0": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.stamp": {
+          "details": [],
+          "message": "This property must be a valid date"
+        }
+      },
+      "message": "This property must be a valid date"
+    },
+    "status": 400
+  },
+  "compositional.invalid-date-1": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.stamp": {
+          "details": [],
+          "message": "This property must be a string"
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "compositional.invalid-date-2": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.stamp": {
+          "details": [],
+          "message": "This property must be a string"
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  },
+  "compositional.invalid-dictionary": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.tags.0.kinds.item.required": {
+          "details": [],
+          "message": "This property must be a boolean"
+        }
+      },
+      "message": "This property must be a boolean"
+    },
+    "status": 400
+  },
+  "compositional.valid-date": {
+    "controller": {
+      "args": [
+        {
+          "stamp": "2026-01-02T03:04:05.000Z"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "stamp": "2026-01-02T03:04:05.000Z"
+    },
+    "status": 200
+  }
+}

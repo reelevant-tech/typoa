@@ -26,7 +26,8 @@ export function temporary<T>(
 
 export function capture(
   entry: string | undefined = undefined,
-  legacy = false
+  legacy = false,
+  compositional = false
 ): Promise<
   Snapshot & { runtime: { entry: string; runtime: string; hash: string } }
 > {
@@ -36,7 +37,11 @@ export function capture(
       scenarios.length,
       'Duplicate scenario IDs'
     )
-    for (const name of ['controllers.ts', 'pattern-controller.ts'])
+    for (const name of [
+      'controllers.ts',
+      'pattern-controller.ts',
+      'compositional-controller.ts'
+    ])
       fs.copyFileSync(path.join(__dirname, name), path.join(directory, name))
     fs.writeFileSync(
       path.join(directory, 'runtime.ts'),
@@ -103,6 +108,7 @@ export function capture(
       JSON.stringify({
         identity,
         legacy,
+        compositional,
         directory,
         express: require.resolve('express')
       })

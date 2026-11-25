@@ -187,32 +187,33 @@ describe('Flattened composed types at runtime', () => {
     assert.deepStrictEqual(res.body, { a: 'x', b: 1 })
   })
 
-  test('Should reject an unknown body property when enableThrowOnUnexpectedAdditionalData is on', async () => {
+  test('Should strip unknown composed body properties in strict mode', async () => {
     setRuntimeOptions({
       features: { enableThrowOnUnexpectedAdditionalData: true }
     })
     const res = await request(app)
       .post('/inheritance-test/b')
       .send({ a: 'x', b: 1, c: true })
-      .expect(400)
-    assert.strictEqual(
-      res.body.fields.body.message,
-      'Additional properties are not allowed. Found: c'
-    )
+      .expect(200)
+    assert.deepStrictEqual(res.body, { a: 'x', b: 1 })
     await request(app)
       .post('/inheritance-test/b')
       .send({ a: 'x', b: 1 })
       .expect(200, { a: 'x', b: 1 })
   })
 
-  test('Should accept an array declared by several intersection members when enableThrowOnUnexpectedAdditionalData is on', async () => {
+  test('Should retain composed array item errors in strict mode', async () => {
     setRuntimeOptions({
       features: { enableThrowOnUnexpectedAdditionalData: true }
     })
-    await request(app)
+    const valid = await request(app)
       .post('/inheritance-test/playlist')
       .send({ tracks: [{ name: 'a', artistIds: ['1'] }] })
-      .expect(200, { tracksIsArray: true, artistIds: ['1'], matrix: [] })
+      .expect(400)
+    assert.strictEqual(
+      valid.body.fields['body.0.tracks.0'].message,
+      'Additional properties are not allowed. Found: artistIds'
+    )
     const res = await request(app)
       .post('/inheritance-test/playlist')
       .send({ tracks: [{ name: 'a', artistIds: ['1'], other: true }] })

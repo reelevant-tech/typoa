@@ -115,7 +115,6 @@
         {
           "items": [
             {
-              "name": "a",
               "tags": ["b"]
             }
           ]
@@ -127,7 +126,6 @@
     "payload": {
       "items": [
         {
-          "name": "a",
           "tags": ["b"]
         }
       ]

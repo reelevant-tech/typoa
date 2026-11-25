@@ -22,6 +22,56 @@ const json = (
 })
 const empty = { 'content-type': 'application/json', 'content-length': '0' }
 
+export const compositionalScenarios: Scenario[] = [
+  ...[
+    json('compositional.inherited-strict', 'compositional-inherited', {
+      name: 'Item',
+      count: 1
+    }),
+    json('compositional.inherited-strict-extra', 'compositional-inherited', {
+      name: 'Item',
+      count: 1,
+      extra: true
+    }),
+    json('compositional.array-strict', 'compositional-array', {
+      items: [{ name: 'Item', tags: ['a'] }]
+    }),
+    json('compositional.array-strict-extra', 'compositional-array', {
+      items: [{ name: 'Item', tags: ['a'], extra: true }]
+    })
+  ].map(scenario => ({ ...scenario, strict: true, legacy: true })),
+  ...['compositional', 'compositional-discriminated'].flatMap(path => [
+    json(`${path}.empty`, path, {}, true),
+    json(
+      `${path}.valid-date`,
+      path,
+      { stamp: '2026-01-02T03:04:05.000Z' },
+      true
+    ),
+    ...['not-a-date', 123, {}].map((stamp, index) =>
+      json(`${path}.invalid-date-${index}`, path, { stamp }, true)
+    ),
+    json(
+      `${path}.dictionary`,
+      path,
+      {
+        tags: {
+          kinds: { item: { required: true, foo: 'x', nested: { a: 1 } } }
+        }
+      },
+      true
+    ),
+    json(
+      `${path}.invalid-dictionary`,
+      path,
+      {
+        tags: { kinds: { item: { required: 'invalid' } } }
+      },
+      true
+    )
+  ])
+]
+
 export const scenarios: Scenario[] = [
   ...['GET', 'POST', 'DELETE', 'HEAD'].flatMap(method => [
     { id: `body.${method}.missing`, method, path: 'optional', legacy: true },
@@ -104,9 +154,14 @@ export const scenarios: Scenario[] = [
   json('inheritance.invalid', 'inherited', { count: 1 }, true),
   json('nested.valid', 'nested', { rows: [[{ name: 'a', tags: ['b'] }]] }),
   json('nested.invalid', 'nested', { rows: [[{ name: 'a', tags: 1 }]] }, true),
-  json('arrays.valid', 'array-intersection', {
-    items: [{ name: 'a', tags: ['b'] }]
-  }),
+  json(
+    'arrays.valid',
+    'array-intersection',
+    {
+      items: [{ name: 'a', tags: ['b'] }]
+    },
+    true
+  ),
   json(
     'arrays.invalid',
     'array-intersection',
