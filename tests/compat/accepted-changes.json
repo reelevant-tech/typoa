@@ -1,5 +1,53 @@
 [
   {
+    "caseId": "recursive-box.narrowed",
+    "before": "b1be42923a23fc299d2c4fdf03bbe61146e9bac784f69925a13468f8683cf8ae",
+    "after": "dfe56ada7b980f53ef8ab4294dc6b499adb7eecce689b9c5834614361bdc94e9",
+    "expressMajor": "4",
+    "reason": "Use alpha.71-style compositional diagnostics for recursive narrowed generics now that distinct TypeScript identities have distinct components: body.1.box.value without a value field. Status 400 and controller/discriminator behavior are unchanged.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "recursive-box.narrowed",
+    "before": "b1be42923a23fc299d2c4fdf03bbe61146e9bac784f69925a13468f8683cf8ae",
+    "after": "dfe56ada7b980f53ef8ab4294dc6b499adb7eecce689b9c5834614361bdc94e9",
+    "expressMajor": "5",
+    "reason": "Use alpha.71-style compositional diagnostics for recursive narrowed generics now that distinct TypeScript identities have distinct components: body.1.box.value without a value field. Status 400 and controller/discriminator behavior are unchanged.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "recursive-discriminated.narrowed",
+    "before": "07583a89cf1463f2d21daf3fad758cf8c07bb6f83a899bd79bfc471fcf4aa30c",
+    "after": "ca457bf2483a94f55854dc66934831d1bae2eb928d072afb3e2a65ac9f8f5c8e",
+    "expressMajor": "4",
+    "reason": "Use alpha.71-style compositional diagnostics for recursive narrowed generics now that distinct TypeScript identities have distinct components: body.1.box.value without a value field. Status 400 and controller/discriminator behavior are unchanged.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "recursive-discriminated.narrowed",
+    "before": "07583a89cf1463f2d21daf3fad758cf8c07bb6f83a899bd79bfc471fcf4aa30c",
+    "after": "ca457bf2483a94f55854dc66934831d1bae2eb928d072afb3e2a65ac9f8f5c8e",
+    "expressMajor": "5",
+    "reason": "Use alpha.71-style compositional diagnostics for recursive narrowed generics now that distinct TypeScript identities have distinct components: body.1.box.value without a value field. Status 400 and controller/discriminator behavior are unchanged.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "recursive.openapi",
+    "before": "77fd65fa2beb7d1c7562192a5a87f73b311deb90538101fd6ed54c17952d89d2",
+    "after": "027f7aae02935317658c7eb79501e8d290d015829f12ca7e719bb85ce60f0a2a",
+    "expressMajor": "4",
+    "reason": "Recursive fallback assigns one deterministic canonical component key per TypeScript identity, reserving exports, models and discriminator targets before helpers. Box<number> uses Box_2 instead of Box_Intermediate. Alpha.71 cannot generate this recursive fixture.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "recursive.openapi",
+    "before": "77fd65fa2beb7d1c7562192a5a87f73b311deb90538101fd6ed54c17952d89d2",
+    "after": "027f7aae02935317658c7eb79501e8d290d015829f12ca7e719bb85ce60f0a2a",
+    "expressMajor": "5",
+    "reason": "Recursive fallback assigns one deterministic canonical component key per TypeScript identity, reserving exports, models and discriminator targets before helpers. Box<number> uses Box_2 instead of Box_Intermediate. Alpha.71 cannot generate this recursive fixture.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
     "caseId": "arrays.valid",
     "before": "7d48e6867ee38922d5a8d8e0c75c8b8fd529a996c8edde3c5a32a94e96319f77",
     "after": "97fc95d18123eb24e4c4345af6220fc206274fee4faef81bf2411ed7c9156c7f",
