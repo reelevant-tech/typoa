@@ -2,8 +2,12 @@ import path from 'path'
 import fs from 'node:fs'
 import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
+import express from 'express'
+import request from 'supertest'
 
 import { generate, OpenAPIConfiguration } from '../../src'
+import { ExportCollisionController } from '../fixtures/validation/additional-collisions'
+import { createErrorHandler } from '../integration/shared'
 
 const openapiFile = path.resolve(
   __dirname,
@@ -63,7 +67,11 @@ test('Should successfully generate with valid additionalExportedTypeNames', asyn
   )
 })
 
-test('Preserves alpha.71 bytes for colliding exports with a shared type', async () => {
+test('Preserves alpha.71 bytes and router rejections for colliding exports', async t => {
+  const methods = ['entry', 'left', 'right'] as const
+  const calls = methods.map(method =>
+    t.mock.method(ExportCollisionController.prototype, method)
+  )
   for (const keepIntermediateSchemas of [false, true]) {
     const filePath = path.resolve(
       __dirname,
@@ -83,7 +91,10 @@ test('Preserves alpha.71 bytes for colliding exports with a shared type', async 
         keepIntermediateSchemas,
         additionalExportedTypeNames: ['Entry', 'Left', 'Right']
       },
-      router: { filePath: filePath.replace('.json', '.ts') }
+      router: {
+        filePath: filePath.replace('.json', '.ts'),
+        runtimeImport: '../../src'
+      }
     })
     assert.equal(
       fs.readFileSync(filePath, 'utf8'),
@@ -101,6 +112,27 @@ test('Preserves alpha.71 bytes for colliding exports with a shared type', async 
         '\t'
       )
     )
+    const app = express()
+    app.use(express.json())
+    const { bindToRouter } = await import(filePath.replace('.json', '.ts'))
+    bindToRouter(app)
+    app.use(createErrorHandler())
+    for (const [route, body] of [
+      ['entry', { label: 'Item' }],
+      ['left', { label: 'Item' }],
+      ['right', { label: 'Item' }],
+      ['entry', {}]
+    ] as const) {
+      const response = await request(app)
+        .post(`/exports/${route}`)
+        .send(body)
+        .expect(400)
+      assert.equal(
+        response.body.fields.body.message,
+        'This property must be a number'
+      )
+      for (const call of calls) assert.equal(call.mock.callCount(), 0)
+    }
   }
 })
 
