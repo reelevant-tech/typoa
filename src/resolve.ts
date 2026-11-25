@@ -29,6 +29,7 @@ const intermediateNames = new WeakMap<
   Map<ts.Type, string>
 >()
 const reservedIntermediateNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
+const auxiliaryNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
 const nullableIntermediates = new WeakMap<
   OpenAPIV3.Document,
   Map<string, string>
@@ -59,7 +60,8 @@ export function keepIntermediateSchemas(
   intermediateDocuments.add(additions)
   flattenedDocuments.add(additions)
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
-  intermediateNames.set(additions, new Map())
+  intermediateNames.set(additions, new Map(intermediateNames.get(spec)))
+  auxiliaryNames.set(additions, new Set(auxiliaryNames.get(spec)))
   reservedIntermediateNames.set(
     additions,
     new Set(Object.keys(compositionSpec.components!.schemas!))
@@ -102,18 +104,53 @@ export function keepIntermediateSchemas(
 }
 
 function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
+  let allocated = auxiliaryNames.get(spec)
+  if (!allocated) {
+    allocated = new Set()
+    auxiliaryNames.set(spec, allocated)
+  }
   let name = prefix
   let index = 2
   while (
     spec.components!.schemas![name] !== undefined ||
-    reservedIntermediateNames.get(spec)?.has(name)
+    reservedIntermediateNames.get(spec)?.has(name) ||
+    allocated.has(name)
   )
     name = `${prefix}_${index++}`
+  allocated.add(name)
   return name
 }
 
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+function componentName(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  preferred: string
+): string {
+  const previous = componentTypes.get(spec)?.get(preferred)
+  if (
+    (intermediateDocuments.has(spec) &&
+      previous &&
+      previous.compilerType !== type.compilerType) ||
+    (auxiliaryNames.get(spec)?.has(preferred) &&
+      previous?.compilerType !== type.compilerType)
+  ) {
+    let names = intermediateNames.get(spec)
+    if (!names) {
+      names = new Map()
+      intermediateNames.set(spec, names)
+    }
+    let name = names.get(type.compilerType)
+    if (!name) {
+      name = intermediateName(spec, `${preferred}_Intermediate`)
+      names.set(type.compilerType, name)
+    }
+    return name
+  }
+  return preferred
 }
 
 function resolveNullableType(
@@ -372,7 +409,7 @@ function resolveRecursiveType(
   }
   if (type.isEnum()) {
     const symbol = type.getSymbolOrThrow()
-    const enumName = symbol.getName()
+    const enumName = componentName(type, spec, symbol.getName())
     const declaration = symbol.getDeclarations()[0] as EnumDeclaration
     // Add to spec components if not already resolved
     if (typeof spec.components!.schemas![enumName] === 'undefined') {
@@ -529,20 +566,7 @@ function resolveRecursiveType(
       }
       return resolveObjectType(type, spec)
     }
-    const previous = componentTypes.get(spec)?.get(typeName)
-    if (
-      intermediateDocuments.has(spec) &&
-      previous &&
-      previous.compilerType !== type.compilerType
-    ) {
-      const names = intermediateNames.get(spec)!
-      let name = names.get(type.compilerType)
-      if (!name) {
-        name = intermediateName(spec, `${typeName}_Intermediate`)
-        names.set(type.compilerType, name)
-      }
-      typeName = name
-    }
+    typeName = componentName(type, spec, typeName)
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
       if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
       componentTypes.get(spec)!.set(typeName, type)

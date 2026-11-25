@@ -47,13 +47,54 @@ for (const keepIntermediateSchemas of [false, true]) {
       {},
       { root: null },
       { root: [] },
-      { root: [null, [null]], sibling: [null] }
+      { root: [null, [null]], sibling: [null] },
+      {
+        root: null,
+        model: { label: 'Item' },
+        plainModel: { name: 'Item' },
+        kind: 'first'
+      }
     ]) {
       assert.equal(validate(body), true)
     }
-    for (const body of [{ root: [1] }, { sibling: null }]) {
+    for (const body of [
+      { root: [1] },
+      { sibling: null },
+      { model: [] },
+      { model: {} },
+      { plainModel: [] },
+      { plainModel: {} },
+      { kind: [] },
+      { kind: 'invalid' }
+    ]) {
       assert.equal(validate(body), false)
     }
+    const { root, sibling, model, plainModel, kind } =
+      spec.components.schemas.NestedHolder.properties
+    assert.equal(
+      new Set([root.$ref, sibling.$ref, model.$ref, plainModel.$ref, kind.$ref])
+        .size,
+      5
+    )
+    assert.deepEqual(spec.components.schemas[model.$ref.split('/').pop()], {
+      type: 'object',
+      properties: { label: { type: 'string' } },
+      required: ['label'],
+      additionalProperties: false
+    })
+    assert.deepEqual(
+      spec.components.schemas[plainModel.$ref.split('/').pop()],
+      {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        required: ['name'],
+        additionalProperties: false
+      }
+    )
+    assert.deepEqual(spec.components.schemas[kind.$ref.split('/').pop()], {
+      type: 'string',
+      enum: ['first', 'second']
+    })
     for (const [route, valid, invalid] of [
       ['value', ['a', ['b']], [1]],
       ['mapping', { next: {} }, { next: 1 }],
@@ -64,7 +105,18 @@ for (const keepIntermediateSchemas of [false, true]) {
         { root: { value: 'invalid' } }
       ],
       ['nested', { root: null }, { root: [1] }],
-      ['nested', { root: [null, [null]], sibling: [null] }, { sibling: null }]
+      ['nested', { root: [null, [null]], sibling: [null] }, { sibling: null }],
+      [
+        'nested',
+        {
+          root: null,
+          model: { label: 'Item' },
+          plainModel: { name: 'Item' },
+          kind: 'first'
+        },
+        { model: [] }
+      ],
+      ['nested', { kind: 'second' }, { kind: 'invalid' }]
     ] as const) {
       const rules = {
         params: [{ in: 'body' as any, name: 'body' }],

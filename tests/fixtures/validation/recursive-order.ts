@@ -29,6 +29,22 @@ type Nested = Nested[] | null
 interface NestedHolder {
   root?: Nested
   sibling?: NonNullable<Nested>
+  model?: Value_Recursive_Nullable
+  plainModel?: Value_Recursive
+  kind?: Value_Recursive_Nullable_Intermediate
+}
+
+interface Value_Recursive_Nullable {
+  label: string
+}
+
+interface Value_Recursive {
+  name: string
+}
+
+enum Value_Recursive_Nullable_Intermediate {
+  First = 'first',
+  Second = 'second'
 }
 
 @Route('/items')
