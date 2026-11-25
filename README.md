@@ -207,8 +207,9 @@ with lifecycle scripts disabled, generates the same fixtures with both versions,
 and compares the complete OpenAPI document and every HTTP result. All differences
 fail unless explicitly listed in `tests/compat/accepted-changes.json` with
 `caseId`, `expressMajor`, `reason`, `sinceVersion`, and exact `before`/`after`
-SHA-256 digests printed by the comparison. `openapi` identifies the document;
-other IDs identify HTTP cases. Use the next intended release for `sinceVersion`.
+SHA-256 digests printed by the comparison. `openapi` identifies the main document;
+`recursive.openapi` identifies the recursive-fixture document; other IDs identify
+HTTP cases. Use the next intended release for `sinceVersion`.
 Exceptions fail if they disappear or their digests change, and **all entries
 whose sinceVersion is at or below npm latest fail as stale**, even for another
 Express major. Remove them after publication; do not extend their expiry to

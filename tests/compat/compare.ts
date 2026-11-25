@@ -54,16 +54,28 @@ async function main() {
         const entries = JSON.parse(
           fs.readFileSync(path.join(__dirname, 'accepted-changes.json'), 'utf8')
         )
-        const count = assertCompatible(before, after, entries, version, major)
-        console.log(
-          `COMPAT RELEASE PASS: typoa@${version}, Express ${major}, ${count} exact accepted changes`
-        )
         const [recursiveBefore, recursiveAfter] = await Promise.all([
           capture(entry, false, 'recursive'),
           capture(undefined, false, 'recursive')
         ])
-        assert.deepEqual(recursiveAfter.openapi, recursiveBefore.openapi)
-        assert.deepEqual(recursiveAfter.http, recursiveBefore.http)
+        const count = assertCompatible(
+          {
+            ...before,
+            documents: { 'recursive.openapi': recursiveBefore.openapi },
+            http: { ...before.http, ...recursiveBefore.http }
+          },
+          {
+            ...after,
+            documents: { 'recursive.openapi': recursiveAfter.openapi },
+            http: { ...after.http, ...recursiveAfter.http }
+          },
+          entries,
+          version,
+          major
+        )
+        console.log(
+          `COMPAT RELEASE PASS: typoa@${version}, Express ${major}, ${count} exact accepted changes`
+        )
         console.log(
           `COMPAT RECURSIVE RELEASE PASS: typoa@${version}, Express ${major}, ${Object.keys(recursiveAfter.http).length} HTTP cases`
         )

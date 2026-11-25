@@ -1,7 +1,11 @@
 import { createHash } from 'node:crypto'
 import { strict as assert } from 'node:assert'
 
-export type Snapshot = { openapi: unknown; http: Record<string, unknown> }
+export type Snapshot = {
+  openapi: unknown
+  documents?: Record<string, unknown>
+  http: Record<string, unknown>
+}
 export type AcceptedChange = {
   caseId: string
   expressMajor: string
@@ -69,6 +73,7 @@ export function compareVersions(a: string, b: string): number {
 export function differences(before: Snapshot, after: Snapshot) {
   const units = (snapshot: Snapshot) => ({
     openapi: snapshot.openapi,
+    ...snapshot.documents,
     ...snapshot.http
   })
   const left = units(before),
