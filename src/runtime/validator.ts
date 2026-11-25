@@ -508,6 +508,20 @@ function validateAndParseValueAgainstSchema(
       fieldName: name
     }
   }
+  if (
+    'x-typoa-nullable' in currentSchema &&
+    currentSchema['x-typoa-nullable'] === true &&
+    currentSchema.anyOf?.[0]
+  ) {
+    return validateAndParseValueAgainstSchema(
+      `${name}.0`,
+      value,
+      currentSchema.anyOf[0],
+      schemas,
+      parentType,
+      logger
+    )
+  }
   // Strings
   if (currentSchema.type === 'string') {
     // Special case for date formats: a Date instance is a valid value for both.

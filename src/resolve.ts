@@ -313,7 +313,7 @@ function resolveNullableType(
             'x-typoa-nullable': true
           } = {
             'x-typoa-nullable': true,
-            oneOf: [{ allOf: [value, { not: nullSchema }] }, nullSchema]
+            anyOf: [value, nullSchema]
           }
           spec.components!.schemas![name] = nullable
         }
