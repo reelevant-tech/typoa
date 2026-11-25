@@ -36,6 +36,7 @@ const nullableIntermediates = new WeakMap<
   Map<string, string>
 >()
 const nullableArrays = new WeakMap<OpenAPIV3.Document, Map<ts.Type, string>>()
+const wildcardNames = new WeakMap<OpenAPIV3.Document, string>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
@@ -74,6 +75,8 @@ export function keepIntermediateSchemas(
   intermediateNames.set(additions, new Map(intermediateNames.get(spec)))
   auxiliaryNames.set(additions, new Set(auxiliaryNames.get(spec)))
   exportedTypes.set(additions, new Map(exportedTypes.get(spec)))
+  const wildcard = wildcardNames.get(spec)
+  if (wildcard) wildcardNames.set(additions, wildcard)
   reservedIntermediateNames.set(
     additions,
     new Set(Object.keys(compositionSpec.components!.schemas!))
@@ -427,11 +430,16 @@ function resolveRecursiveType(
     }
   }
   if (type.isUnknown() || type.isAny()) {
-    spec.components!.schemas!.AnyValue = {
-      description: 'Can be any value',
-      nullable: true
+    let name = wildcardNames.get(spec)
+    if (!name) {
+      name = intermediateName(spec, 'AnyValue')
+      wildcardNames.set(spec, name)
+      spec.components!.schemas![name] = {
+        description: 'Can be any value',
+        nullable: true
+      }
     }
-    return { $ref: buildRef('AnyValue') }
+    return { $ref: buildRef(name) }
   }
   if (type.isTuple()) {
     return {

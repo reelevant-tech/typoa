@@ -33,7 +33,8 @@ for (const keepIntermediateSchemas of [false, true]) {
           'Value_Recursive_Nullable_Intermediate_Intermediate',
           'Entry',
           'Left',
-          'Right'
+          'Right',
+          'AnyValue'
         ],
         service: { name: 'generic', version: '1' }
       },
@@ -113,7 +114,15 @@ for (const keepIntermediateSchemas of [false, true]) {
       Object.values(spec.components.schemas).filter(
         (schema: any) => schema.type === 'number'
       ).length,
-      4
+      5
+    )
+    assert.deepEqual(spec.components.schemas.AnyValue, { type: 'number' })
+    const wildcard = spec.components.schemas.WildcardHolder.properties
+    assert.equal(wildcard.value.$ref, wildcard.other.$ref)
+    assert.notEqual(wildcard.value.$ref, '#/components/schemas/AnyValue')
+    assert.deepEqual(
+      spec.components.schemas[wildcard.value.$ref.split('/').pop()],
+      { description: 'Can be any value', nullable: true }
     )
     for (const name of [
       'Value_Recursive',
@@ -155,6 +164,7 @@ for (const keepIntermediateSchemas of [false, true]) {
     for (const [route, valid, invalid] of [
       ['value', ['a', ['b']], [1]],
       ['mapping', { next: {} }, { next: 1 }],
+      ['wildcard', { value: null, other: ['Item', { value: 1 }] }, []],
       ['optional', { root: { value: 1 } }, { root: { value: 1, next: {} } }],
       [
         'optional',

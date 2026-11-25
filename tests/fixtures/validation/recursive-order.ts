@@ -48,6 +48,12 @@ export enum Value_Recursive_Nullable_Intermediate {
 }
 
 export type Value_Recursive_Nullable_Intermediate_Intermediate = number
+export type AnyValue = number
+
+interface WildcardHolder {
+  value?: unknown
+  other?: any
+}
 
 @Route('/items')
 export class RecursiveOrderController extends Controller {
@@ -78,6 +84,11 @@ export class RecursiveOrderController extends Controller {
 
   @Post('/nested')
   nested(@Body() body: NestedHolder): NestedHolder {
+    return body
+  }
+
+  @Post('/wildcard')
+  wildcard(@Body() body: WildcardHolder): WildcardHolder {
     return body
   }
 }
