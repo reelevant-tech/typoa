@@ -16,7 +16,11 @@ for (const keepIntermediateSchemas of [false, true]) {
     await generate({
       tsconfigFilePath: path.resolve(__dirname, '../fixtures/tsconfig.json'),
       controllers: [
-        path.resolve(__dirname, '../fixtures/validation/recursive-order.ts')
+        path.resolve(__dirname, '../fixtures/validation/recursive-order.ts'),
+        path.resolve(
+          __dirname,
+          '../fixtures/validation/additional-collisions.ts'
+        )
       ],
       openapi: {
         filePath,
@@ -26,7 +30,10 @@ for (const keepIntermediateSchemas of [false, true]) {
           'Value_Recursive',
           'Value_Recursive_Nullable_Intermediate',
           'Value_Recursive_Nullable_Intermediate_Intermediate',
-          'Value_Recursive_Nullable_Intermediate_Intermediate'
+          'Value_Recursive_Nullable_Intermediate_Intermediate',
+          'Entry',
+          'Left',
+          'Right'
         ],
         service: { name: 'generic', version: '1' }
       },
@@ -106,8 +113,45 @@ for (const keepIntermediateSchemas of [false, true]) {
       Object.values(spec.components.schemas).filter(
         (schema: any) => schema.type === 'number'
       ).length,
-      1
+      4
     )
+    for (const name of [
+      'Value_Recursive',
+      'Value_Recursive_Nullable',
+      'Value_Recursive_Nullable_Intermediate',
+      'Value_Recursive_Nullable_Intermediate_Intermediate'
+    ]) {
+      assert.ok(spec.components.schemas[name])
+    }
+    for (const name of ['Entry', 'Left', 'Right']) {
+      assert.deepEqual(spec.components.schemas[name], { type: 'number' })
+      const body = spec.paths[`/exports/${name.toLowerCase()}`].post.requestBody
+      const reference = body.content['application/json'].schema.$ref
+      assert.notEqual(reference, `#/components/schemas/${name}`)
+      assert.equal(
+        spec.components.schemas[reference.split('/').pop()].type,
+        'object'
+      )
+      const rules = { params: [{ in: 'body' as any, name: 'body' }], body }
+      assert.deepEqual(
+        await validateAndParse(
+          {
+            body: { label: 'Item' },
+            headers: { 'content-type': 'application/json' }
+          } as any,
+          spec.components.schemas,
+          rules
+        ),
+        [{ label: 'Item' }]
+      )
+      await assert.rejects(() =>
+        validateAndParse(
+          { body: {}, headers: { 'content-type': 'application/json' } } as any,
+          spec.components.schemas,
+          rules
+        )
+      )
+    }
     for (const [route, valid, invalid] of [
       ['value', ['a', ['b']], [1]],
       ['mapping', { next: {} }, { next: 1 }],

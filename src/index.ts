@@ -21,6 +21,7 @@ import {
   keepIntermediateSchemas,
   preserveComposition,
   preserveFlattening,
+  reserveExportedTypes,
   resolveExportedType
 } from './resolve'
 
@@ -155,6 +156,40 @@ export async function generate(config: OpenAPIConfiguration) {
   }
 }
 
+function additionalExport(project: Project, typeName: string) {
+  const declarations = project
+    .getSourceFiles()
+    .map(file => ({
+      file: file.getFilePath(),
+      declaration: file.getExportedDeclarations().get(typeName)?.[0]
+    }))
+    .filter(({ declaration }) => typeof declaration !== 'undefined') as {
+    declaration: ExportedDeclarations
+    file: string
+  }[]
+  if (declarations.length === 0) {
+    throw new Error(
+      `Unable to find the additional exported type named '${typeName}'`
+    )
+  }
+  if (declarations.length > 1) {
+    throw new Error(
+      `We found multiple references for the additional exported type named '${typeName}' in ${declarations.map(({ file }) => file).join(', ')}`
+    )
+  }
+  const declaration = declarations[0].declaration as
+    | TypeAliasDeclaration
+    | ClassDeclaration
+    | InterfaceDeclaration
+  const type = declaration.getType()
+  return {
+    name: declaration.getName()!,
+    type: type.isAny()
+      ? (declaration.getSymbol()?.getDeclaredType() ?? type)
+      : type
+  }
+}
+
 async function generateDocument(
   config: OpenAPIConfiguration,
   cycleSafe: boolean
@@ -187,6 +222,16 @@ async function generateDocument(
     version: config.openapi.service.version
   })
   preserveComposition(diagnosticSpec)
+  if (cycleSafe) {
+    const exports = new Map(
+      (config.openapi.additionalExportedTypeNames ?? []).map(name => [
+        name,
+        additionalExport(project, name).type
+      ])
+    )
+    reserveExportedTypes(spec, exports)
+    reserveExportedTypes(diagnosticSpec, exports)
+  }
   const deferredDiagnostics: (() => void)[] = []
   const controllersPathByName: Record<string, string> = {}
 
@@ -220,42 +265,10 @@ async function generateDocument(
 
   // additional exported type names
   for (const typeName of config.openapi.additionalExportedTypeNames ?? []) {
-    const sourceFiles = project.getSourceFiles()
-    const declarations = sourceFiles
-      .map(file => ({
-        file: file.getFilePath(),
-        declaration: file.getExportedDeclarations().get(typeName)?.[0]
-      }))
-      .filter(({ declaration }) => typeof declaration !== 'undefined') as {
-      declaration: ExportedDeclarations
-      file: string
-    }[]
-    if (declarations.length === 0) {
-      throw new Error(
-        `Unable to find the additional exported type named '${typeName}'`
-      )
-    }
-    if (declarations.length > 1) {
-      throw new Error(
-        `We found multiple references for the additional exported type named '${typeName}' in ${declarations.map(({ file }) => file).join(', ')}`
-      )
-    }
-    const declaration = declarations[0].declaration as
-      | TypeAliasDeclaration
-      | ClassDeclaration
-      | InterfaceDeclaration
-    // Add to spec
-    const name = declaration.getName()!
-    const type = declaration.getType()
+    const { name, type } = additionalExport(project, typeName)
     for (const target of [spec, diagnosticSpec]) {
       const addExportedType = () => {
-        resolveExportedType(
-          type.isAny()
-            ? (declaration.getSymbol()?.getDeclaredType() ?? type)
-            : type,
-          target,
-          name
-        )
+        resolveExportedType(type, target, cycleSafe ? typeName : name)
       }
       if (target === spec) addExportedType()
       else deferredDiagnostics.push(addExportedType)

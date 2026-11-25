@@ -30,6 +30,7 @@ const intermediateNames = new WeakMap<
 >()
 const reservedIntermediateNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
 const auxiliaryNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
+const exportedTypes = new WeakMap<OpenAPIV3.Document, Map<string, ts.Type>>()
 const nullableIntermediates = new WeakMap<
   OpenAPIV3.Document,
   Map<string, string>
@@ -48,6 +49,16 @@ export function preserveFlattening(spec: OpenAPIV3.Document): void {
   componentTypes.set(spec, new Map())
 }
 
+export function reserveExportedTypes(
+  spec: OpenAPIV3.Document,
+  types: Map<string, Type>
+): void {
+  exportedTypes.set(
+    spec,
+    new Map([...types].map(([name, type]) => [name, type.compilerType]))
+  )
+}
+
 export function keepIntermediateSchemas(
   spec: OpenAPIV3.Document,
   compositionSpec: OpenAPIV3.Document
@@ -62,6 +73,7 @@ export function keepIntermediateSchemas(
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
   intermediateNames.set(additions, new Map(intermediateNames.get(spec)))
   auxiliaryNames.set(additions, new Set(auxiliaryNames.get(spec)))
+  exportedTypes.set(additions, new Map(exportedTypes.get(spec)))
   reservedIntermediateNames.set(
     additions,
     new Set(Object.keys(compositionSpec.components!.schemas!))
@@ -114,6 +126,7 @@ function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
   while (
     spec.components!.schemas![name] !== undefined ||
     reservedIntermediateNames.get(spec)?.has(name) ||
+    exportedTypes.get(spec)?.has(name) ||
     allocated.has(name)
   )
     name = `${prefix}_${index++}`
@@ -128,19 +141,17 @@ function capitalizeFirstLetter(str: string): string {
 function componentName(
   type: Type,
   spec: OpenAPIV3.Document,
-  preferred: string,
-  preserveExisting = false
+  preferred: string
 ): string {
   const previous = componentTypes.get(spec)?.get(preferred)
+  const exported = exportedTypes.get(spec)?.get(preferred)
   if (
     (intermediateDocuments.has(spec) &&
       previous &&
       previous.compilerType !== type.compilerType) ||
     (auxiliaryNames.get(spec)?.has(preferred) &&
       previous?.compilerType !== type.compilerType) ||
-    (preserveExisting &&
-      spec.components!.schemas![preferred] !== undefined &&
-      previous?.compilerType !== type.compilerType)
+    (exported && exported !== type.compilerType)
   ) {
     let names = intermediateNames.get(spec)
     if (!names) {
@@ -168,11 +179,11 @@ export function resolveExportedType(
     resolved.$ref.slice('#/components/schemas/'.length) === name
   )
     return
-  const alias = componentName(type, spec, name, true)
-  if (spec.components!.schemas![alias] === undefined) {
-    if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
-    componentTypes.get(spec)!.set(alias, type)
-    spec.components!.schemas![alias] = resolved
+  if (
+    !exportedTypes.has(spec) ||
+    spec.components!.schemas![name] === undefined
+  ) {
+    spec.components!.schemas![name] = resolved
   }
 }
 

@@ -1,0 +1,112 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/exports/entry": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Entry"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Entry"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Entry"
+      }
+    },
+    "/exports/left": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Left"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Left"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Left"
+      }
+    },
+    "/exports/right": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Right"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Right"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Right"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Entry": {
+        "type": "number"
+      },
+      "Left": {
+        "type": "number"
+      },
+      "Right": {
+        "type": "number"
+      }
+    }
+  }
+}

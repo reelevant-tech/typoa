@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'node:fs'
 import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
 
@@ -60,6 +61,47 @@ test('Should successfully generate with valid additionalExportedTypeNames', asyn
     spec.components.schemas.UniqueAdditionalType.enum,
     [42]
   )
+})
+
+test('Preserves alpha.71 bytes for colliding exports with a shared type', async () => {
+  for (const keepIntermediateSchemas of [false, true]) {
+    const filePath = path.resolve(
+      __dirname,
+      `generated-additional-collisions-${keepIntermediateSchemas}.json`
+    )
+    await generate({
+      tsconfigFilePath: config.tsconfigFilePath,
+      controllers: [
+        path.resolve(
+          __dirname,
+          '../fixtures/validation/additional-collisions.ts'
+        )
+      ],
+      openapi: {
+        filePath,
+        service: { name: 'generic', version: '1' },
+        keepIntermediateSchemas,
+        additionalExportedTypeNames: ['Entry', 'Left', 'Right']
+      },
+      router: { filePath: filePath.replace('.json', '.ts') }
+    })
+    assert.equal(
+      fs.readFileSync(filePath, 'utf8'),
+      JSON.stringify(
+        JSON.parse(
+          fs.readFileSync(
+            path.resolve(
+              __dirname,
+              '../fixtures/alpha71-openapi/additional-collisions.json'
+            ),
+            'utf8'
+          )
+        ),
+        null,
+        '\t'
+      )
+    )
+  }
 })
 
 test('Should fail generate with not found additionalExportedTypeNames', async () => {
