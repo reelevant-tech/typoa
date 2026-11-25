@@ -100,7 +100,7 @@
     "before": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7",
     "after": "b1d270afc8f153130b3ca6ef6d929a69299c4cdaa0502db56592cb2432f43d98",
     "expressMajor": "4",
-    "reason": "Restore alpha.71 OpenAPI composition, historical intermediate components/references and inherited metadata instead of flattened objects and arrays. Recursive fallback also preserves optional undefined-containing self-edges when an outer field shares their type (recursive-order.ts): published alpha.82 throws a generation RangeError for that fixture, so this is supported generation rather than an alpha.82 HTTP exception; no synthetic digest exception is added.",
+    "reason": "Restore alpha.71 OpenAPI composition, historical intermediate components/references and inherited metadata instead of flattened objects and arrays. Recursive fallback preserves optional undefined-containing self-edges when an outer field shares their type, and emits typed nullable components for recursive array unions (recursive-order.ts). Published alpha.82 throws a generation RangeError for both standalone cases, so these are supported generation rather than alpha.82 HTTP exceptions; no synthetic digest exception is added.",
     "sinceVersion": "1.0.0-alpha.83"
   },
   {
@@ -108,7 +108,7 @@
     "before": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7",
     "after": "b1d270afc8f153130b3ca6ef6d929a69299c4cdaa0502db56592cb2432f43d98",
     "expressMajor": "5",
-    "reason": "Restore alpha.71 OpenAPI composition, historical intermediate components/references and inherited metadata instead of flattened objects and arrays. Recursive fallback also preserves optional undefined-containing self-edges when an outer field shares their type (recursive-order.ts): published alpha.82 throws a generation RangeError for that fixture, so this is supported generation rather than an alpha.82 HTTP exception; no synthetic digest exception is added.",
+    "reason": "Restore alpha.71 OpenAPI composition, historical intermediate components/references and inherited metadata instead of flattened objects and arrays. Recursive fallback preserves optional undefined-containing self-edges when an outer field shares their type, and emits typed nullable components for recursive array unions (recursive-order.ts). Published alpha.82 throws a generation RangeError for both standalone cases, so these are supported generation rather than alpha.82 HTTP exceptions; no synthetic digest exception is added.",
     "sinceVersion": "1.0.0-alpha.83"
   },
   {

@@ -33,6 +33,7 @@ const nullableIntermediates = new WeakMap<
   OpenAPIV3.Document,
   Map<string, string>
 >()
+const nullableArrays = new WeakMap<OpenAPIV3.Document, Map<ts.Type, string>>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
@@ -131,6 +132,30 @@ function resolveNullableType(
         name = intermediateName(spec, `${source}_Nullable`)
         spec.components!.schemas![name] = {}
         variants.set(source, name)
+      }
+      return { $ref: buildRef(name) }
+    }
+    if ('$ref' in schema && nonNullableType.isArray()) {
+      let variants = nullableArrays.get(spec)
+      if (!variants) {
+        variants = new Map()
+        nullableArrays.set(spec, variants)
+      }
+      let name = variants.get(nonNullableType.compilerType)
+      if (!name) {
+        const source = schema.$ref.slice('#/components/schemas/'.length)
+        name = intermediateName(spec, `${source}_Nullable`)
+        variants.set(nonNullableType.compilerType, name)
+        const nullable: OpenAPIV3.ArraySchemaObject = {
+          type: 'array',
+          nullable: true,
+          items: {}
+        }
+        spec.components!.schemas![name] = nullable
+        nullable.items = resolve(
+          nonNullableType.getArrayElementTypeOrThrow(),
+          spec
+        )
       }
       return { $ref: buildRef(name) }
     }

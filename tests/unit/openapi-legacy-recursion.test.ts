@@ -3,6 +3,7 @@ import path from 'node:path'
 import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
 import SwaggerParser from '@apidevtools/swagger-parser'
+import Ajv from 'ajv'
 import { generate } from '../../src'
 import { validateAndParse } from '../../src/runtime/validator'
 
@@ -37,6 +38,22 @@ for (const keepIntermediateSchemas of [false, true]) {
     assert.deepEqual(spec.components.schemas.Chain.required, ['value'])
     assert.equal(spec.components.schemas.Holder.required, undefined)
     await SwaggerParser.validate(structuredClone(spec))
+    const ajv = new Ajv({ strict: false })
+    ajv.addSchema({ components: spec.components }, 'spec')
+    const validate = ajv.compile({
+      $ref: 'spec#/components/schemas/NestedHolder'
+    })
+    for (const body of [
+      {},
+      { root: null },
+      { root: [] },
+      { root: [null, [null]], sibling: [null] }
+    ]) {
+      assert.equal(validate(body), true)
+    }
+    for (const body of [{ root: [1] }, { sibling: null }]) {
+      assert.equal(validate(body), false)
+    }
     for (const [route, valid, invalid] of [
       ['value', ['a', ['b']], [1]],
       ['mapping', { next: {} }, { next: 1 }],
@@ -45,7 +62,9 @@ for (const keepIntermediateSchemas of [false, true]) {
         'optional',
         { root: { value: 1, next: { value: 2 } } },
         { root: { value: 'invalid' } }
-      ]
+      ],
+      ['nested', { root: null }, { root: [1] }],
+      ['nested', { root: [null, [null]], sibling: [null] }, { sibling: null }]
     ] as const) {
       const rules = {
         params: [{ in: 'body' as any, name: 'body' }],

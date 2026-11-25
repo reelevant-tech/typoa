@@ -24,6 +24,12 @@ interface Holder {
 
 type RecursiveValue = string | RecursiveValue[]
 type RecursiveMapping = { [K in 'next']?: RecursiveMapping }
+type Nested = Nested[] | null
+
+interface NestedHolder {
+  root?: Nested
+  sibling?: NonNullable<Nested>
+}
 
 @Route('/items')
 export class RecursiveOrderController extends Controller {
@@ -49,6 +55,11 @@ export class RecursiveOrderController extends Controller {
 
   @Post('/optional')
   optional(@Body() body: Holder): Holder {
+    return body
+  }
+
+  @Post('/nested')
+  nested(@Body() body: NestedHolder): NestedHolder {
     return body
   }
 }
