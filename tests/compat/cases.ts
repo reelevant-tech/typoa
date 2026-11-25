@@ -22,6 +22,89 @@ const json = (
 })
 const empty = { 'content-type': 'application/json', 'content-length': '0' }
 
+export function scenarioGroup(fixture: boolean | 'recursive' | 'nonrecursive') {
+  return typeof fixture === 'string'
+    ? fixture
+    : fixture
+      ? 'compositional'
+      : 'default'
+}
+
+export function scenariosFor(group: ReturnType<typeof scenarioGroup>) {
+  switch (group) {
+    case 'recursive':
+      return recursiveScenarios
+    case 'nonrecursive':
+      return nonrecursiveScenarios
+    case 'compositional':
+      return compositionalScenarios
+    default:
+      return scenarios
+  }
+}
+
+export const recursiveScenarios: Scenario[] = [
+  ...['recursive-box', 'recursive-discriminated'].flatMap(path => [
+    json(`${path}.empty`, path, {}),
+    json(`${path}.valid`, path, { box: { value: 1 } }),
+    json(`${path}.narrowed`, path, { box: { value: 2 } }),
+    json(`${path}.wrong-type`, path, { box: { value: 'invalid' } }),
+    json(`${path}.next`, path, { box: { value: 1, next: { value: 2 } } })
+  ]),
+  json('recursive-item.empty', 'recursive-item', {}),
+  json('recursive-item.valid', 'recursive-item', { name: 'Item' }),
+  json('recursive-item.next', 'recursive-item', { name: 'Item', next: {} }),
+  json('recursive-item.nested', 'recursive-item', {
+    name: 'Item',
+    next: { next: {} }
+  }),
+  json('recursive-item.number', 'recursive-item', { name: 'Item', next: 1 }),
+  json('recursive-item.wrong-type', 'recursive-item', { name: 1 })
+]
+
+export const nonrecursiveScenarios: Scenario[] = [
+  ...[
+    json(
+      'nonrecursive-strict.valid',
+      'nonrecursive-strict',
+      { name: 'Item' },
+      true
+    ),
+    json(
+      'nonrecursive-strict.extra',
+      'nonrecursive-strict',
+      { name: 'Item', extra: true },
+      true
+    )
+  ].map(scenario => ({ ...scenario, strict: true })),
+  json(
+    'nonrecursive-box.valid',
+    'nonrecursive-box',
+    { box: { value: 1 } },
+    true
+  ),
+  json(
+    'nonrecursive-box.broad',
+    'nonrecursive-box',
+    { box: { value: 2 } },
+    true
+  ),
+  json(
+    'nonrecursive-box.wrong-type',
+    'nonrecursive-box',
+    { box: { value: 'invalid' } },
+    true
+  ),
+  json('nonrecursive-item.empty', 'nonrecursive-item', {}, true),
+  json('nonrecursive-item.valid', 'nonrecursive-item', { name: 'Item' }, true),
+  json(
+    'nonrecursive-item.next',
+    'nonrecursive-item',
+    { name: 'Item', next: {} },
+    true
+  )
+]
+
 export const compositionalScenarios: Scenario[] = [
   ...[
     json('compositional.inherited-strict', 'compositional-inherited', {

@@ -1,11 +1,16 @@
 import { test } from 'node:test'
 import { strict as assert } from 'node:assert'
 import { capture } from './contract'
-import { compositionalScenarios, scenarios } from './cases'
+import { scenarioGroup, scenariosFor } from './cases'
 
-for (const compositional of [false, true]) {
-  test(`Duplicate ${compositional ? 'compositional' : 'regular'} scenario IDs reject before capture`, async () => {
-    const selected = compositional ? compositionalScenarios : scenarios
+for (const compositional of [
+  false,
+  true,
+  'recursive',
+  'nonrecursive'
+] as const) {
+  test(`Duplicate ${scenarioGroup(compositional)} scenario IDs reject before capture`, async () => {
+    const selected = scenariosFor(scenarioGroup(compositional))
     selected.push({ ...selected[0], path: 'duplicate' })
     try {
       await assert.rejects(

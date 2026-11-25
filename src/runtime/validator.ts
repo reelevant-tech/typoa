@@ -33,6 +33,13 @@ type ValidationRules = {
   bodyDiscriminatorFn?: BodyDiscriminatorFunction
 }
 
+type Schema = OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject
+type ValidationDocument = {
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+  rules: ValidationRules
+}
+const recursiveSchemas = new WeakMap<object, WeakMap<Schema, boolean>>()
+
 export async function validateAndParse(
   req: express.Request,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
@@ -51,21 +58,24 @@ export async function validateAndParse(
           runtimeRules.bodyDiscriminatorFn!(request)
         ))
     : undefined
-  return await validateRequest(req, runtimeSchemas, {
-    ...runtimeRules,
-    bodyDiscriminatorFn
-  })
+  return await validateRequest(
+    req,
+    runtimeSchemas,
+    { ...runtimeRules, bodyDiscriminatorFn },
+    diagnostics ? { schemas, rules } : undefined
+  )
 }
 
 async function validateRequest(
   req: express.Request,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
-  rules: ValidationRules
+  rules: ValidationRules,
+  fallback?: ValidationDocument
 ): Promise<any[]> {
   const logger = options.getCustomLogger()
 
   const args: any[] = []
-  for (const param of rules.params || []) {
+  for (const [index, param] of (rules.params || []).entries()) {
     // Handling @Request()
     if (param.in === 'request') {
       args.push(req)
@@ -79,7 +89,8 @@ async function validateRequest(
           rules.body!,
           rules.bodyDiscriminatorFn,
           schemas,
-          logger
+          logger,
+          fallback
         )
       )
       continue
@@ -126,13 +137,16 @@ async function validateRequest(
       args.push(undefined)
       continue
     }
-    const validationResponse = validateAndParseValueAgainstSchema(
+    const validationResponse = validateRequestValue(
       param.name,
       value,
       param.schema!,
       schemas,
-      'unknown',
-      logger
+      logger,
+      fallback && {
+        schema: fallback.rules.params[index]?.schema,
+        schemas: fallback.schemas
+      }
     )
     if (!validationResponse.succeed) {
       throw new ValidateError(
@@ -207,7 +221,8 @@ async function validateBody(
   rule: OpenAPIV3.RequestBodyObject,
   discriminatorFn: BodyDiscriminatorFunction | undefined,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
-  logger: CustomLogger
+  logger: CustomLogger,
+  fallback?: ValidationDocument
 ): Promise<unknown> {
   const body = req.body
   const contentType = (req.headers['content-type'] ?? 'application/json').split(
@@ -227,13 +242,16 @@ async function validateBody(
 
   if (discriminatorFn) {
     const schemaName = await discriminatorFn(req)
-    const validationResult = validateAndParseValueAgainstSchema(
+    const validationResult = validateRequestValue(
       'body',
       body,
       { $ref: buildRef(schemaName) },
       schemas,
-      'unknown',
-      logger
+      logger,
+      fallback && {
+        schema: { $ref: buildRef(schemaName) },
+        schemas: fallback.schemas
+      }
     )
     if (validationResult.succeed) {
       return validationResult.value
@@ -262,13 +280,16 @@ async function validateBody(
       validationResult.errorMessage
     )
   }
-  const validationResult = validateAndParseValueAgainstSchema(
+  const validationResult = validateRequestValue(
     'body',
     body,
     expectedSchema,
     schemas,
-    'unknown',
-    logger
+    logger,
+    fallback && {
+      schema: fallback.rules.body?.content[contentType]?.schema,
+      schemas: fallback.schemas
+    }
   )
   if (validationResult.succeed) {
     return validationResult.value
@@ -295,6 +316,85 @@ async function validateBody(
     },
     validationResult.errorMessage
   )
+}
+
+function validateRequestValue(
+  name: string,
+  value: unknown,
+  schema: Schema,
+  schemas: OpenAPIV3.ComponentsObject['schemas'],
+  logger: CustomLogger,
+  fallback?: { schema?: Schema; schemas: OpenAPIV3.ComponentsObject['schemas'] }
+): SafeValidatedValue {
+  if (fallback?.schema && hasSchemaCycle(schema, schemas)) {
+    const result = validateAndParseValueAgainstSchema(
+      name,
+      value,
+      fallback.schema,
+      fallback.schemas,
+      'unknown',
+      logger
+    )
+    if (result.succeed) return result
+    const diagnostic = validateAndParseValueAgainstSchema(
+      name,
+      value,
+      schema,
+      schemas,
+      'unknown',
+      logger
+    )
+    return diagnostic.succeed ? result : diagnostic
+  }
+  return validateAndParseValueAgainstSchema(
+    name,
+    value,
+    schema,
+    schemas,
+    'unknown',
+    logger
+  )
+}
+
+function hasSchemaCycle(
+  schema: Schema,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  if (!schemas) return false
+  let cache = recursiveSchemas.get(schemas)
+  if (!cache) {
+    cache = new WeakMap()
+    recursiveSchemas.set(schemas, cache)
+  }
+  const active = new Set<Schema>()
+  const visit = (current: Schema): boolean => {
+    const cached = cache.get(current)
+    if (cached !== undefined) return cached
+    if (active.has(current)) return true
+    active.add(current)
+    let children: Schema[]
+    if ('$ref' in current) {
+      const target = schemas[current.$ref.slice('#/components/schemas/'.length)]
+      children = target ? [target] : []
+    } else {
+      children = [
+        ...Object.values(current.properties ?? {}),
+        ...(current.allOf ?? []),
+        ...(current.anyOf ?? []),
+        ...(current.oneOf ?? []),
+        ...(current.not ? [current.not] : []),
+        ...('items' in current ? [current.items] : []),
+        ...(typeof current.additionalProperties === 'object'
+          ? [current.additionalProperties]
+          : [])
+      ]
+    }
+    const recursive = children.some(visit)
+    active.delete(current)
+    cache.set(current, recursive)
+    return recursive
+  }
+  return visit(schema)
 }
 
 function getFromRef(

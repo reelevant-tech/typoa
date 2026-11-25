@@ -1,0 +1,292 @@
+{
+  "recursive-box.empty": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.box": {
+          "details": [],
+          "message": "Property box is required"
+        }
+      },
+      "message": "Property box is required"
+    },
+    "status": 400
+  },
+  "recursive-box.narrowed": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.box.value": {
+          "details": [],
+          "message": "This property must be one of 1",
+          "value": 2
+        }
+      },
+      "message": "This property must be one of 1"
+    },
+    "status": 400
+  },
+  "recursive-box.next": {
+    "controller": {
+      "args": [
+        {
+          "box": {
+            "value": 1
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "box": {
+        "value": 1
+      }
+    },
+    "status": 200
+  },
+  "recursive-box.valid": {
+    "controller": {
+      "args": [
+        {
+          "box": {
+            "value": 1
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "box": {
+        "value": 1
+      }
+    },
+    "status": 200
+  },
+  "recursive-box.wrong-type": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.0.box.value": {
+          "details": [],
+          "message": "This property must be a number"
+        }
+      },
+      "message": "This property must be a number"
+    },
+    "status": 400
+  },
+  "recursive-discriminated.empty": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.0.box": {
+          "details": [],
+          "message": "Property box is required"
+        }
+      },
+      "message": "Property box is required"
+    },
+    "status": 400
+  },
+  "recursive-discriminated.narrowed": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.box.value": {
+          "details": [],
+          "message": "This property must be one of 1",
+          "value": 2
+        }
+      },
+      "message": "This property must be one of 1"
+    },
+    "status": 400
+  },
+  "recursive-discriminated.next": {
+    "controller": {
+      "args": [
+        {
+          "box": {
+            "value": 1
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "box": {
+        "value": 1
+      }
+    },
+    "status": 200
+  },
+  "recursive-discriminated.valid": {
+    "controller": {
+      "args": [
+        {
+          "box": {
+            "value": 1
+          }
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "box": {
+        "value": 1
+      }
+    },
+    "status": 200
+  },
+  "recursive-discriminated.wrong-type": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 1
+    },
+    "payload": {
+      "fields": {
+        "body.0.box.value": {
+          "details": [],
+          "message": "This property must be a number"
+        }
+      },
+      "message": "This property must be a number"
+    },
+    "status": 400
+  },
+  "recursive-item.empty": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.name": {
+          "details": [],
+          "message": "Property name is required"
+        }
+      },
+      "message": "Property name is required"
+    },
+    "status": 400
+  },
+  "recursive-item.nested": {
+    "controller": {
+      "args": [
+        {
+          "name": "Item"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "Item"
+    },
+    "status": 200
+  },
+  "recursive-item.next": {
+    "controller": {
+      "args": [
+        {
+          "name": "Item"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "Item"
+    },
+    "status": 200
+  },
+  "recursive-item.number": {
+    "controller": {
+      "args": [
+        {
+          "name": "Item"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "Item"
+    },
+    "status": 200
+  },
+  "recursive-item.valid": {
+    "controller": {
+      "args": [
+        {
+          "name": "Item"
+        }
+      ],
+      "called": true,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "name": "Item"
+    },
+    "status": 200
+  },
+  "recursive-item.wrong-type": {
+    "controller": {
+      "args": {
+        "$undefined": true
+      },
+      "called": false,
+      "discriminatorCalls": 0
+    },
+    "payload": {
+      "fields": {
+        "body.1.name": {
+          "details": [],
+          "message": "This property must be a string"
+        }
+      },
+      "message": "This property must be a string"
+    },
+    "status": 400
+  }
+}

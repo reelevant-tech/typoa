@@ -54,6 +54,7 @@ test('Should generate diagnostics for a nonrecursive subtype of a recursive inte
       { schemas, rules }
     )
   assert.deepEqual(await validate({ name: 'a' }), [{ name: 'a' }])
+  assert.deepEqual(await validate({ name: 'a', next: {} }), [{ name: 'a' }])
   for (const [body, message] of [
     [{}, 'Property name is required'],
     [{ name: 1 }, 'This property must be a string']

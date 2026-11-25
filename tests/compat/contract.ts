@@ -6,7 +6,7 @@ import { strict as assert } from 'node:assert'
 import { generate as generateClient } from 'oatyp'
 import expressPackage from 'express/package.json'
 import { canonical, digest, Snapshot } from './policy'
-import { compositionalScenarios, scenarios } from './cases'
+import { scenarioGroup, scenariosFor } from './cases'
 
 export const root = path.resolve(__dirname, '../..')
 export const major = expressPackage.version.split('.')[0]
@@ -27,12 +27,13 @@ export function temporary<T>(
 export function capture(
   entry: string | undefined = undefined,
   legacy = false,
-  compositional = false
+  compositional: boolean | 'recursive' | 'nonrecursive' = false
 ): Promise<
   Snapshot & { runtime: { entry: string; runtime: string; hash: string } }
 > {
   return temporary(async directory => {
-    const selectedScenarios = compositional ? compositionalScenarios : scenarios
+    const group = scenarioGroup(compositional)
+    const selectedScenarios = scenariosFor(group)
     assert.equal(
       new Set(selectedScenarios.map(s => s.id)).size,
       selectedScenarios.length,
@@ -41,7 +42,9 @@ export function capture(
     for (const name of [
       'controllers.ts',
       'pattern-controller.ts',
-      'compositional-controller.ts'
+      'compositional-controller.ts',
+      'recursive-controller.ts',
+      'nonrecursive-controller.ts'
     ])
       fs.copyFileSync(path.join(__dirname, name), path.join(directory, name))
     fs.writeFileSync(
@@ -109,7 +112,7 @@ export function capture(
       JSON.stringify({
         identity,
         legacy,
-        compositional,
+        group,
         directory,
         express: require.resolve('express')
       })
