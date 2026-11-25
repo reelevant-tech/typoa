@@ -1,4 +1,10 @@
-import { Body, Controller, Post, Route } from '../../../src'
+import {
+  Body,
+  BodyDiscriminatorFunction,
+  Controller,
+  Post,
+  Route
+} from '../../../src'
 
 interface Base {
   id: string
@@ -55,6 +61,17 @@ interface WildcardHolder {
   other: any
 }
 
+interface AnyValue_2 {
+  value: number
+}
+
+interface AnyValue_3 {
+  label: string
+}
+
+export const selectWildcardModel: BodyDiscriminatorFunction = async () =>
+  'AnyValue_2'
+
 @Route('/items')
 export class RecursiveOrderController extends Controller {
   @Post('/item')
@@ -89,6 +106,23 @@ export class RecursiveOrderController extends Controller {
 
   @Post('/wildcard')
   wildcard(@Body() body: WildcardHolder): WildcardHolder {
+    return body
+  }
+
+  @Post('/model')
+  model(@Body() body: AnyValue_2): AnyValue_2 {
+    return body
+  }
+
+  @Post('/other-model')
+  otherModel(@Body() body: AnyValue_3): AnyValue_3 {
+    return body
+  }
+
+  @Post('/selected')
+  selected(
+    @Body('application/json', selectWildcardModel) body: AnyValue_2
+  ): AnyValue_2 {
     return body
   }
 }

@@ -37,6 +37,8 @@ const nullableIntermediates = new WeakMap<
 >()
 const nullableArrays = new WeakMap<OpenAPIV3.Document, Map<ts.Type, string>>()
 const wildcardNames = new WeakMap<OpenAPIV3.Document, string>()
+const modelNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
+const reservedModelNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
@@ -44,6 +46,32 @@ export function preserveComposition(spec: OpenAPIV3.Document): void {
 }
 
 export class LegacyRecursionError extends Error {}
+
+export class SchemaNameCollisionError extends Error {
+  constructor(public names: Set<string>) {
+    super('Generated schema names collide with model names')
+  }
+}
+
+export function reserveModelNames(
+  spec: OpenAPIV3.Document,
+  names: Set<string>
+): void {
+  reservedModelNames.set(spec, names)
+  modelNames.set(spec, new Set())
+}
+
+export function checkModelNames(...specs: OpenAPIV3.Document[]): void {
+  const names = new Set(
+    specs.flatMap(spec => [...(modelNames.get(spec) ?? [])])
+  )
+  if (
+    specs.some(spec =>
+      [...(auxiliaryNames.get(spec) ?? [])].some(name => names.has(name))
+    )
+  )
+    throw new SchemaNameCollisionError(names)
+}
 
 export function preserveFlattening(spec: OpenAPIV3.Document): void {
   flattenedDocuments.add(spec)
@@ -74,6 +102,8 @@ export function keepIntermediateSchemas(
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
   intermediateNames.set(additions, new Map(intermediateNames.get(spec)))
   auxiliaryNames.set(additions, new Set(auxiliaryNames.get(spec)))
+  modelNames.set(additions, modelNames.get(spec) ?? new Set())
+  reservedModelNames.set(additions, reservedModelNames.get(spec) ?? new Set())
   exportedTypes.set(additions, new Map(exportedTypes.get(spec)))
   const wildcard = wildcardNames.get(spec)
   if (wildcard) wildcardNames.set(additions, wildcard)
@@ -116,6 +146,7 @@ export function keepIntermediateSchemas(
   for (const [name, schema] of Object.entries(additions.components.schemas)) {
     if (schemas[name] === undefined) schemas[name] = schema
   }
+  auxiliaryNames.set(spec, new Set(auxiliaryNames.get(additions)))
 }
 
 function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
@@ -129,6 +160,7 @@ function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
   while (
     spec.components!.schemas![name] !== undefined ||
     reservedIntermediateNames.get(spec)?.has(name) ||
+    reservedModelNames.get(spec)?.has(name) ||
     exportedTypes.get(spec)?.has(name) ||
     allocated.has(name)
   )
@@ -146,6 +178,7 @@ function componentName(
   spec: OpenAPIV3.Document,
   preferred: string
 ): string {
+  modelNames.get(spec)?.add(preferred)
   const previous = componentTypes.get(spec)?.get(preferred)
   const exported = exportedTypes.get(spec)?.get(preferred)
   if (

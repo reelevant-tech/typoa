@@ -18,10 +18,13 @@ import handlebars from 'handlebars'
 import { getRelativeFilePath, resolveProperty } from './utils'
 import {
   LegacyRecursionError,
+  SchemaNameCollisionError,
+  checkModelNames,
   keepIntermediateSchemas,
   preserveComposition,
   preserveFlattening,
   reserveExportedTypes,
+  reserveModelNames,
   resolveExportedType
 } from './resolve'
 
@@ -148,11 +151,22 @@ export function getConfig(): OpenAPIConfiguration | undefined {
 }
 
 export async function generate(config: OpenAPIConfiguration) {
-  try {
-    return await generateDocument(config, false)
-  } catch (error) {
-    if (!(error instanceof LegacyRecursionError)) throw error
-    return generateDocument(config, true)
+  let cycleSafe = false
+  let names = new Set<string>()
+  while (true) {
+    try {
+      return await generateDocument(config, cycleSafe, names)
+    } catch (error) {
+      if (error instanceof LegacyRecursionError && !cycleSafe) {
+        cycleSafe = true
+      } else if (error instanceof SchemaNameCollisionError && cycleSafe) {
+        const reserved = new Set([...names, ...error.names])
+        if (reserved.size === names.size) throw error
+        names = reserved
+      } else {
+        throw error
+      }
+    }
   }
 }
 
@@ -192,7 +206,8 @@ function additionalExport(project: Project, typeName: string) {
 
 async function generateDocument(
   config: OpenAPIConfiguration,
-  cycleSafe: boolean
+  cycleSafe: boolean,
+  names: Set<string>
 ) {
   configStore = config
 
@@ -223,6 +238,8 @@ async function generateDocument(
   })
   preserveComposition(diagnosticSpec)
   if (cycleSafe) {
+    reserveModelNames(spec, names)
+    reserveModelNames(diagnosticSpec, names)
     const exports = new Map(
       (config.openapi.additionalExportedTypeNames ?? []).map(name => [
         name,
@@ -393,6 +410,7 @@ async function generateDocument(
   }
   if (cycleSafe && config.openapi.keepIntermediateSchemas !== false)
     keepIntermediateSchemas(spec, diagnosticSpec)
+  if (cycleSafe) checkModelNames(spec, diagnosticSpec)
 
   // Write OpenAPI file(s)
   const jsonContent = JSON.stringify(spec, null, '\t')
