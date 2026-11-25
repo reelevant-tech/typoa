@@ -114,11 +114,11 @@ for (const keepIntermediateSchemas of [false, true]) {
       Object.values(spec.components.schemas).filter(
         (schema: any) => schema.type === 'number'
       ).length,
-      5
+      1
     )
     assert.deepEqual(spec.components.schemas.AnyValue, { type: 'number' })
     const wildcard = spec.components.schemas.WildcardHolder.properties
-    assert.equal(wildcard.value.$ref, wildcard.other.$ref)
+    assert.notEqual(wildcard.value.$ref, wildcard.other.$ref)
     assert.notEqual(wildcard.value.$ref, '#/components/schemas/AnyValue')
     assert.deepEqual(
       spec.components.schemas[wildcard.value.$ref.split('/').pop()],
@@ -133,7 +133,9 @@ for (const keepIntermediateSchemas of [false, true]) {
       assert.ok(spec.components.schemas[name])
     }
     for (const name of ['Entry', 'Left', 'Right']) {
-      assert.deepEqual(spec.components.schemas[name], { type: 'number' })
+      assert.deepEqual(spec.components.schemas[name], {
+        $ref: '#/components/schemas/AnyValue'
+      })
       const body = spec.paths[`/exports/${name.toLowerCase()}`].post.requestBody
       const reference = body.content['application/json'].schema.$ref
       assert.notEqual(reference, `#/components/schemas/${name}`)

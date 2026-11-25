@@ -4,7 +4,9 @@ import {
   TypeAliasDeclaration,
   ClassDeclaration,
   InterfaceDeclaration,
-  ExportedDeclarations
+  ExportedDeclarations,
+  Node,
+  ts
 } from 'ts-morph'
 import { glob } from 'glob'
 import path from 'path'
@@ -23,8 +25,8 @@ import {
   keepIntermediateSchemas,
   preserveComposition,
   preserveFlattening,
-  reserveExportedTypes,
-  reserveModelNames,
+  reserveSchemaNames,
+  SchemaModel,
   resolveExportedType
 } from './resolve'
 
@@ -150,19 +152,45 @@ export function getConfig(): OpenAPIConfiguration | undefined {
   return configStore
 }
 
+function discriminatorTargets(project: Project): Set<string> {
+  const targets = new Set<string>()
+  for (const file of project
+    .getSourceFiles()
+    .filter(file => !file.isInNodeModules()))
+    for (const decorator of file.getDescendantsOfKind(
+      ts.SyntaxKind.Decorator
+    )) {
+      if (decorator.getName() !== 'Body') continue
+      const argument = decorator.getArguments()[1]
+      if (!argument || !Node.isIdentifier(argument)) continue
+      for (const declaration of argument.getDefinitionNodes())
+        for (const literal of declaration.getDescendantsOfKind(
+          ts.SyntaxKind.StringLiteral
+        ))
+          targets.add(literal.getLiteralText())
+    }
+  return targets
+}
+
 export async function generate(config: OpenAPIConfiguration) {
+  configStore = config
+  const project = new Project({
+    compilerOptions: getCompilerOptionsFromTsConfig(config.tsconfigFilePath)
+      .options
+  })
+  project.addSourceFilesFromTsConfig(config.tsconfigFilePath)
+  let targets = new Set<string>()
   let cycleSafe = false
-  let names = new Set<string>()
+  let names = new Map<ts.Type, SchemaModel>()
   while (true) {
     try {
-      return await generateDocument(config, cycleSafe, names)
+      return await generateDocument(config, cycleSafe, names, project, targets)
     } catch (error) {
       if (error instanceof LegacyRecursionError && !cycleSafe) {
         cycleSafe = true
+        targets = discriminatorTargets(project)
       } else if (error instanceof SchemaNameCollisionError && cycleSafe) {
-        const reserved = new Set([...names, ...error.names])
-        if (reserved.size === names.size) throw error
-        names = reserved
+        names = error.models
       } else {
         throw error
       }
@@ -207,18 +235,15 @@ function additionalExport(project: Project, typeName: string) {
 async function generateDocument(
   config: OpenAPIConfiguration,
   cycleSafe: boolean,
-  names: Set<string>
+  names: Map<ts.Type, SchemaModel>,
+  project: Project,
+  targets: Set<string>
 ) {
   configStore = config
 
   const root =
     config.root ?? path.dirname(path.resolve(config.tsconfigFilePath))
   // initialize
-  const project = new Project({
-    compilerOptions: getCompilerOptionsFromTsConfig(config.tsconfigFilePath)
-      .options
-  })
-  project.addSourceFilesFromTsConfig(config.tsconfigFilePath)
 
   // Init spec
   const spec = createSpec({
@@ -238,16 +263,14 @@ async function generateDocument(
   })
   preserveComposition(diagnosticSpec)
   if (cycleSafe) {
-    reserveModelNames(spec, names)
-    reserveModelNames(diagnosticSpec, names)
     const exports = new Map(
       (config.openapi.additionalExportedTypeNames ?? []).map(name => [
         name,
         additionalExport(project, name).type
       ])
     )
-    reserveExportedTypes(spec, exports)
-    reserveExportedTypes(diagnosticSpec, exports)
+    reserveSchemaNames(spec, names, exports, targets)
+    reserveSchemaNames(diagnosticSpec, names, exports, targets)
   }
   const deferredDiagnostics: (() => void)[] = []
   const controllersPathByName: Record<string, string> = {}

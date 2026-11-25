@@ -35,8 +35,10 @@ test('Restored multiple bases with readonly recursive generics remain serializab
     after.spec.components.schemas.Combined.properties.box.readOnly,
     true
   )
+  const reference =
+    after.spec.components.schemas.Combined.properties.box.allOf[0].$ref
   assert.equal(
-    after.spec.components.schemas.Box_Intermediate.readOnly,
+    after.spec.components.schemas[reference.split('/').pop()!].readOnly,
     undefined
   )
 })
