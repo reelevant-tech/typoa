@@ -6,7 +6,7 @@ import { strict as assert } from 'node:assert'
 import { generate as generateClient } from 'oatyp'
 import expressPackage from 'express/package.json'
 import { canonical, digest, Snapshot } from './policy'
-import { scenarios } from './cases'
+import { compositionalScenarios, scenarios } from './cases'
 
 export const root = path.resolve(__dirname, '../..')
 export const major = expressPackage.version.split('.')[0]
@@ -32,9 +32,10 @@ export function capture(
   Snapshot & { runtime: { entry: string; runtime: string; hash: string } }
 > {
   return temporary(async directory => {
+    const selectedScenarios = compositional ? compositionalScenarios : scenarios
     assert.equal(
-      new Set(scenarios.map(s => s.id)).size,
-      scenarios.length,
+      new Set(selectedScenarios.map(s => s.id)).size,
+      selectedScenarios.length,
       'Duplicate scenario IDs'
     )
     for (const name of [
