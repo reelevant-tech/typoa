@@ -215,7 +215,10 @@ Express major. Remove them after publication; do not extend their expiry to
 silence a failure. There is no automatic exception-update command.
 
 `yarn compat:legacy` independently installs published alpha.71 and checks the
-HTTP cases marked `legacy` in `cases.ts`. Its OpenAPI is deliberately not compared:
+HTTP cases marked `legacy` in `cases.ts`, including the compositional cases.
+The default `yarn test` and `yarn compat` check the compositional HTTP snapshots
+offline; only `yarn compat:legacy` installs alpha.71 for a live comparison.
+Its OpenAPI is deliberately not compared:
 current flattening is retained. The regex-path controller is separate because
 alpha.71 cannot register its Express 4 route syntax on Express 5.
 
