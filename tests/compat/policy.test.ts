@@ -5,7 +5,8 @@ import {
   assertCompatible,
   compareVersions,
   differences,
-  digest
+  digest,
+  mergeSnapshots
 } from './policy'
 
 const before = { openapi: { type: 'object' }, http: { body: { status: 200 } } }
@@ -16,6 +17,55 @@ const change: AcceptedChange = {
   reason: 'Restore the published contract',
   sinceVersion: '1.0.0-alpha.80'
 }
+
+test('Contract units reject duplicate IDs within documents and across fixture groups', () => {
+  for (const snapshot of [
+    { ...before, http: { openapi: { status: 200 } } },
+    { ...before, documents: { openapi: {} } },
+    { ...before, documents: { body: {} } }
+  ]) {
+    assert.throws(
+      () => differences(snapshot, snapshot),
+      /Duplicate contract unit ID:/
+    )
+  }
+  assert.throws(
+    () => mergeSnapshots(before, before, 'recursive.openapi'),
+    /Duplicate contract unit ID: body/
+  )
+  assert.throws(
+    () =>
+      mergeSnapshots(
+        { ...before, documents: { 'recursive.openapi': {} } },
+        { openapi: {}, http: {} },
+        'recursive.openapi'
+      ),
+    /Duplicate contract unit ID: recursive.openapi/
+  )
+  assert.throws(
+    () =>
+      mergeSnapshots(
+        { ...before, http: { 'recursive.openapi': { status: 200 } } },
+        { openapi: {}, http: {} },
+        'recursive.openapi'
+      ),
+    /Duplicate contract unit ID: recursive.openapi/
+  )
+})
+
+test('Merging uniquely named contracts retains every HTTP case and document', () => {
+  const recursive = {
+    openapi: { type: 'array' },
+    http: { 'recursive-box.narrowed': { status: 400 } }
+  }
+  const merged = mergeSnapshots(before, recursive, 'recursive.openapi')
+  assert.deepEqual(merged, {
+    ...before,
+    documents: { 'recursive.openapi': recursive.openapi },
+    http: { ...before.http, ...recursive.http }
+  })
+  assert.equal(assertCompatible(merged, merged, [], '1.0.0-alpha.79', '5'), 0)
+})
 
 test('Compatibility policy accepts identical and explicitly approved contracts', () => {
   assert.equal(assertCompatible(before, before, [], '1.0.0-alpha.79', '5'), 0)

@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { strict as assert } from 'node:assert'
 import { capture, installRelease, major } from './contract'
-import { assertCompatible, canonical } from './policy'
+import { assertCompatible, canonical, mergeSnapshots } from './policy'
 
 async function main() {
   const legacy = process.argv.includes('--legacy')
@@ -59,16 +59,8 @@ async function main() {
           capture(undefined, false, 'recursive')
         ])
         const count = assertCompatible(
-          {
-            ...before,
-            documents: { 'recursive.openapi': recursiveBefore.openapi },
-            http: { ...before.http, ...recursiveBefore.http }
-          },
-          {
-            ...after,
-            documents: { 'recursive.openapi': recursiveAfter.openapi },
-            http: { ...after.http, ...recursiveAfter.http }
-          },
+          mergeSnapshots(before, recursiveBefore, 'recursive.openapi'),
+          mergeSnapshots(after, recursiveAfter, 'recursive.openapi'),
           entries,
           version,
           major

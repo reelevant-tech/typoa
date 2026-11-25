@@ -70,12 +70,45 @@ export function compareVersions(a: string, b: string): number {
   return 0
 }
 
+function uniqueUnits(entries: [string, unknown][]): Record<string, unknown> {
+  const keys = new Set<string>()
+  for (const [key] of entries) {
+    assert.ok(!keys.has(key), `Duplicate contract unit ID: ${key}`)
+    keys.add(key)
+  }
+  return Object.fromEntries(entries)
+}
+
+function units(snapshot: Snapshot): Record<string, unknown> {
+  return uniqueUnits([
+    ['openapi', snapshot.openapi],
+    ...Object.entries(snapshot.documents ?? {}),
+    ...Object.entries(snapshot.http)
+  ])
+}
+
+export function mergeSnapshots(
+  primary: Snapshot,
+  additional: Snapshot,
+  documentId: string
+): Snapshot {
+  const merged = {
+    openapi: primary.openapi,
+    documents: uniqueUnits([
+      ...Object.entries(primary.documents ?? {}),
+      [documentId, additional.openapi],
+      ...Object.entries(additional.documents ?? {})
+    ]),
+    http: uniqueUnits([
+      ...Object.entries(primary.http),
+      ...Object.entries(additional.http)
+    ])
+  }
+  units(merged)
+  return merged
+}
+
 export function differences(before: Snapshot, after: Snapshot) {
-  const units = (snapshot: Snapshot) => ({
-    openapi: snapshot.openapi,
-    ...snapshot.documents,
-    ...snapshot.http
-  })
   const left = units(before),
     right = units(after)
   return [...new Set([...Object.keys(left), ...Object.keys(right)])]
