@@ -1,3 +1,5 @@
+import { strict as assert } from 'node:assert'
+
 export type Scenario = {
   id: string
   method?: string
@@ -12,7 +14,7 @@ const json = (
   id: string,
   path: string,
   body: unknown,
-  legacy = false
+  legacy?: boolean
 ): Scenario => ({
   id,
   path,
@@ -339,11 +341,22 @@ export const scenarios: Scenario[] = [
   { id: 'response.serialization', method: 'GET', path: 'response' }
 ]
 
+export function markLegacy(scenario: Scenario, legacy: boolean): void {
+  assert.ok(
+    scenario.legacy === undefined || scenario.legacy === legacy,
+    `Conflicting legacy marker: ${scenario.id}`
+  )
+  scenario.legacy = legacy
+}
+
 for (const scenario of scenarios) {
-  scenario.legacy = ![
-    'path.valid',
-    'path.regex-miss',
-    'header.invalid',
-    'header.missing'
-  ].includes(scenario.id)
+  markLegacy(
+    scenario,
+    ![
+      'path.valid',
+      'path.regex-miss',
+      'header.invalid',
+      'header.missing'
+    ].includes(scenario.id)
+  )
 }

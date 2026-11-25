@@ -1,7 +1,22 @@
 import { test } from 'node:test'
 import { strict as assert } from 'node:assert'
 import { capture } from './contract'
-import { scenarioGroup, scenariosFor } from './cases'
+import { markLegacy, scenarioGroup, scenariosFor, type Scenario } from './cases'
+
+test('Legacy classification rejects conflicting inline markers', () => {
+  const scenario: Scenario = { id: 'item', path: 'item' }
+  markLegacy(scenario, true)
+  assert.equal(scenario.legacy, true)
+  markLegacy(scenario, true)
+  assert.throws(
+    () => markLegacy(scenario, false),
+    /Conflicting legacy marker: item/
+  )
+  assert.throws(
+    () => markLegacy({ id: 'other', path: 'other', legacy: false }, true),
+    /Conflicting legacy marker: other/
+  )
+})
 
 for (const compositional of [
   false,
