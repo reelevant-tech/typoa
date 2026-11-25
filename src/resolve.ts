@@ -25,11 +25,6 @@ const activeResolutions = new WeakMap<
 const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
 const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
 const exportedTypes = new WeakMap<OpenAPIV3.Document, Map<string, ts.Type>>()
-const nullableIntermediates = new WeakMap<
-  OpenAPIV3.Document,
-  Map<ts.Type, { source: string; name: string }>
->()
-const nullableArrays = new WeakMap<OpenAPIV3.Document, Map<ts.Type, string>>()
 export type SchemaModel = { type: Type; preferred: string; helper: boolean }
 const allocators = new WeakMap<OpenAPIV3.Document, SchemaNames>()
 
@@ -65,6 +60,12 @@ class SchemaNames {
       if (owner === undefined || owner === model.type.compilerType)
         this.claim(model.type.compilerType, model.preferred)
     }
+    for (const model of models.filter(model => model.helper))
+      if (
+        this.targets.has(model.preferred) &&
+        !this.owners.has(model.preferred)
+      )
+        this.claim(model.type.compilerType, model.preferred)
     for (const model of models)
       if (!this.keys.has(model.type.compilerType))
         this.claim(
@@ -225,39 +226,9 @@ export function keepIntermediateSchemas(
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
   allocators.set(additions, namesFor(spec).fork())
   exportedTypes.set(additions, new Map(exportedTypes.get(spec)))
-  nullableIntermediates.set(additions, new Map())
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
-  }
-  // OpenAPI 3.0 null-only schema that oatyp also infers as null.
-  const nullSchema: OpenAPIV3.SchemaObject = {
-    allOf: [
-      { type: 'boolean', nullable: true },
-      { type: 'string', nullable: true }
-    ]
-  }
-  for (const { source, name } of nullableIntermediates
-    .get(additions)!
-    .values()) {
-    let schema: Schema | undefined = additions.components.schemas[source]
-    const visited = new Set<string>()
-    while (schema && '$ref' in schema) {
-      if (visited.has(schema.$ref)) {
-        schema = undefined
-        break
-      }
-      visited.add(schema.$ref)
-      schema =
-        additions.components.schemas[
-          schema.$ref.slice('#/components/schemas/'.length)
-        ]
-    }
-    const value =
-      schema && 'enum' in schema ? schema : { $ref: buildRef(source) }
-    additions.components.schemas[name] = {
-      oneOf: [{ allOf: [value, { not: nullSchema }] }, nullSchema]
-    }
   }
   for (const [name, schema] of Object.entries(additions.components.schemas)) {
     if (schemas[name] === undefined) schemas[name] = schema
@@ -313,38 +284,39 @@ function resolveNullableType(
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
   if (isNull) {
     const schema = resolve(nonNullableType, spec)
-    if (intermediateDocuments.has(spec) && '$ref' in schema) {
+    if ('$ref' in schema) {
       const source = schema.$ref.slice('#/components/schemas/'.length)
-      const variants = nullableIntermediates.get(spec)!
-      let name = variants.get(type.compilerType)?.name
-      if (!name) {
-        name = intermediateName(type, spec, `${source}_Nullable`)
-        spec.components!.schemas![name] = {}
-        variants.set(type.compilerType, { source, name })
-      }
-      return { $ref: buildRef(name) }
-    }
-    if ('$ref' in schema && nonNullableType.isArray()) {
-      let variants = nullableArrays.get(spec)
-      if (!variants) {
-        variants = new Map()
-        nullableArrays.set(spec, variants)
-      }
-      let name = variants.get(type.compilerType)
-      if (!name) {
-        const source = schema.$ref.slice('#/components/schemas/'.length)
-        name = intermediateName(type, spec, `${source}_Nullable`)
-        variants.set(type.compilerType, name)
-        const nullable: OpenAPIV3.ArraySchemaObject = {
-          type: 'array',
-          nullable: true,
-          items: {}
+      const name = intermediateName(type, spec, `${source}_Nullable`)
+      if (spec.components!.schemas![name] === undefined) {
+        if (nonNullableType.isArray()) {
+          const nullable: OpenAPIV3.ArraySchemaObject = {
+            type: 'array',
+            nullable: true,
+            items: {}
+          }
+          spec.components!.schemas![name] = nullable
+          nullable.items = resolve(
+            nonNullableType.getArrayElementTypeOrThrow(),
+            spec
+          )
+        } else {
+          // OpenAPI 3.0 null-only schema that oatyp also infers as null.
+          const nullSchema: OpenAPIV3.SchemaObject = {
+            allOf: [
+              { type: 'boolean', nullable: true },
+              { type: 'string', nullable: true }
+            ]
+          }
+          const target = spec.components!.schemas![source]
+          const value = target && 'enum' in target ? target : schema
+          const nullable: OpenAPIV3.SchemaObject & {
+            'x-typoa-nullable': true
+          } = {
+            'x-typoa-nullable': true,
+            oneOf: [{ allOf: [value, { not: nullSchema }] }, nullSchema]
+          }
+          spec.components!.schemas![name] = nullable
         }
-        spec.components!.schemas![name] = nullable
-        nullable.items = resolve(
-          nonNullableType.getArrayElementTypeOrThrow(),
-          spec
-        )
       }
       return { $ref: buildRef(name) }
     }

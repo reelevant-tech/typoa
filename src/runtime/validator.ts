@@ -464,6 +464,7 @@ function isNullableSchema(
   const resolved = getFromRef(schema, schemas)
   return (
     resolved.nullable === true ||
+    ('x-typoa-nullable' in resolved && resolved['x-typoa-nullable'] === true) ||
     (resolved.allOf !== undefined &&
       resolved.allOf.length > 0 &&
       resolved.allOf.every(member => isNullableSchema(member, schemas)))
