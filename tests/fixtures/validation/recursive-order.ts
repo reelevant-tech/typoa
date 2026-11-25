@@ -34,18 +34,20 @@ interface NestedHolder {
   kind?: Value_Recursive_Nullable_Intermediate
 }
 
-interface Value_Recursive_Nullable {
+export interface Value_Recursive_Nullable {
   label: string
 }
 
-interface Value_Recursive {
+export interface Value_Recursive {
   name: string
 }
 
-enum Value_Recursive_Nullable_Intermediate {
+export enum Value_Recursive_Nullable_Intermediate {
   First = 'first',
   Second = 'second'
 }
+
+export type Value_Recursive_Nullable_Intermediate_Intermediate = number
 
 @Route('/items')
 export class RecursiveOrderController extends Controller {

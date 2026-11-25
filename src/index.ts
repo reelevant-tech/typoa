@@ -21,7 +21,7 @@ import {
   keepIntermediateSchemas,
   preserveComposition,
   preserveFlattening,
-  resolve
+  resolveExportedType
 } from './resolve'
 
 export type OpenAPIConfiguration = {
@@ -249,18 +249,13 @@ async function generateDocument(
     const type = declaration.getType()
     for (const target of [spec, diagnosticSpec]) {
       const addExportedType = () => {
-        const resolved = resolve(
+        resolveExportedType(
           type.isAny()
             ? (declaration.getSymbol()?.getDeclaredType() ?? type)
             : type,
-          target
+          target,
+          name
         )
-        if (
-          !('$ref' in resolved) ||
-          resolved.$ref.substr('#/components/schemas/'.length) !== name
-        ) {
-          target.components!.schemas![name] = resolved
-        }
       }
       if (target === spec) addExportedType()
       else deferredDiagnostics.push(addExportedType)

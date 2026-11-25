@@ -128,7 +128,8 @@ function capitalizeFirstLetter(str: string): string {
 function componentName(
   type: Type,
   spec: OpenAPIV3.Document,
-  preferred: string
+  preferred: string,
+  preserveExisting = false
 ): string {
   const previous = componentTypes.get(spec)?.get(preferred)
   if (
@@ -136,6 +137,9 @@ function componentName(
       previous &&
       previous.compilerType !== type.compilerType) ||
     (auxiliaryNames.get(spec)?.has(preferred) &&
+      previous?.compilerType !== type.compilerType) ||
+    (preserveExisting &&
+      spec.components!.schemas![preferred] !== undefined &&
       previous?.compilerType !== type.compilerType)
   ) {
     let names = intermediateNames.get(spec)
@@ -151,6 +155,25 @@ function componentName(
     return name
   }
   return preferred
+}
+
+export function resolveExportedType(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  name: string
+): void {
+  const resolved = resolve(type, spec)
+  if (
+    '$ref' in resolved &&
+    resolved.$ref.slice('#/components/schemas/'.length) === name
+  )
+    return
+  const alias = componentName(type, spec, name, true)
+  if (spec.components!.schemas![alias] === undefined) {
+    if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
+    componentTypes.get(spec)!.set(alias, type)
+    spec.components!.schemas![alias] = resolved
+  }
 }
 
 function resolveNullableType(

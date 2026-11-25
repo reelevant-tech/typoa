@@ -21,6 +21,13 @@ for (const keepIntermediateSchemas of [false, true]) {
       openapi: {
         filePath,
         keepIntermediateSchemas,
+        additionalExportedTypeNames: [
+          'Value_Recursive_Nullable',
+          'Value_Recursive',
+          'Value_Recursive_Nullable_Intermediate',
+          'Value_Recursive_Nullable_Intermediate_Intermediate',
+          'Value_Recursive_Nullable_Intermediate_Intermediate'
+        ],
         service: { name: 'generic', version: '1' }
       },
       router: { filePath: filePath.replace('.json', '.ts') }
@@ -95,6 +102,12 @@ for (const keepIntermediateSchemas of [false, true]) {
       type: 'string',
       enum: ['first', 'second']
     })
+    assert.equal(
+      Object.values(spec.components.schemas).filter(
+        (schema: any) => schema.type === 'number'
+      ).length,
+      1
+    )
     for (const [route, valid, invalid] of [
       ['value', ['a', ['b']], [1]],
       ['mapping', { next: {} }, { next: 1 }],
