@@ -28,7 +28,6 @@ test('Should generate additionalProperties for types with specific keys and inde
         name: 'test-service',
         version: '1.0.0'
       },
-      // Only used in an intersection, which is flattened
       additionalExportedTypeNames: ['Beta']
     },
     router: {
@@ -116,15 +115,22 @@ test('Should generate additionalProperties for types with specific keys and inde
   const intersectionSchema =
     intersectionResponse.content['application/json'].schema
 
-  // Object intersections are flattened: the specific keys become properties and
-  // the Record<string, string> part becomes additionalProperties
   assert.deepStrictEqual(intersectionSchema, {
-    type: 'object',
-    properties: {
-      'specific-key': { type: 'string' },
-      'another-key': { type: 'string' }
-    },
-    additionalProperties: { type: 'string' }
+    allOf: [
+      {
+        type: 'object',
+        properties: {},
+        additionalProperties: { type: 'string' }
+      },
+      {
+        type: 'object',
+        properties: {
+          'specific-key': { type: 'string' },
+          'another-key': { type: 'string' }
+        },
+        additionalProperties: false
+      }
+    ]
   })
 
   // An intersection member allowing additional properties keeps allowing them
@@ -133,12 +139,14 @@ test('Should generate additionalProperties for types with specific keys and inde
       '200'
     ].content['application/json'].schema
   assert.deepStrictEqual(additionalPropertiesEnabledSchema, {
-    type: 'object',
-    properties: {
-      hydrogen: { type: 'number' },
-      carbon: { type: 'number' }
-    },
-    required: ['hydrogen', 'carbon'],
-    additionalProperties: true
+    allOf: [
+      { $ref: '#/components/schemas/Beta' },
+      {
+        type: 'object',
+        properties: { carbon: { type: 'number' } },
+        required: ['carbon'],
+        additionalProperties: false
+      }
+    ]
   })
 })

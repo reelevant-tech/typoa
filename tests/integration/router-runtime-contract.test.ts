@@ -121,10 +121,14 @@ before(async () => {
       'application/json'
     ].schema,
     {
-      type: 'object',
-      properties: { id: { type: 'string' }, query: { type: 'string' } },
-      required: ['id'],
-      additionalProperties: { $ref: '#/components/schemas/AnyValue' }
+      allOf: [
+        { $ref: '#/components/schemas/Item' },
+        {
+          type: 'object',
+          properties: {},
+          additionalProperties: { $ref: '#/components/schemas/AnyValue' }
+        }
+      ]
     }
   )
   const app = express()

@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/partial": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Result"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Result"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Create"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "T_Partial": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "Base_T": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/T_Partial"
+          }
+        },
+        "required": ["data"],
+        "additionalProperties": false
+      },
+      "Envelope_Item": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base_T"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "number"
+              }
+            },
+            "required": ["code"]
+          }
+        ]
+      },
+      "Result": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Envelope_Item"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "required": ["active"]
+          }
+        ]
+      }
+    }
+  }
+}

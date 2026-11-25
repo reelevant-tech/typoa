@@ -20,40 +20,27 @@
         "additionalProperties": false,
         "properties": {
           "value": {
-            "enum": [
-              1
-            ],
             "type": "number"
           }
         },
-        "required": [
-          "value"
-        ],
-        "type": "object"
-      },
-      "Box_Intermediate": {
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "type": "object"
       },
       "Child": {
-        "additionalProperties": false,
-        "properties": {
-          "box": {
-            "$ref": "#/components/schemas/Box"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Parent"
+          },
+          {
+            "properties": {
+              "box": {
+                "$ref": "#/components/schemas/Box"
+              }
+            },
+            "required": ["box"],
+            "type": "object"
           }
-        },
-        "required": [
-          "box"
-        ],
-        "type": "object"
+        ]
       },
       "Closed": {
         "additionalProperties": false,
@@ -62,22 +49,24 @@
             "type": "string"
           }
         },
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object"
       },
       "Item": {
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base"
+          },
+          {
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": ["name"],
+            "type": "object"
           }
-        },
-        "required": [
-          "name"
-        ],
-        "type": "object"
+        ]
       },
       "Open": {
         "additionalProperties": true,
@@ -86,33 +75,27 @@
             "type": "string"
           }
         },
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object"
       },
       "Pair": {
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Open"
+          },
+          {
+            "$ref": "#/components/schemas/Closed"
           }
-        },
-        "required": [
-          "name"
-        ],
-        "type": "object"
+        ]
       },
       "Parent": {
         "additionalProperties": false,
         "properties": {
           "box": {
-            "$ref": "#/components/schemas/Box_Intermediate"
+            "$ref": "#/components/schemas/Box"
           }
         },
-        "required": [
-          "box"
-        ],
+        "required": ["box"],
         "type": "object"
       }
     }

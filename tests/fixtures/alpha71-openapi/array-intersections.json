@@ -1,0 +1,1589 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/intersections/tags": {
+      "get": {
+        "parameters": [
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["a"]
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Kind"
+                  }
+                }
+              ]
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": ["a"]
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Kind"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "Query"
+      }
+    },
+    "/intersections": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cases"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cases"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Create"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Kind": {
+        "type": "string",
+        "enum": ["a", "b"]
+      },
+      "NullableShortList": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              }
+            ],
+            "nullable": true,
+            "minItems": 1
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      },
+      "NullableLongList": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              }
+            ],
+            "nullable": true,
+            "maxItems": 2
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      },
+      "NullableListPair": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/NullableShortList"
+          },
+          {
+            "$ref": "#/components/schemas/NullableLongList"
+          }
+        ]
+      },
+      "Named": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "Serialized_Item": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["a"]
+            }
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      },
+      "Tagged": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      },
+      "OptionalCount": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DefaultCount": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "UndefinedCount": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Short": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "Long": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 4
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "Inherited": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Short"
+          },
+          {
+            "$ref": "#/components/schemas/Long"
+          }
+        ]
+      },
+      "Narrowed": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Short"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 3
+              }
+            },
+            "required": ["name"]
+          }
+        ]
+      },
+      "ShortList": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      },
+      "LongList": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 2
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      },
+      "AnyValue": {
+        "description": "Can be any value",
+        "nullable": true
+      },
+      "Indexed": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["a"]
+          }
+        },
+        "required": ["kind"],
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "Open": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": true
+      },
+      "Closed": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "ClosedPair": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Open"
+          },
+          {
+            "$ref": "#/components/schemas/Closed"
+          }
+        ]
+      },
+      "MutableValue": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": ["value"],
+        "additionalProperties": false
+      },
+      "ReadonlyValue": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": ["value"],
+        "additionalProperties": false
+      },
+      "HiddenValue": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": ["value"],
+        "additionalProperties": false
+      },
+      "WritePair": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MutableValue"
+          },
+          {
+            "$ref": "#/components/schemas/HiddenValue"
+          }
+        ]
+      },
+      "MutableItem": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "default": "x"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MutablePair": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReadonlyValue"
+          },
+          {
+            "$ref": "#/components/schemas/Tagged"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": ["value"]
+          }
+        ]
+      },
+      "JsonValue": {
+        "type": "string"
+      },
+      "Envelope_Named": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Named"
+          }
+        },
+        "required": ["data"],
+        "additionalProperties": false
+      },
+      "JsonChoice": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "left": {
+                "type": "string"
+              }
+            },
+            "required": ["left"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "right": {
+                "type": "number"
+              }
+            },
+            "required": ["right"],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Cases": {
+        "type": "object",
+        "properties": {
+          "direct": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              }
+            ]
+          },
+          "tags": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              }
+            ]
+          },
+          "nullableTags": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              }
+            ],
+            "nullable": true
+          },
+          "boundedTags": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              }
+            ],
+            "minItems": 1,
+            "maxItems": 2
+          },
+          "inheritedNullableBounds": {
+            "$ref": "#/components/schemas/NullableListPair"
+          },
+          "enumChoice": {
+            "oneOf": [
+              {
+                "allOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["a"]
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Kind"
+                    }
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["b"]
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Kind"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "mixed": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "primitives": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            ]
+          },
+          "three": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["a"]
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Kind"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "objectPrimitive": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Named"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "nestedMixed": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Kind"
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "serialized": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Serialized_Item"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Kind"
+                    }
+                  }
+                },
+                "required": ["tags"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "choice": {
+            "oneOf": [
+              {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Serialized_Item"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Kind"
+                        }
+                      }
+                    },
+                    "required": ["tags"],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "other": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["other"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "objects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Named"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Tagged"
+                }
+              }
+            ]
+          },
+          "defaultObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OptionalCount"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DefaultCount"
+                }
+              }
+            ]
+          },
+          "reversedDefaultObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DefaultCount"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OptionalCount"
+                }
+              }
+            ]
+          },
+          "requiredDefaultObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["count"],
+                  "additionalProperties": false
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DefaultCount"
+                }
+              }
+            ]
+          },
+          "reversedRequiredDefaultObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DefaultCount"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["count"],
+                  "additionalProperties": false
+                }
+              }
+            ]
+          },
+          "undefinedDefaultObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DefaultCount"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UndefinedCount"
+                }
+              }
+            ]
+          },
+          "reversedUndefinedDefaultObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UndefinedCount"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DefaultCount"
+                }
+              }
+            ]
+          },
+          "undefinedDefault": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DefaultCount"
+              },
+              {
+                "$ref": "#/components/schemas/UndefinedCount"
+              }
+            ]
+          },
+          "reversedUndefinedDefault": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UndefinedCount"
+              },
+              {
+                "$ref": "#/components/schemas/DefaultCount"
+              }
+            ]
+          },
+          "objectsWithIntersection": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Named"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Named"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Tagged"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "nullableObjectsWithIntersection": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Named"
+                    }
+                  ],
+                  "nullable": true
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Named"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Tagged"
+                    }
+                  ],
+                  "nullable": true
+                }
+              }
+            ]
+          },
+          "nestedObjectsWithIntersection": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Named"
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Named"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Tagged"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "nullableObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Named"
+                    }
+                  ],
+                  "nullable": true
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Tagged"
+                    }
+                  ],
+                  "nullable": true
+                }
+              }
+            ]
+          },
+          "mixedNullableObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Named"
+                    }
+                  ],
+                  "nullable": true
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Tagged"
+                }
+              }
+            ]
+          },
+          "nestedNullableObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Named"
+                      }
+                    ],
+                    "nullable": true
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Tagged"
+                      }
+                    ],
+                    "nullable": true
+                  }
+                }
+              }
+            ]
+          },
+          "nested": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["a"]
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Kind"
+                  }
+                }
+              }
+            ]
+          },
+          "nestedDirect": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["a"]
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Kind"
+                  }
+                }
+              }
+            ]
+          },
+          "nestedObjects": {
+            "allOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Named"
+                  }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tagged"
+                  }
+                }
+              }
+            ]
+          },
+          "enumValue": {
+            "type": "string",
+            "enum": ["b"]
+          },
+          "conflict": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": ["value"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": ["value"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "optionalConflict": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "required": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": ["value"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "constraints": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Short"
+              },
+              {
+                "$ref": "#/components/schemas/Long"
+              }
+            ]
+          },
+          "inherited": {
+            "$ref": "#/components/schemas/Inherited"
+          },
+          "narrowed": {
+            "$ref": "#/components/schemas/Narrowed"
+          },
+          "bounded": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ShortList"
+              },
+              {
+                "$ref": "#/components/schemas/LongList"
+              }
+            ]
+          },
+          "indexed": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "type": "number"
+                }
+              }
+            ]
+          },
+          "indexedProperty": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "number"
+                  }
+                },
+                "required": ["count"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "numericIndex": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "number"
+                  }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "numericProperty": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "0": {
+                    "type": "number"
+                  }
+                },
+                "required": ["0"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "nonNumericProperty": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "01": {
+                    "type": "number"
+                  },
+                  "1e2": {
+                    "type": "number"
+                  }
+                },
+                "required": ["01", "1e2"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "openIndex": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "anyIndex": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "inheritedIndex": {
+            "$ref": "#/components/schemas/Indexed"
+          },
+          "closed": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Open"
+              },
+              {
+                "$ref": "#/components/schemas/Closed"
+              }
+            ]
+          },
+          "inheritedClosed": {
+            "$ref": "#/components/schemas/ClosedPair"
+          },
+          "modifiers": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "readOnly": true
+                  }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "readMerge": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MutableValue"
+              },
+              {
+                "$ref": "#/components/schemas/ReadonlyValue"
+              }
+            ]
+          },
+          "writeMerge": {
+            "$ref": "#/components/schemas/WritePair"
+          },
+          "mutableClass": {
+            "$ref": "#/components/schemas/MutableItem"
+          },
+          "mutableOverride": {
+            "$ref": "#/components/schemas/MutablePair"
+          },
+          "branded": {
+            "allOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tag": {
+                    "type": "string"
+                  }
+                },
+                "required": ["tag"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "reference": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tag": {
+                    "type": "string"
+                  }
+                },
+                "required": ["tag"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "referenceProperty": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Envelope_Named"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": ["note"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "composedReference": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JsonChoice"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["active"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "union": {
+            "oneOf": [
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["name"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "active": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["active"],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "count": {
+                        "type": "number"
+                      }
+                    },
+                    "required": ["count"],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "active": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["active"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "direct",
+          "tags",
+          "nullableTags",
+          "boundedTags",
+          "inheritedNullableBounds",
+          "enumChoice",
+          "mixed",
+          "primitives",
+          "three",
+          "objectPrimitive",
+          "nestedMixed",
+          "serialized",
+          "choice",
+          "objects",
+          "defaultObjects",
+          "reversedDefaultObjects",
+          "requiredDefaultObjects",
+          "reversedRequiredDefaultObjects",
+          "undefinedDefaultObjects",
+          "reversedUndefinedDefaultObjects",
+          "undefinedDefault",
+          "reversedUndefinedDefault",
+          "objectsWithIntersection",
+          "nullableObjectsWithIntersection",
+          "nestedObjectsWithIntersection",
+          "nullableObjects",
+          "mixedNullableObjects",
+          "nestedNullableObjects",
+          "nested",
+          "nestedDirect",
+          "nestedObjects",
+          "enumValue",
+          "conflict",
+          "optionalConflict",
+          "required",
+          "constraints",
+          "inherited",
+          "narrowed",
+          "bounded",
+          "indexed",
+          "indexedProperty",
+          "numericIndex",
+          "numericProperty",
+          "nonNumericProperty",
+          "openIndex",
+          "anyIndex",
+          "inheritedIndex",
+          "closed",
+          "inheritedClosed",
+          "modifiers",
+          "readMerge",
+          "writeMerge",
+          "mutableClass",
+          "mutableOverride",
+          "branded",
+          "reference",
+          "referenceProperty",
+          "composedReference",
+          "union"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

@@ -14,8 +14,14 @@ import { OpenAPIV3 } from 'openapi-types'
 import { getConfig } from '.'
 import { options } from './option'
 import { buildRef } from './runtime/ref'
+import { resolve as resolveLegacy } from './resolve-legacy'
 
 const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
+const flattenedDocuments = new WeakSet<OpenAPIV3.Document>()
+const activeResolutions = new WeakMap<
+  OpenAPIV3.Document,
+  Map<ts.Type, { name?: string }>
+>()
 const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
 const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
 const intermediateNames = new WeakMap<
@@ -33,6 +39,13 @@ export function preserveComposition(spec: OpenAPIV3.Document): void {
   componentTypes.set(spec, new Map())
 }
 
+export class LegacyRecursionError extends Error {}
+
+export function preserveFlattening(spec: OpenAPIV3.Document): void {
+  flattenedDocuments.add(spec)
+  componentTypes.set(spec, new Map())
+}
+
 export function keepIntermediateSchemas(
   spec: OpenAPIV3.Document,
   compositionSpec: OpenAPIV3.Document
@@ -43,6 +56,7 @@ export function keepIntermediateSchemas(
     components: { ...spec.components, schemas: structuredClone(schemas) }
   }
   intermediateDocuments.add(additions)
+  flattenedDocuments.add(additions)
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
   intermediateNames.set(additions, new Map())
   reservedIntermediateNames.set(
@@ -187,6 +201,77 @@ function isTypeIdentifier(type: Type): boolean {
 }
 
 export function resolve(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  resolveNullableTypeFn?: typeof resolveNullableType
+): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (compositionDocuments.has(spec) || flattenedDocuments.has(spec)) {
+    return resolveRecursive(type, spec, resolveNullableTypeFn)
+  }
+  const candidate = {
+    ...spec,
+    components: {
+      ...spec.components,
+      schemas: structuredClone(spec.components!.schemas!)
+    }
+  }
+  try {
+    const schema = resolveLegacy(type, candidate, resolveNullableTypeFn)
+    spec.components = candidate.components
+    return schema
+  } catch (error) {
+    if (
+      !(error instanceof RangeError) ||
+      !error.message.includes('Maximum call stack size exceeded')
+    )
+      throw error
+    throw new LegacyRecursionError(
+      'Recursive types require cycle-safe schema generation'
+    )
+  }
+}
+
+function resolveRecursive(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  resolveNullableTypeFn = resolveNullableType
+): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  let active = activeResolutions.get(spec)
+  if (!active) {
+    active = new Map()
+    activeResolutions.set(spec, active)
+  }
+  const existing = active.get(type.compilerType)
+  if (existing) {
+    for (const [name, component] of componentTypes.get(spec) ?? []) {
+      if (
+        component.compilerType === type.compilerType &&
+        spec.components!.schemas![name] !== undefined
+      )
+        return { $ref: buildRef(name) }
+    }
+    if (!existing.name) {
+      existing.name = intermediateName(
+        spec,
+        `${type.getAliasSymbol()?.getName() ?? 'Value'}_Recursive`
+      )
+      spec.components!.schemas![existing.name] = {}
+    }
+    return { $ref: buildRef(existing.name) }
+  }
+  const state: { name?: string } = {}
+  active.set(type.compilerType, state)
+  try {
+    const schema = resolveRecursiveType(type, spec, resolveNullableTypeFn)
+    if (!state.name) return schema
+    spec.components!.schemas![state.name] = schema
+    return { $ref: buildRef(state.name) }
+  } finally {
+    active.delete(type.compilerType)
+  }
+}
+
+function resolveRecursiveType(
   type: Type,
   spec: OpenAPIV3.Document,
   resolveNullableTypeFn = resolveNullableType
@@ -442,7 +527,11 @@ export function resolve(
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
       if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
       componentTypes.get(spec)!.set(typeName, type)
-      if (compositionDocuments.has(spec) || intermediateDocuments.has(spec)) {
+      if (
+        compositionDocuments.has(spec) ||
+        intermediateDocuments.has(spec) ||
+        flattenedDocuments.has(spec)
+      ) {
         spec.components!.schemas![typeName] = {}
       }
       spec.components!.schemas![typeName] = resolveSchema()

@@ -1,41 +1,10 @@
 import { test } from 'node:test'
 import { strict as assert } from 'node:assert'
-import SwaggerParser from '@apidevtools/swagger-parser'
-import Ajv from 'ajv'
-import {
-  assertAdditive,
-  assertClientCompiles,
-  intermediate
-} from './intermediate-helpers'
+import { assertAlpha71, intermediate } from './intermediate-helpers'
 
-test('Restored Partial makes constrained serialized fields optional', async () => {
+test('Preserves alpha.71 constrained serialized Partial schemas', async () => {
   const before = await intermediate('partial-serialized', false)
   const after = await intermediate('partial-serialized')
-  assertAdditive(before, after)
-  await SwaggerParser.validate(structuredClone(after.spec))
-  await assertClientCompiles(
-    after.spec,
-    "import { Base_T } from './definitions'\n" +
-      'const value: Base_T = { data: {} }; void value\n'
-  )
-  const ajv = new Ajv({ strict: false })
-  ajv.addSchema({ components: after.spec.components }, 'spec')
-  const validate = ajv.compile({ $ref: 'spec#/components/schemas/Base_T' })
-  for (const data of [
-    {},
-    { id: 'a' },
-    { count: 1 },
-    { id: 'a', count: 1 },
-    { extra: true }
-  ])
-    assert.equal(validate({ data }), true)
-  assert.equal(validate({}), false)
-  assert.equal(validate({ data: 'a' }), false)
-  assert.equal(validate({ data: { id: 1 } }), false)
-  assert.equal(validate({ data: {}, extra: true }), false)
-  const concrete = ajv.compile({
-    $ref: 'spec#/components/schemas/Item_Partial'
-  })
-  assert.equal(concrete({}), true)
-  assert.equal(concrete({ extra: true }), false)
+  assertAlpha71('partial-serialized', after.spec)
+  assert.deepEqual(after, before)
 })

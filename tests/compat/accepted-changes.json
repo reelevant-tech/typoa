@@ -94,5 +94,293 @@
     "expressMajor": "5",
     "reason": "Restore alpha.71: scalar query values are not wrapped for allOf array schemas, preserving acceptance and error values.",
     "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "openapi",
+    "before": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7",
+    "after": "b1d270afc8f153130b3ca6ef6d929a69299c4cdaa0502db56592cb2432f43d98",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 OpenAPI composition, historical intermediate components/references and inherited metadata instead of flattened objects and arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "openapi",
+    "before": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7",
+    "after": "b1d270afc8f153130b3ca6ef6d929a69299c4cdaa0502db56592cb2432f43d98",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 OpenAPI composition, historical intermediate components/references and inherited metadata instead of flattened objects and arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.openapi",
+    "before": "540d42c30d58342a75000778145da4df745b80fbb10294f8a5fe78726c2fb566",
+    "after": "0ee02a80a357c13fb4848a10c3939007b511ca1df01366725867092ac9ad29ec",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 OpenAPI allOf inheritance/intersections: keep readOnly/writable declarations separate and retain the open dictionary branch and its named components.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.openapi",
+    "before": "540d42c30d58342a75000778145da4df745b80fbb10294f8a5fe78726c2fb566",
+    "after": "0ee02a80a357c13fb4848a10c3939007b511ca1df01366725867092ac9ad29ec",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 OpenAPI allOf inheritance/intersections: keep readOnly/writable declarations separate and retain the open dictionary branch and its named components.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive.openapi",
+    "before": "eb5f4d45926076f5010b382a4a7ee8cc77094e867f8ebbc418200a4951b7abed",
+    "after": "9f498401a6c9109e2153e1e7d28b6c98742699438cc662ac99c4402efd8c2895",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 OpenAPI generic inheritance and component reuse, including historical allOf overrides and undefined-property representation.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive.openapi",
+    "before": "eb5f4d45926076f5010b382a4a7ee8cc77094e867f8ebbc418200a4951b7abed",
+    "after": "9f498401a6c9109e2153e1e7d28b6c98742699438cc662ac99c4402efd8c2895",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 OpenAPI generic inheritance and component reuse, including historical allOf overrides and undefined-property representation.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.dictionary",
+    "before": "95b4c39917c29326b82af9bd9f4df4338aa6c45075f4910a8c3b2d549b3fce89",
+    "after": "66247ca68e617098ed30a10b2ce3d14ea2abc3a5c94f583b697fe55f9e45ccfc",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.dictionary",
+    "before": "95b4c39917c29326b82af9bd9f4df4338aa6c45075f4910a8c3b2d549b3fce89",
+    "after": "66247ca68e617098ed30a10b2ce3d14ea2abc3a5c94f583b697fe55f9e45ccfc",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.invalid-date-0",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "db8e1850fb171a35fb5c9e6621c28285acf40a806afce98e3fd7342bc5e0cca3",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.invalid-date-0",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "db8e1850fb171a35fb5c9e6621c28285acf40a806afce98e3fd7342bc5e0cca3",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.invalid-date-1",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "79fe6983154a5019b2e50b70ced3d7c638f37a59bf090728f8dd52464975255b",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.invalid-date-1",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "79fe6983154a5019b2e50b70ced3d7c638f37a59bf090728f8dd52464975255b",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.invalid-date-2",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "79fe6983154a5019b2e50b70ced3d7c638f37a59bf090728f8dd52464975255b",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.invalid-date-2",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "79fe6983154a5019b2e50b70ced3d7c638f37a59bf090728f8dd52464975255b",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.valid-date",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "c3991fa7409f5ee1c82028aa4ea7a4871d609972293fa9ff0674ffa52878f527",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional-discriminated.valid-date",
+    "before": "737a31da552cd002823e4b2e06e2a830c089238ec3bbdfb1c29ef17447fe43e1",
+    "after": "c3991fa7409f5ee1c82028aa4ea7a4871d609972293fa9ff0674ffa52878f527",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.array-strict",
+    "before": "02890a83a1d65640589cf2992bfd03ba999ec0c134b7410da77298f655bb7c94",
+    "after": "2b8c0fdfdcdbc72c293c65f28eac48b2fd342c4fbe249a41bf6c860e333861bd",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.array-strict",
+    "before": "02890a83a1d65640589cf2992bfd03ba999ec0c134b7410da77298f655bb7c94",
+    "after": "2b8c0fdfdcdbc72c293c65f28eac48b2fd342c4fbe249a41bf6c860e333861bd",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.dictionary",
+    "before": "f46450806bcf6abb12d8b9b7434530169ecebe0c7aa61d5c924cfc817328b4ad",
+    "after": "c0ea46f27735c4b799ff5b771aa2eac52609bab9d920a6af0d98bc9b49e156e5",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.dictionary",
+    "before": "f46450806bcf6abb12d8b9b7434530169ecebe0c7aa61d5c924cfc817328b4ad",
+    "after": "c0ea46f27735c4b799ff5b771aa2eac52609bab9d920a6af0d98bc9b49e156e5",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.inherited-strict-extra",
+    "before": "642532898249db1b5229d743db3e0ef54fc4237caced841c3dd40440b972a3d5",
+    "after": "5bce05ddd74331c28e831eb02f2ed7d3dd4b4a2dc694ababa5d2806696d117e8",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.inherited-strict-extra",
+    "before": "642532898249db1b5229d743db3e0ef54fc4237caced841c3dd40440b972a3d5",
+    "after": "5bce05ddd74331c28e831eb02f2ed7d3dd4b4a2dc694ababa5d2806696d117e8",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.invalid-date-0",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "229318f909c9000bad0784e4254d6e5c31059cb9d655f4c11edff11165be60dd",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.invalid-date-0",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "229318f909c9000bad0784e4254d6e5c31059cb9d655f4c11edff11165be60dd",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.invalid-date-1",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "7e2ab2950db100cb566cb8c187bfabdd659a5ce5d953b01297325343cfee1d1d",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.invalid-date-1",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "7e2ab2950db100cb566cb8c187bfabdd659a5ce5d953b01297325343cfee1d1d",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.invalid-date-2",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "7e2ab2950db100cb566cb8c187bfabdd659a5ce5d953b01297325343cfee1d1d",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.invalid-date-2",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "7e2ab2950db100cb566cb8c187bfabdd659a5ce5d953b01297325343cfee1d1d",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.valid-date",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "3e988ed526e312cf4a43dc06712aa31678d5cc52d09965d57c7e989557c4ffc7",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "compositional.valid-date",
+    "before": "d0385949e55a44387fa2a49f0b84753931a9728fad8c4fc2a6636a5c25dcb84c",
+    "after": "3e988ed526e312cf4a43dc06712aa31678d5cc52d09965d57c7e989557c4ffc7",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive-box.broad",
+    "before": "b1be42923a23fc299d2c4fdf03bbe61146e9bac784f69925a13468f8683cf8ae",
+    "after": "2833d4fcd6432e30fa60529ea3054540795cdbb7443bf231f4087b97cbc4b479",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive-box.broad",
+    "before": "b1be42923a23fc299d2c4fdf03bbe61146e9bac784f69925a13468f8683cf8ae",
+    "after": "2833d4fcd6432e30fa60529ea3054540795cdbb7443bf231f4087b97cbc4b479",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive-item.next",
+    "before": "dc1b1ecb29074c93d35690abfd010a9af0f43b4efd13f736b6936ed650302ae6",
+    "after": "63f520f57f99e259828773117ea4abe9411ee33e7d6c097490209ceb99c9c299",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive-item.next",
+    "before": "dc1b1ecb29074c93d35690abfd010a9af0f43b4efd13f736b6936ed650302ae6",
+    "after": "63f520f57f99e259828773117ea4abe9411ee33e7d6c097490209ceb99c9c299",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive-strict.extra",
+    "before": "0c52bce2c77062d224d141d0a23828cd760564a6f5c62a041c6a0319bd3f5976",
+    "after": "f165f60405f49102626db7a4860ed521a253dbf93eec5eea1b64d8be7204854a",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nonrecursive-strict.extra",
+    "before": "0c52bce2c77062d224d141d0a23828cd760564a6f5c62a041c6a0319bd3f5976",
+    "after": "f165f60405f49102626db7a4860ed521a253dbf93eec5eea1b64d8be7204854a",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 compositional request parsing: acceptance, parsed controller arguments and diagnostics match the independently generated live alpha.71 oracle.",
+    "sinceVersion": "1.0.0-alpha.83"
   }
 ]

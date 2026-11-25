@@ -148,6 +148,7 @@ async function run() {
         canonical({
           runtime: identity,
           openapi: JSON.parse(fs.readFileSync(file('openapi.json'), 'utf8')),
+          openapiText: fs.readFileSync(file('openapi.json'), 'utf8'),
           http: results
         })
       )

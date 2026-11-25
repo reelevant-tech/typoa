@@ -6,6 +6,19 @@ import { strict as assert } from 'node:assert'
 import { generate as generateClient } from 'oatyp'
 import { generate } from '../../src'
 
+export function assertAlpha71(fixture: string, spec: any) {
+  const expected = JSON.parse(
+    fs.readFileSync(
+      path.resolve(
+        __dirname,
+        `../fixtures/alpha71-openapi/intermediate-${fixture}.json`
+      ),
+      'utf8'
+    )
+  )
+  assert.deepEqual({ ...spec, info: expected.info }, expected)
+}
+
 export async function intermediate(
   fixture: string,
   keepIntermediateSchemas = true

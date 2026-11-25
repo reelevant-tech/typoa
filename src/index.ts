@@ -17,8 +17,10 @@ import { CodeGenControllers } from './types'
 import handlebars from 'handlebars'
 import { getRelativeFilePath, resolveProperty } from './utils'
 import {
+  LegacyRecursionError,
   keepIntermediateSchemas,
   preserveComposition,
+  preserveFlattening,
   resolve
 } from './resolve'
 
@@ -53,7 +55,8 @@ export type OpenAPIConfiguration = {
      */
     additionalExportedTypeNames?: string[]
     /**
-     * Keep named intermediate types as flattened component schemas (default: true).
+     * Controls additional intermediate schemas for cycle-safe generation.
+     * Alpha.71-compatible documents retain their original schemas regardless.
      */
     keepIntermediateSchemas?: boolean
     /**
@@ -144,6 +147,18 @@ export function getConfig(): OpenAPIConfiguration | undefined {
 }
 
 export async function generate(config: OpenAPIConfiguration) {
+  try {
+    return await generateDocument(config, false)
+  } catch (error) {
+    if (!(error instanceof LegacyRecursionError)) throw error
+    return generateDocument(config, true)
+  }
+}
+
+async function generateDocument(
+  config: OpenAPIConfiguration,
+  cycleSafe: boolean
+) {
   configStore = config
 
   const root =
@@ -160,6 +175,7 @@ export async function generate(config: OpenAPIConfiguration) {
     name: config.openapi.service.name,
     version: config.openapi.service.version
   })
+  if (cycleSafe) preserveFlattening(spec)
   if (typeof config.openapi.securitySchemes !== 'undefined') {
     spec.components!.securitySchemes = config.openapi.securitySchemes
   }
@@ -361,10 +377,14 @@ export async function generate(config: OpenAPIConfiguration) {
     spec.info.description = `# Errors\n${markdown}`
   }
   const routerSchemas = { ...spec.components!.schemas }
-  for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
-  if (config.openapi.keepIntermediateSchemas !== false) {
-    keepIntermediateSchemas(spec, diagnosticSpec)
+  if (cycleSafe) {
+    for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
+  } else {
+    diagnosticSpec.components = spec.components
+    Object.assign(diagnosticControllers, codegenControllers)
   }
+  if (cycleSafe && config.openapi.keepIntermediateSchemas !== false)
+    keepIntermediateSchemas(spec, diagnosticSpec)
 
   // Write OpenAPI file(s)
   const jsonContent = JSON.stringify(spec, null, '\t')

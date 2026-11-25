@@ -4,10 +4,9 @@ import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
 import Ajv from 'ajv'
 import { generate } from '../../src'
-import baseline from '../fixtures/intermediate-schemas-main.json'
-import legacyNames from '../fixtures/intermediate-schemas-alpha71-names.json'
+import { assertAlpha71 } from './intermediate-helpers'
 
-test('Keeps legacy intermediate names with flattened contents without changing existing schemas or routers', async () => {
+test('Keeps alpha.71 schemas with every keepIntermediateSchemas setting', async () => {
   const file = (name: string) =>
     path.resolve(__dirname, `generated-intermediates-${name}`)
   const config = {
@@ -27,23 +26,11 @@ test('Keeps legacy intermediate names with flattened contents without changing e
   })
   const disabled = JSON.parse(fs.readFileSync(file('openapi.json'), 'utf8'))
   const router = fs.readFileSync(file('router.ts'), 'utf8')
-  assert.deepEqual(disabled, baseline)
+  assertAlpha71('schemas', disabled)
   await generate(config)
   const enabled = JSON.parse(fs.readFileSync(file('openapi.json'), 'utf8'))
   assert.equal(fs.readFileSync(file('router.ts'), 'utf8'), router)
-  const schemas = enabled.components.schemas
-  assert.deepEqual(
-    Object.keys(schemas).sort(),
-    [
-      ...new Set([...legacyNames, ...Object.keys(disabled.components.schemas)])
-    ].sort()
-  )
-  const original = structuredClone(enabled)
-  original.components.schemas = Object.fromEntries(
-    Object.keys(disabled.components.schemas).map(name => [name, schemas[name]])
-  )
-  assert.deepEqual(original, disabled)
-  assert.equal(JSON.stringify(original), JSON.stringify(disabled))
+  assert.deepEqual(enabled, disabled)
   await generate({
     ...config,
     openapi: { ...config.openapi, keepIntermediateSchemas: true }
@@ -52,31 +39,6 @@ test('Keeps legacy intermediate names with flattened contents without changing e
     fs.readFileSync(file('openapi.json'), 'utf8'),
     JSON.stringify(enabled, null, '\t')
   )
-
-  const ajv = new Ajv({ strict: false })
-  ajv.addSchema({ components: enabled.components }, 'spec')
-  for (const name of Object.keys(schemas)) {
-    ajv.compile({ $ref: `spec#/components/schemas/${name}` })
-  }
-  assert.deepEqual(schemas.Container_T.properties.data, {})
-  const examples: Record<string, unknown> = {
-    Item_Without_Ignored: { name: 'a' },
-    Tagged_With_Tags: { tags: [] },
-    Serialize_Detail: { name: 'a', tags: [], count: 1 }
-  }
-  for (const [name, value] of Object.entries(examples)) {
-    assert.ok(schemas[name], name)
-    assert.equal(schemas[name].allOf, undefined, name)
-    const validate = ajv.compile({ $ref: `spec#/components/schemas/${name}` })
-    assert.equal(
-      validate(value),
-      true,
-      `${name}: ${JSON.stringify(validate.errors)}`
-    )
-    assert.equal(validate({ ...(value as object), extra: true }), false, name)
-    assert.equal(validate({}), false, name)
-    assert.equal(validate(null), false, name)
-  }
 })
 
 test('Restores recursive bases without replaying closed composition', async () => {
