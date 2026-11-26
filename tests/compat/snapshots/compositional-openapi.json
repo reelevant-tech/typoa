@@ -17,17 +17,20 @@
         "type": "object"
       },
       "Child": {
-        "additionalProperties": false,
-        "properties": {
-          "count": {
-            "type": "number"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Item_Without_Undefined"
           },
-          "name": {
-            "type": "string"
+          {
+            "properties": {
+              "count": {
+                "type": "number"
+              }
+            },
+            "required": ["count"],
+            "type": "object"
           }
-        },
-        "required": ["count", "name"],
-        "type": "object"
+        ]
       },
       "Item": {
         "additionalProperties": false,
@@ -57,62 +60,48 @@
             "type": "string"
           },
           "tags": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/AnyValue"
-            },
-            "properties": {
-              "kinds": {
+            "allOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kinds": {
+                    "additionalProperties": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["required"],
+                      "type": "object"
+                    },
+                    "properties": {},
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              },
+              {
                 "additionalProperties": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "required": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": ["required"],
-                  "type": "object"
+                  "$ref": "#/components/schemas/AnyValue"
                 },
                 "properties": {},
                 "type": "object"
               }
-            },
-            "type": "object"
+            ]
           }
         },
         "type": "object"
       },
       "PatchItem": {
-        "additionalProperties": false,
-        "properties": {
-          "stamp": {
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base_Partial"
           },
-          "tags": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/AnyValue"
-            },
-            "properties": {
-              "kinds": {
-                "additionalProperties": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "required": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": ["required"],
-                  "type": "object"
-                },
-                "properties": {},
-                "type": "object"
-              }
-            },
-            "type": "object"
+          {
+            "$ref": "#/components/schemas/Part_Partial"
           }
-        },
-        "type": "object"
+        ]
       }
     }
   },
@@ -130,37 +119,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": false,
-                "properties": {
-                  "stamp": {
-                    "format": "date-time",
-                    "readOnly": true,
-                    "type": "string"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Base_Partial"
                   },
-                  "tags": {
-                    "additionalProperties": {
-                      "$ref": "#/components/schemas/AnyValue"
-                    },
-                    "properties": {
-                      "kinds": {
-                        "additionalProperties": {
-                          "additionalProperties": false,
-                          "properties": {
-                            "required": {
-                              "type": "boolean"
-                            }
-                          },
-                          "required": ["required"],
-                          "type": "object"
-                        },
-                        "properties": {},
-                        "type": "object"
-                      }
-                    },
-                    "type": "object"
+                  {
+                    "$ref": "#/components/schemas/Part_Partial"
                   }
-                },
-                "type": "object"
+                ]
               }
             }
           },
@@ -190,29 +156,45 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": false,
-                "properties": {
-                  "items": {
-                    "items": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "name": {
-                          "type": "string"
+                "allOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "items": {
+                        "items": {
+                          "$ref": "#/components/schemas/Item"
                         },
-                        "tags": {
-                          "items": {
-                            "type": "string"
-                          },
-                          "type": "array"
-                        }
-                      },
-                      "required": ["name", "tags"],
-                      "type": "object"
+                        "type": "array"
+                      }
                     },
-                    "type": "array"
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "items": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "required": ["name", "tags"],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      }
+                    },
+                    "type": "object"
                   }
-                },
-                "type": "object"
+                ]
               }
             }
           },
@@ -242,37 +224,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": false,
-                "properties": {
-                  "stamp": {
-                    "format": "date-time",
-                    "readOnly": true,
-                    "type": "string"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Base_Partial"
                   },
-                  "tags": {
-                    "additionalProperties": {
-                      "$ref": "#/components/schemas/AnyValue"
-                    },
-                    "properties": {
-                      "kinds": {
-                        "additionalProperties": {
-                          "additionalProperties": false,
-                          "properties": {
-                            "required": {
-                              "type": "boolean"
-                            }
-                          },
-                          "required": ["required"],
-                          "type": "object"
-                        },
-                        "properties": {},
-                        "type": "object"
-                      }
-                    },
-                    "type": "object"
+                  {
+                    "$ref": "#/components/schemas/Part_Partial"
                   }
-                },
-                "type": "object"
+                ]
               }
             }
           },

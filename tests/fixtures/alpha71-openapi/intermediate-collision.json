@@ -1,0 +1,87 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/collision": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Child"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Child"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Create"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Box": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": ["value"],
+        "additionalProperties": false
+      },
+      "Parent": {
+        "type": "object",
+        "properties": {
+          "box": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Box"
+              }
+            ],
+            "description": "Primary box"
+          },
+          "other": {
+            "$ref": "#/components/schemas/Box"
+          }
+        },
+        "required": ["box"],
+        "additionalProperties": false
+      },
+      "Child": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Parent"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "box": {
+                "$ref": "#/components/schemas/Box"
+              }
+            },
+            "required": ["box"]
+          }
+        ]
+      }
+    }
+  }
+}

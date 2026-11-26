@@ -16,7 +16,7 @@ export const discriminatorFn: BodyDiscriminatorFunction = async () => 'One'
 
 @Route()
 export class MiddlewareController extends Controller {
-  @Patch('/123')
+  @Patch('/middleware/123')
   @Response<One>(200)
   public async patch(
     @Body('application/json', discriminatorFn)

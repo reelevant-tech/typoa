@@ -1,0 +1,7103 @@
+{
+  "nullableTags": [
+    {
+      "input": null,
+      "expected": {
+        "value": [null]
+      }
+    },
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": 1,
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0": {
+              "details": [],
+              "message": "This property must be an array"
+            }
+          },
+          "message": "This property must be an array",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0": {
+              "details": [],
+              "message": "This property must be an array"
+            }
+          },
+          "message": "This property must be an array",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "inheritedNullableBounds": [
+    {
+      "input": {
+        "tags": null
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": null
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": {
+              "0": "a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": {
+              "0": "a",
+              "1": "a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": []
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": {}
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "a", "a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": {
+              "0": "a",
+              "1": "a",
+              "2": "a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "boundedTags": [
+    {
+      "input": ["a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["a", "a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a",
+            "1": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a", "a", "a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a",
+            "1": "a",
+            "2": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "enumChoice": [
+    {
+      "input": ["a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["b"],
+      "expected": {
+        "value": [
+          {
+            "0": "b"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["a", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.1"
+                },
+                {
+                  "errorMessage": "This property must be one of b",
+                  "fieldName": "body.1.0.0"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": ["a", "b"]
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.0"
+                },
+                {
+                  "errorMessage": "This property must be one of b",
+                  "fieldName": "body.1.0.0"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": ["c"]
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.0"
+                },
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.1.0.0"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": [null]
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "mixed": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a", "b"],
+      "expected": {
+        "value": [
+          {
+            "0": "a",
+            "1": "b"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a,b"
+            }
+          },
+          "message": "This property must be one of a,b",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [1],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "primitives": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [1],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "three": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [1],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "objectPrimitive": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be an object"
+            }
+          },
+          "message": "This property must be an object",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nestedMixed": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [[]],
+      "expected": {
+        "value": [
+          {
+            "0": []
+          }
+        ]
+      }
+    },
+    {
+      "input": [["a", "b"]],
+      "expected": {
+        "value": [
+          {
+            "0": ["a", "b"]
+          }
+        ]
+      }
+    },
+    {
+      "input": [["c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a,b"
+            }
+          },
+          "message": "This property must be one of a,b",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[1]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nullableObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "value": [
+          {
+            "0": null
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": []
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "tags": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        null,
+        {
+          "name": "x",
+          "tags": ["a"]
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": null,
+            "1": {
+              "tags": ["a"]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.0.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": {}
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.0.tags": {
+              "details": [],
+              "message": "This property must be an array"
+            }
+          },
+          "message": "This property must be an array",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": [],
+          "extra": true
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "tags": []
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "mixedNullableObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": []
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: name"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: name",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "tags": []
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nestedNullableObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [[]],
+      "expected": {
+        "value": [
+          {
+            "0": []
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        [
+          null,
+          {
+            "name": "x",
+            "tags": []
+          }
+        ]
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": [
+              null,
+              {
+                "tags": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        [
+          {
+            "name": "x"
+          }
+        ]
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.0.0.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "mutableOverride": [
+    {
+      "input": {
+        "value": "x",
+        "tags": []
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": [],
+            "value": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "value": "y",
+        "tags": ["a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a"],
+            "value": "y"
+          }
+        ]
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "value": {},
+        "tags": []
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.2.value": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "value": "x",
+        "tags": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.tags": {
+              "details": [],
+              "message": "This property must be an array"
+            }
+          },
+          "message": "This property must be an array",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "objects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": []
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: tags"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: tags",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "defaultObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": 2
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": "a"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 1
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "reversedDefaultObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": 2
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": "a"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "value": [
+          {
+            "0": {}
+          }
+        ]
+      }
+    }
+  ],
+  "undefinedDefaultObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": 2
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": "a"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "value": [
+          {
+            "0": {}
+          }
+        ]
+      }
+    }
+  ],
+  "reversedUndefinedDefaultObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": 2
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": "a"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 1
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "undefinedDefault": [
+    {
+      "input": {
+        "count": 2
+      },
+      "expected": {
+        "value": [
+          {
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "count": "a"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": null,
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "value": [
+          {
+            "count": 1
+          }
+        ]
+      }
+    }
+  ],
+  "reversedUndefinedDefault": [
+    {
+      "input": {
+        "count": 2
+      },
+      "expected": {
+        "value": [
+          {
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "count": "a"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": null,
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "value": [
+          {
+            "count": 1
+          }
+        ]
+      }
+    }
+  ],
+  "requiredDefaultObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": 2
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "Property count is required"
+            }
+          },
+          "message": "Property count is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "count": "a"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "reversedRequiredDefaultObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "count": 2
+        }
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.count": {
+              "details": [],
+              "message": "Property count is required"
+            }
+          },
+          "message": "Property count is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "count": "a"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.count": {
+              "details": [],
+              "message": "This property must be a number"
+            }
+          },
+          "message": "This property must be a number",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "objectsWithIntersection": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": ["a"]
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: tags"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: tags",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.1.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "tags": ["a"]
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": [1]
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: tags"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: tags",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nullableObjectsWithIntersection": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "value": [
+          {
+            "0": null
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": ["a"]
+        },
+        null
+      ],
+      "expected": {
+        "value": [
+          {
+            "0": {
+              "name": "x",
+              "tags": ["a"]
+            },
+            "1": null
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x"
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.1.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "tags": ["a"]
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        {
+          "name": "x",
+          "tags": [1]
+        }
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.1.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nestedObjectsWithIntersection": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [[]],
+      "expected": {
+        "value": [
+          {
+            "0": []
+          }
+        ]
+      }
+    },
+    {
+      "input": [
+        [
+          {
+            "name": "x",
+            "tags": ["a"]
+          }
+        ]
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: tags"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: tags",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        [
+          {
+            "name": "x"
+          }
+        ]
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0.0.1.tags": {
+              "details": [],
+              "message": "Property tags is required"
+            }
+          },
+          "message": "Property tags is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [
+        [
+          {
+            "name": "x",
+            "tags": [1]
+          }
+        ]
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: tags"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: tags",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nestedObjects": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": [
+        [
+          {
+            "name": "x",
+            "tags": []
+          }
+        ]
+      ],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "Additional properties are not allowed. Found: tags"
+            }
+          },
+          "message": "Additional properties are not allowed. Found: tags",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "enumValue": [
+    {
+      "input": "b",
+      "expected": {
+        "value": ["b"]
+      }
+    },
+    {
+      "input": "a",
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [],
+              "message": "This property must be one of b",
+              "value": "a"
+            }
+          },
+          "message": "This property must be one of b",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": "c",
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [],
+              "message": "This property must be one of b",
+              "value": "c"
+            }
+          },
+          "message": "This property must be one of b",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "conflict": [
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.value": {
+              "details": [],
+              "message": "Property value is required"
+            }
+          },
+          "message": "Property value is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "value": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.value": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "optionalConflict": [
+    {
+      "input": {},
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": {
+        "value": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.value": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "required": [
+    {
+      "input": {
+        "value": "x"
+      },
+      "expected": {
+        "value": [
+          {
+            "value": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.value": {
+              "details": [],
+              "message": "Property value is required"
+            }
+          },
+          "message": "Property value is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "value": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.value": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "inherited": [
+    {
+      "input": {
+        "name": "ab"
+      },
+      "expected": {
+        "value": [
+          {
+            "name": "ab"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "a"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "This property must have 2 characters minimum"
+            }
+          },
+          "message": "This property must have 2 characters minimum",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "name": "abcde"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "This property can have 4 characters maximum"
+            }
+          },
+          "message": "This property can have 4 characters maximum",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "bounded": [
+    {
+      "input": {
+        "tags": ["a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "b"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a", "b"]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": []
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags": {
+              "details": [],
+              "message": "This property must have 1 items minimum"
+            }
+          },
+          "message": "This property must have 1 items minimum",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "b", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.tags": {
+              "details": [],
+              "message": "This property can have 2 items maximum"
+            }
+          },
+          "message": "This property can have 2 items maximum",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "input": {
+        "name": "ab"
+      },
+      "expected": {
+        "value": [
+          {
+            "name": "ab"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "abcd"
+      },
+      "expected": {
+        "value": [
+          {
+            "name": "abcd"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "a"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "This property must have 2 characters minimum"
+            }
+          },
+          "message": "This property must have 2 characters minimum",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "name": "abcde"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "This property can have 4 characters maximum"
+            }
+          },
+          "message": "This property can have 4 characters maximum",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "indexed": [
+    {
+      "input": {},
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": {
+        "x": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.x": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "inheritedIndex": [
+    {
+      "input": {
+        "kind": "a",
+        "other": "b"
+      },
+      "expected": {
+        "value": [
+          {
+            "kind": "a",
+            "other": "b"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "kind": "b"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.kind": {
+              "details": [],
+              "message": "This property must be one of a",
+              "value": "b"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "kind": "a",
+        "other": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.other": {
+              "details": [],
+              "message": "This property must be a string",
+              "value": {}
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "indexedProperty": [
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.count": {
+              "details": [],
+              "message": "Property count is required"
+            }
+          },
+          "message": "Property count is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "count": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.count": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "numericIndex": [
+    {
+      "input": {
+        "name": 1
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "0": "x",
+        "name": 1
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "name": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "0": {},
+        "name": 1
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "numericProperty": [
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.0": {
+              "details": [],
+              "message": "Property 0 is required"
+            }
+          },
+          "message": "Property 0 is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "0": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "nonNumericProperty": [
+    {
+      "input": {
+        "01": 1,
+        "1e2": 2
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.01": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.01": {
+              "details": [],
+              "message": "Property 01 is required"
+            }
+          },
+          "message": "Property 01 is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "01": {},
+        "1e2": 2
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.01": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "closed": [
+    {
+      "input": {
+        "name": "x"
+      },
+      "expected": {
+        "value": [
+          {
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "x",
+        "extra": true
+      },
+      "expected": {
+        "value": [
+          {
+            "extra": true,
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "inheritedClosed": [
+    {
+      "input": {
+        "name": "x"
+      },
+      "expected": {
+        "value": [
+          {
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "x",
+        "extra": true
+      },
+      "expected": {
+        "value": [
+          {
+            "extra": true,
+            "name": "x"
+          }
+        ]
+      }
+    }
+  ],
+  "branded": [
+    {
+      "input": "x",
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1": {
+              "details": [],
+              "message": "This property must be an object"
+            }
+          },
+          "message": "This property must be an object",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "reference": [
+    {
+      "input": "x",
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1": {
+              "details": [],
+              "message": "This property must be an object"
+            }
+          },
+          "message": "This property must be an object",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "referenceProperty": [
+    {
+      "input": {
+        "data": {
+          "name": "x"
+        },
+        "note": "n"
+      },
+      "expected": {
+        "value": [
+          {
+            "data": {
+              "name": "x"
+            },
+            "note": "n"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "data": {},
+        "note": "n"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.data.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "composedReference": [
+    {
+      "input": {
+        "active": true
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0": {
+              "details": [
+                {
+                  "errorMessage": "Property left is required",
+                  "fieldName": "body.0.0.left"
+                },
+                {
+                  "errorMessage": "Property right is required",
+                  "fieldName": "body.0.1.right"
+                }
+              ],
+              "message": "Found no matching schema for provided value"
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0": {
+              "details": [
+                {
+                  "errorMessage": "Property left is required",
+                  "fieldName": "body.0.0.left"
+                },
+                {
+                  "errorMessage": "Property right is required",
+                  "fieldName": "body.0.1.right"
+                }
+              ],
+              "message": "Found no matching schema for provided value"
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "union": [
+    {
+      "input": {
+        "name": "x",
+        "active": true
+      },
+      "expected": {
+        "value": [
+          {
+            "active": true,
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "count": 1,
+        "active": false
+      },
+      "expected": {
+        "value": [
+          {
+            "active": false,
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "x"
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "Property active is required",
+                  "fieldName": "body.0.1.active"
+                },
+                {
+                  "errorMessage": "Property count is required",
+                  "fieldName": "body.1.0.count"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "name": "x"
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "active": true
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "Property name is required",
+                  "fieldName": "body.0.0.name"
+                },
+                {
+                  "errorMessage": "Property count is required",
+                  "fieldName": "body.1.0.count"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "active": true
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "modifiers": [
+    {
+      "input": {},
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": {
+        "name": "x"
+      },
+      "expected": {
+        "value": [
+          {
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": null
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "readMerge": [
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.value": {
+              "details": [],
+              "message": "Property value is required"
+            }
+          },
+          "message": "Property value is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "value": "x"
+      },
+      "expected": {
+        "value": [
+          {
+            "value": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "value": 23
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.value": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "openIndex": [
+    {
+      "input": {
+        "name": "x",
+        "extra": 1
+      },
+      "expected": {
+        "value": [
+          {
+            "extra": 1,
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "x",
+        "extra": {
+          "value": true
+        }
+      },
+      "expected": {
+        "value": [
+          {
+            "extra": {
+              "value": true
+            },
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "name": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "anyIndex": [
+    {
+      "input": {
+        "name": "x",
+        "extra": 1
+      },
+      "expected": {
+        "value": [
+          {
+            "extra": 1,
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "name": "x",
+        "extra": {
+          "value": true
+        }
+      },
+      "expected": {
+        "value": [
+          {
+            "extra": {
+              "value": true
+            },
+            "name": "x"
+          }
+        ]
+      }
+    },
+    {
+      "input": {},
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "Property name is required"
+            }
+          },
+          "message": "Property name is required",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "name": {}
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.1.name": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "exhaustive-direct": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", "a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a",
+            "1": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["a", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "exhaustive-tags": [
+    {
+      "input": [],
+      "expected": {
+        "value": [{}]
+      }
+    },
+    {
+      "input": ["a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", "a"],
+      "expected": {
+        "value": [
+          {
+            "0": "a",
+            "1": "a"
+          }
+        ]
+      }
+    },
+    {
+      "input": ["a", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["a", {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["b", {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": ["c", {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [3, {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [null, {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, "a"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, "b"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, "c"],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, 3],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, null],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [{}, {}],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "exhaustive-serialized": [
+    {
+      "input": {
+        "tags": []
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a", "a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.1": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.tags.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "exhaustive-choice": [
+    {
+      "input": {
+        "tags": []
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "a"]
+      },
+      "expected": {
+        "value": [
+          {
+            "tags": ["a", "a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.1"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["a", "b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.1"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["a", "c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.1"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["a", 3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.1"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["a", null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["a", {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.1"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["a", {}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b", "a"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b", "b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b", "c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b", 3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b", null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["b", {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["b", {}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c", "a"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c", "b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c", "c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c", 3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c", null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": ["c", {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be one of a",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": ["c", {}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3, "a"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3, "b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3, "c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3, 3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3, null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [3, {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [3, {}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null, "a"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null, "b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null, "c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null, 3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null, null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [null, {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property is not nullable",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [null, {}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, "a"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}, "a"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, "b"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}, "b"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, "c"]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}, "c"]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, 3]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}, 3]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, null]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}, null]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": {
+        "tags": [{}, {}]
+      },
+      "expected": {
+        "error": {
+          "fields": {
+            "body": {
+              "details": [
+                {
+                  "errorMessage": "This property must be a string",
+                  "fieldName": "body.0.0.tags.0"
+                },
+                {
+                  "errorMessage": "Property other is required",
+                  "fieldName": "body.1.other"
+                }
+              ],
+              "message": "Found no matching schema for provided value",
+              "value": {
+                "tags": [{}, {}]
+              }
+            }
+          },
+          "message": "Found no matching schema for provided value",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ],
+  "exhaustive-nested": [
+    {
+      "input": [[]],
+      "expected": {
+        "value": [
+          {
+            "0": []
+          }
+        ]
+      }
+    },
+    {
+      "input": [["a"]],
+      "expected": {
+        "value": [
+          {
+            "0": ["a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": [["b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["a", "a"]],
+      "expected": {
+        "value": [
+          {
+            "0": ["a", "a"]
+          }
+        ]
+      }
+    },
+    {
+      "input": [["a", "b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["a", "c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.1": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["a", 3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["a", null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.1": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["a", {}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.1": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["b", "a"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["b", "b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["b", "c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["b", 3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["b", null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["b", {}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c", "a"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c", "b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c", "c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c", 3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c", null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [["c", {}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be one of a"
+            }
+          },
+          "message": "This property must be one of a",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3, "a"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3, "b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3, "c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3, 3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3, null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[3, {}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null, "a"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null, "b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null, "c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null, 3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null, null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[null, {}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property is not nullable"
+            }
+          },
+          "message": "This property is not nullable",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}, "a"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}, "b"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}, "c"]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}, 3]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}, null]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    },
+    {
+      "input": [[{}, {}]],
+      "expected": {
+        "error": {
+          "fields": {
+            "body.0.0.0": {
+              "details": [],
+              "message": "This property must be a string"
+            }
+          },
+          "message": "This property must be a string",
+          "name": "ValidateError",
+          "status": 400
+        }
+      }
+    }
+  ]
+}

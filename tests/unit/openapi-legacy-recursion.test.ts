@@ -1,0 +1,216 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { strict as assert } from 'node:assert'
+import { test } from 'node:test'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import Ajv from 'ajv'
+import { generate } from '../../src'
+import { validateAndParse } from '../../src/runtime/validator'
+
+for (const keepIntermediateSchemas of [false, true]) {
+  test(`Recursive fallback regenerates earlier models atomically (intermediates ${keepIntermediateSchemas})`, async () => {
+    const filePath = path.resolve(
+      __dirname,
+      `generated-recursive-order-${keepIntermediateSchemas}.json`
+    )
+    await generate({
+      tsconfigFilePath: path.resolve(__dirname, '../fixtures/tsconfig.json'),
+      controllers: [
+        path.resolve(__dirname, '../fixtures/validation/recursive-order.ts'),
+        path.resolve(
+          __dirname,
+          '../fixtures/validation/additional-collisions.ts'
+        )
+      ],
+      openapi: {
+        filePath,
+        keepIntermediateSchemas,
+        additionalExportedTypeNames: [
+          'Value_Recursive_Nullable',
+          'Value_Recursive',
+          'Value_Recursive_Nullable_Intermediate',
+          'Value_Recursive_Nullable_Intermediate_Intermediate',
+          'Value_Recursive_Nullable_Intermediate_Intermediate',
+          'Entry',
+          'Left',
+          'Right',
+          'AnyValue'
+        ],
+        service: { name: 'generic', version: '1' }
+      },
+      router: { filePath: filePath.replace('.json', '.ts') }
+    })
+    const spec = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    assert.equal(spec.components.schemas.Item.allOf, undefined)
+    assert.deepEqual(spec.components.schemas.Item.properties, {
+      name: { type: 'string' },
+      id: { type: 'string' }
+    })
+    assert.equal(
+      spec.components.schemas.RecursiveItem.properties.next.$ref,
+      '#/components/schemas/RecursiveItem'
+    )
+    assert.deepEqual(spec.components.schemas.Chain.required, ['value'])
+    assert.equal(spec.components.schemas.Holder.required, undefined)
+    await SwaggerParser.validate(structuredClone(spec))
+    const ajv = new Ajv({ strict: false })
+    ajv.addSchema({ components: spec.components }, 'spec')
+    const validate = ajv.compile({
+      $ref: 'spec#/components/schemas/NestedHolder'
+    })
+    for (const body of [
+      {},
+      { root: null },
+      { root: [] },
+      { root: [null, [null]], sibling: [null] },
+      {
+        root: null,
+        model: { label: 'Item' },
+        plainModel: { name: 'Item' },
+        kind: 'first'
+      }
+    ]) {
+      assert.equal(validate(body), true)
+    }
+    for (const body of [
+      { root: [1] },
+      { sibling: null },
+      { model: [] },
+      { model: {} },
+      { plainModel: [] },
+      { plainModel: {} },
+      { kind: [] },
+      { kind: 'invalid' }
+    ]) {
+      assert.equal(validate(body), false)
+    }
+    const { root, sibling, model, plainModel, kind } =
+      spec.components.schemas.NestedHolder.properties
+    assert.equal(
+      new Set([root.$ref, sibling.$ref, model.$ref, plainModel.$ref, kind.$ref])
+        .size,
+      5
+    )
+    assert.deepEqual(spec.components.schemas[model.$ref.split('/').pop()], {
+      type: 'object',
+      properties: { label: { type: 'string' } },
+      required: ['label'],
+      additionalProperties: false
+    })
+    assert.deepEqual(
+      spec.components.schemas[plainModel.$ref.split('/').pop()],
+      {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        required: ['name'],
+        additionalProperties: false
+      }
+    )
+    assert.deepEqual(spec.components.schemas[kind.$ref.split('/').pop()], {
+      type: 'string',
+      enum: ['first', 'second']
+    })
+    assert.equal(
+      Object.values(spec.components.schemas).filter(
+        (schema: any) => schema.type === 'number'
+      ).length,
+      1
+    )
+    assert.deepEqual(spec.components.schemas.AnyValue, { type: 'number' })
+    const wildcard = spec.components.schemas.WildcardHolder.properties
+    assert.notEqual(wildcard.value.$ref, wildcard.other.$ref)
+    assert.notEqual(wildcard.value.$ref, '#/components/schemas/AnyValue')
+    assert.deepEqual(
+      spec.components.schemas[wildcard.value.$ref.split('/').pop()],
+      { description: 'Can be any value', nullable: true }
+    )
+    for (const name of [
+      'Value_Recursive',
+      'Value_Recursive_Nullable',
+      'Value_Recursive_Nullable_Intermediate',
+      'Value_Recursive_Nullable_Intermediate_Intermediate'
+    ]) {
+      assert.ok(spec.components.schemas[name])
+    }
+    for (const name of ['Entry', 'Left', 'Right']) {
+      assert.deepEqual(spec.components.schemas[name], {
+        $ref: '#/components/schemas/AnyValue'
+      })
+      const body = spec.paths[`/exports/${name.toLowerCase()}`].post.requestBody
+      const reference = body.content['application/json'].schema.$ref
+      assert.notEqual(reference, `#/components/schemas/${name}`)
+      assert.equal(
+        spec.components.schemas[reference.split('/').pop()].type,
+        'object'
+      )
+      const rules = { params: [{ in: 'body' as any, name: 'body' }], body }
+      assert.deepEqual(
+        await validateAndParse(
+          {
+            body: { label: 'Item' },
+            headers: { 'content-type': 'application/json' }
+          } as any,
+          spec.components.schemas,
+          rules
+        ),
+        [{ label: 'Item' }]
+      )
+      await assert.rejects(() =>
+        validateAndParse(
+          { body: {}, headers: { 'content-type': 'application/json' } } as any,
+          spec.components.schemas,
+          rules
+        )
+      )
+    }
+    for (const [route, valid, invalid] of [
+      ['value', ['a', ['b']], [1]],
+      ['mapping', { next: {} }, { next: 1 }],
+      ['wildcard', { value: null, other: ['Item', { value: 1 }] }, []],
+      ['optional', { root: { value: 1 } }, { root: { value: 1, next: {} } }],
+      [
+        'optional',
+        { root: { value: 1, next: { value: 2 } } },
+        { root: { value: 'invalid' } }
+      ],
+      ['nested', { root: null }, { root: [1] }],
+      ['nested', { root: [null, [null]], sibling: [null] }, { sibling: null }],
+      [
+        'nested',
+        {
+          root: null,
+          model: { label: 'Item' },
+          plainModel: { name: 'Item' },
+          kind: 'first'
+        },
+        { model: [] }
+      ],
+      ['nested', { kind: 'second' }, { kind: 'invalid' }]
+    ] as const) {
+      const rules = {
+        params: [{ in: 'body' as any, name: 'body' }],
+        body: spec.paths[`/items/${route}`].post.requestBody
+      }
+      for (const body of [valid, route === 'value' ? [] : {}]) {
+        assert.deepEqual(
+          await validateAndParse(
+            { body, headers: { 'content-type': 'application/json' } } as any,
+            spec.components.schemas,
+            rules
+          ),
+          [body]
+        )
+      }
+      await assert.rejects(() =>
+        validateAndParse(
+          {
+            body: invalid,
+            headers: { 'content-type': 'application/json' }
+          } as any,
+          spec.components.schemas,
+          rules
+        )
+      )
+    }
+  })
+}

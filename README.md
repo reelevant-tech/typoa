@@ -187,6 +187,12 @@ import { Route, Get, Controller, setRuntimeOptions } from 'typoa/runtime'
 Keep `import { generate } from 'typoa'` in your generation script only.
 The generated router imports from `typoa/runtime` by default (override with `router.runtimeImport`).
 
+OpenAPI generation preserves alpha.71 composition, component names and metadata.
+If alpha.71 schema resolution overflows on recursive types, the entire document
+is regenerated with cycle-safe flattened schemas. `openapi.keepIntermediateSchemas`
+remains accepted: it does not change alpha.71-compatible documents, and controls
+additional intermediate schemas in cycle-safe documents (default `true`).
+
 ### Compatibility checks
 
 `yarn compat` runs the generic controllers in `tests/compat` through generated
@@ -208,8 +214,9 @@ and compares the complete OpenAPI document and every HTTP result. All difference
 fail unless explicitly listed in `tests/compat/accepted-changes.json` with
 `caseId`, `expressMajor`, `reason`, `sinceVersion`, and exact `before`/`after`
 SHA-256 digests printed by the comparison. `openapi` identifies the main document;
-`recursive.openapi` identifies the recursive-fixture document; other IDs identify
-HTTP cases. Use the next intended release for `sinceVersion`.
+`recursive.openapi`, `compositional.openapi` and `nonrecursive.openapi` identify
+the other fixture documents; other IDs identify HTTP cases. Use the next
+intended release for `sinceVersion`.
 Duplicate IDs across HTTP fixture groups and documents fail before comparison.
 Exceptions fail if they disappear or their digests change, and **all entries
 whose sinceVersion is at or below npm latest fail as stale**, even for another
@@ -219,10 +226,11 @@ silence a failure. There is no automatic exception-update command.
 `yarn compat:legacy` independently installs published alpha.71 and checks
 all HTTP cases except the separate regex-path controller and the recursive
 fixtures that alpha.71 cannot generate, including all compositional cases.
+It also compares the main, compositional and nonrecursive OpenAPI documents
+byte-for-byte with alpha.71.
 The default `yarn test` and `yarn compat` check the compositional HTTP snapshots
 offline; only `yarn compat:legacy` installs alpha.71 for a live comparison.
-Its OpenAPI is deliberately not compared:
-current flattening is retained. The regex-path controller is separate because
+The regex-path controller is separate because
 alpha.71 cannot register its Express 4 route syntax on Express 5.
 
 Nonrecursive override controls also use alpha.71. Recursive compositional schema

@@ -65,6 +65,18 @@ export const recursiveScenarios: Scenario[] = [
 ]
 
 export const nonrecursiveScenarios: Scenario[] = [
+  ...['nonrecursive-nullable-request', 'nonrecursive-nullable-response']
+    .flatMap(path => [
+      json(`${path}.valid`, path, { value: { name: 'Item' } }, true),
+      json(
+        `${path}.extra`,
+        path,
+        { value: { name: 'Item', extra: true } },
+        true
+      ),
+      json(`${path}.null`, path, { value: null }, true)
+    ])
+    .map(scenario => ({ ...scenario, strict: true })),
   ...[
     json(
       'nonrecursive-strict.valid',

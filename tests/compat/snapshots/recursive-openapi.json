@@ -20,11 +20,11 @@
         ],
         "type": "object"
       },
-      "Box_Intermediate": {
+      "Box_2": {
         "additionalProperties": false,
         "properties": {
           "next": {
-            "$ref": "#/components/schemas/Box_Intermediate"
+            "$ref": "#/components/schemas/Box_2"
           },
           "value": {
             "type": "number"
@@ -63,7 +63,7 @@
         "additionalProperties": false,
         "properties": {
           "box": {
-            "$ref": "#/components/schemas/Box_Intermediate"
+            "$ref": "#/components/schemas/Box_2"
           }
         },
         "required": [

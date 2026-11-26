@@ -1,0 +1,135 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/nullable-types": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Child"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Child"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Create"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Kind": {
+        "type": "string",
+        "enum": ["first", "second"]
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "ObjectValue": {
+        "$ref": "#/components/schemas/Item"
+      },
+      "ScalarValue": {
+        "type": "string",
+        "nullable": true
+      },
+      "ArrayValue": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "Parent": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Kind"
+              }
+            ],
+            "nullable": true
+          },
+          "object": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectValue"
+              }
+            ],
+            "nullable": true
+          },
+          "scalar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScalarValue"
+              }
+            ],
+            "nullable": true
+          },
+          "list": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ArrayValue"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": ["kind", "object", "scalar", "list"],
+        "additionalProperties": false
+      },
+      "Child": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Parent"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["first"]
+              },
+              "object": {
+                "$ref": "#/components/schemas/ObjectValue"
+              },
+              "scalar": {
+                "$ref": "#/components/schemas/ScalarValue"
+              },
+              "list": {
+                "$ref": "#/components/schemas/ArrayValue"
+              }
+            },
+            "required": ["kind", "object", "scalar", "list"]
+          }
+        ]
+      }
+    }
+  }
+}

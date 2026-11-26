@@ -14,22 +14,201 @@ import { OpenAPIV3 } from 'openapi-types'
 import { getConfig } from '.'
 import { options } from './option'
 import { buildRef } from './runtime/ref'
+import { resolve as resolveLegacy } from './resolve-legacy'
 
 const compositionDocuments = new WeakSet<OpenAPIV3.Document>()
+const flattenedDocuments = new WeakSet<OpenAPIV3.Document>()
+const activeResolutions = new WeakMap<
+  OpenAPIV3.Document,
+  Map<ts.Type, { name?: string }>
+>()
 const componentTypes = new WeakMap<OpenAPIV3.Document, Map<string, Type>>()
 const intermediateDocuments = new WeakSet<OpenAPIV3.Document>()
-const intermediateNames = new WeakMap<
-  OpenAPIV3.Document,
-  Map<ts.Type, string>
->()
-const reservedIntermediateNames = new WeakMap<OpenAPIV3.Document, Set<string>>()
-const nullableIntermediates = new WeakMap<
-  OpenAPIV3.Document,
-  Map<string, string>
->()
+const exportedTypes = new WeakMap<OpenAPIV3.Document, Map<string, ts.Type>>()
+export type SchemaModel = { type: Type; preferred: string; helper: boolean }
+const allocators = new WeakMap<OpenAPIV3.Document, SchemaNames>()
+
+class SchemaNames {
+  readonly discovered = new Map<ts.Type, SchemaModel>()
+  private readonly keys = new Map<ts.Type, string>()
+  private readonly owners = new Map<string, ts.Type>()
+
+  constructor(
+    readonly planned = new Map<ts.Type, SchemaModel>(),
+    exports = new Map<string, ts.Type>(),
+    private readonly targets = new Set<string>(),
+    initialize = true
+  ) {
+    if (!initialize) return
+    for (const [name, type] of exports) this.owners.set(name, type)
+    const identity = ({ type }: SchemaModel) =>
+      `${type.getSymbol()?.getFullyQualifiedName() ?? ''}:${type.getText(undefined, ts.TypeFormatFlags.NoTruncation)}:${
+        type
+          .getSymbol()
+          ?.getDeclarations()
+          .map(node => `${node.getSourceFile().getFilePath()}:${node.getPos()}`)
+          .join('|') ?? ''
+      }`
+    const models = [...planned.values()].sort(
+      (a, b) =>
+        Number(a.helper) - Number(b.helper) ||
+        a.preferred.localeCompare(b.preferred) ||
+        identity(a).localeCompare(identity(b))
+    )
+    for (const model of models.filter(model => !model.helper)) {
+      const owner = this.owners.get(model.preferred)
+      if (owner === undefined || owner === model.type.compilerType)
+        this.claim(model.type.compilerType, model.preferred)
+    }
+    for (const model of models.filter(model => model.helper))
+      if (
+        this.targets.has(model.preferred) &&
+        !this.owners.has(model.preferred)
+      )
+        this.claim(model.type.compilerType, model.preferred)
+    for (const model of models)
+      if (!this.keys.has(model.type.compilerType))
+        this.claim(
+          model.type.compilerType,
+          this.available(model.type.compilerType, model.preferred)
+        )
+  }
+
+  private available(type: ts.Type, prefix: string): string {
+    let name = prefix
+    let index = 2
+    while (
+      (this.owners.has(name) && this.owners.get(name) !== type) ||
+      (this.targets.has(name) && this.owners.get(name) !== type)
+    )
+      name = `${prefix}_${index++}`
+    return name
+  }
+
+  private claim(type: ts.Type, name: string): string {
+    const owner = this.owners.get(name)
+    if (owner !== undefined && owner !== type)
+      throw new Error(`Schema '${name}' already has an owner`)
+    this.owners.set(name, type)
+    this.keys.set(type, name)
+    return name
+  }
+
+  observe({ type, preferred, helper }: SchemaModel): void {
+    const previous = this.discovered.get(type.compilerType)
+    if (
+      !previous ||
+      (previous.helper && !helper) ||
+      (previous.helper === helper &&
+        preferred.localeCompare(previous.preferred) < 0)
+    )
+      this.discovered.set(type.compilerType, { type, preferred, helper })
+  }
+
+  allocate(type: Type, preferred: string, helper: boolean): string {
+    this.observe({ type, preferred, helper })
+    return (
+      this.keys.get(type.compilerType) ??
+      this.claim(
+        type.compilerType,
+        this.available(type.compilerType, preferred)
+      )
+    )
+  }
+
+  alias(
+    type: Type,
+    spec: OpenAPIV3.Document,
+    name: string,
+    schema: Schema
+  ): void {
+    const define = (key: string, value: Schema) => {
+      if (this.owners.get(key) !== type.compilerType)
+        throw new Error(`Schema '${key}' belongs to another type`)
+      if (spec.components!.schemas![key] === undefined)
+        spec.components!.schemas![key] = value
+    }
+    if (!('$ref' in schema)) {
+      const canonical = this.allocate(type, name, false)
+      define(canonical, schema)
+      schema = { $ref: buildRef(canonical) }
+    }
+    if (schema.$ref !== buildRef(name)) define(name, schema)
+  }
+
+  fork(): SchemaNames {
+    const copy = new SchemaNames(this.planned, new Map(), this.targets, false)
+    for (const [name, owner] of this.owners) copy.owners.set(name, owner)
+    for (const [owner, name] of this.keys) copy.keys.set(owner, name)
+    return copy
+  }
+}
+
+function namesFor(spec: OpenAPIV3.Document): SchemaNames {
+  let names = allocators.get(spec)
+  if (!names) {
+    names = new SchemaNames()
+    allocators.set(spec, names)
+  }
+  return names
+}
 
 export function preserveComposition(spec: OpenAPIV3.Document): void {
   compositionDocuments.add(spec)
+  componentTypes.set(spec, new Map())
+}
+
+export class LegacyRecursionError extends Error {}
+
+export class SchemaNameCollisionError extends Error {
+  constructor(public models: Map<ts.Type, SchemaModel>) {
+    super('Generated schema names collide with model names')
+  }
+}
+
+export function reserveSchemaNames(
+  spec: OpenAPIV3.Document,
+  models: Map<ts.Type, SchemaModel>,
+  types: Map<string, Type>,
+  targets: Set<string>
+): void {
+  const exports = new Map(
+    [...types].map(([name, type]) => [name, type.compilerType])
+  )
+  exportedTypes.set(spec, exports)
+  allocators.set(spec, new SchemaNames(models, exports, targets))
+}
+
+export function checkModelNames(...specs: OpenAPIV3.Document[]): void {
+  const models = new Map<ts.Type, SchemaModel>()
+  for (const spec of specs)
+    for (const [identity, model] of namesFor(spec).discovered) {
+      const previous = models.get(identity)
+      if (
+        !previous ||
+        (previous.helper && !model.helper) ||
+        (previous.helper === model.helper &&
+          model.preferred.localeCompare(previous.preferred) < 0)
+      )
+        models.set(identity, model)
+    }
+  if (
+    specs.some(spec =>
+      [...models].some(([identity, model]) => {
+        const planned = namesFor(spec).planned.get(identity)
+        return (
+          !planned ||
+          planned.preferred !== model.preferred ||
+          planned.helper !== model.helper
+        )
+      })
+    )
+  )
+    throw new SchemaNameCollisionError(models)
+}
+
+export function preserveFlattening(spec: OpenAPIV3.Document): void {
+  flattenedDocuments.add(spec)
   componentTypes.set(spec, new Map())
 }
 
@@ -43,80 +222,101 @@ export function keepIntermediateSchemas(
     components: { ...spec.components, schemas: structuredClone(schemas) }
   }
   intermediateDocuments.add(additions)
+  flattenedDocuments.add(additions)
   componentTypes.set(additions, new Map(componentTypes.get(spec)))
-  intermediateNames.set(additions, new Map())
-  reservedIntermediateNames.set(
-    additions,
-    new Set(Object.keys(compositionSpec.components!.schemas!))
-  )
-  nullableIntermediates.set(additions, new Map())
+  allocators.set(additions, namesFor(spec).fork())
+  exportedTypes.set(additions, new Map(exportedTypes.get(spec)))
   for (const [name, type] of componentTypes.get(compositionSpec) ?? []) {
     if (schemas[name] !== undefined) continue
     resolve(type, additions)
   }
-  // OpenAPI 3.0 null-only schema that oatyp also infers as null.
-  const nullSchema: OpenAPIV3.SchemaObject = {
-    allOf: [
-      { type: 'boolean', nullable: true },
-      { type: 'string', nullable: true }
-    ]
-  }
-  for (const [source, name] of nullableIntermediates.get(additions)!) {
-    let schema: Schema | undefined = additions.components.schemas[source]
-    const visited = new Set<string>()
-    while (schema && '$ref' in schema) {
-      if (visited.has(schema.$ref)) {
-        schema = undefined
-        break
-      }
-      visited.add(schema.$ref)
-      schema =
-        additions.components.schemas[
-          schema.$ref.slice('#/components/schemas/'.length)
-        ]
-    }
-    const value =
-      schema && 'enum' in schema ? schema : { $ref: buildRef(source) }
-    additions.components.schemas[name] = {
-      oneOf: [{ allOf: [value, { not: nullSchema }] }, nullSchema]
-    }
-  }
   for (const [name, schema] of Object.entries(additions.components.schemas)) {
     if (schemas[name] === undefined) schemas[name] = schema
   }
+  for (const model of namesFor(additions).discovered.values())
+    namesFor(spec).observe(model)
 }
 
-function intermediateName(spec: OpenAPIV3.Document, prefix: string): string {
-  let name = prefix
-  let index = 2
-  while (
-    spec.components!.schemas![name] !== undefined ||
-    reservedIntermediateNames.get(spec)?.has(name)
-  )
-    name = `${prefix}_${index++}`
-  return name
+function intermediateName(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  prefix: string
+): string {
+  return namesFor(spec).allocate(type, prefix, true)
 }
 
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+function componentName(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  preferred: string
+): string {
+  return namesFor(spec).allocate(type, preferred, false)
+}
+
+export function resolveExportedType(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  name: string
+): void {
+  const resolved = resolve(type, spec)
+  if (exportedTypes.has(spec)) {
+    namesFor(spec).alias(type, spec, name, resolved)
+    return
+  }
+  if (
+    '$ref' in resolved &&
+    resolved.$ref.slice('#/components/schemas/'.length) === name
+  )
+    return
+  spec.components!.schemas![name] = resolved
+}
+
 function resolveNullableType(
   nonNullableType: Type,
   isUndefined: boolean,
   isNull: boolean,
-  spec: OpenAPIV3.Document
+  spec: OpenAPIV3.Document,
+  type = nonNullableType
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
   if (isNull) {
     const schema = resolve(nonNullableType, spec)
-    if (intermediateDocuments.has(spec) && '$ref' in schema) {
+    if ('$ref' in schema) {
       const source = schema.$ref.slice('#/components/schemas/'.length)
-      const variants = nullableIntermediates.get(spec)!
-      let name = variants.get(source)
-      if (!name) {
-        name = intermediateName(spec, `${source}_Nullable`)
-        spec.components!.schemas![name] = {}
-        variants.set(source, name)
+      const name = intermediateName(type, spec, `${source}_Nullable`)
+      if (spec.components!.schemas![name] === undefined) {
+        if (nonNullableType.isArray()) {
+          const nullable: OpenAPIV3.ArraySchemaObject = {
+            type: 'array',
+            nullable: true,
+            items: {}
+          }
+          spec.components!.schemas![name] = nullable
+          nullable.items = resolve(
+            nonNullableType.getArrayElementTypeOrThrow(),
+            spec
+          )
+        } else {
+          // OpenAPI 3.0 null-only schema that oatyp also infers as null.
+          const nullSchema: OpenAPIV3.SchemaObject = {
+            allOf: [
+              { type: 'boolean', nullable: true },
+              { type: 'string', nullable: true }
+            ]
+          }
+          const target = spec.components!.schemas![source]
+          const value = target && 'enum' in target ? target : schema
+          const nullable: OpenAPIV3.SchemaObject & {
+            'x-typoa-nullable': true
+          } = {
+            'x-typoa-nullable': true,
+            anyOf: [value, nullSchema]
+          }
+          spec.components!.schemas![name] = nullable
+        }
       }
       return { $ref: buildRef(name) }
     }
@@ -189,6 +389,72 @@ function isTypeIdentifier(type: Type): boolean {
 export function resolve(
   type: Type,
   spec: OpenAPIV3.Document,
+  resolveNullableTypeFn?: typeof resolveNullableType
+): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (compositionDocuments.has(spec) || flattenedDocuments.has(spec)) {
+    return resolveRecursive(type, spec, resolveNullableTypeFn)
+  }
+  try {
+    return resolveLegacy(type, spec, resolveNullableTypeFn)
+  } catch (error) {
+    if (
+      !(error instanceof RangeError) ||
+      !error.message.includes('Maximum call stack size exceeded')
+    )
+      throw error
+    throw new LegacyRecursionError(
+      'Recursive types require cycle-safe schema generation'
+    )
+  }
+}
+
+function resolveRecursive(
+  type: Type,
+  spec: OpenAPIV3.Document,
+  resolveNullableTypeFn = resolveNullableType
+): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
+  if (type.isNullable()) {
+    return resolveRecursiveType(type, spec, resolveNullableTypeFn)
+  }
+  let active = activeResolutions.get(spec)
+  if (!active) {
+    active = new Map()
+    activeResolutions.set(spec, active)
+  }
+  const existing = active.get(type.compilerType)
+  if (existing) {
+    for (const [name, component] of componentTypes.get(spec) ?? []) {
+      if (
+        component.compilerType === type.compilerType &&
+        spec.components!.schemas![name] !== undefined
+      )
+        return { $ref: buildRef(name) }
+    }
+    if (!existing.name) {
+      existing.name = intermediateName(
+        type,
+        spec,
+        `${type.getAliasSymbol()?.getName() ?? 'Value'}_Recursive`
+      )
+      spec.components!.schemas![existing.name] = {}
+    }
+    return { $ref: buildRef(existing.name) }
+  }
+  const state: { name?: string } = {}
+  active.set(type.compilerType, state)
+  try {
+    const schema = resolveRecursiveType(type, spec, resolveNullableTypeFn)
+    if (!state.name) return schema
+    spec.components!.schemas![state.name] = schema
+    return { $ref: buildRef(state.name) }
+  } finally {
+    active.delete(type.compilerType)
+  }
+}
+
+function resolveRecursiveType(
+  type: Type,
+  spec: OpenAPIV3.Document,
   resolveNullableTypeFn = resolveNullableType
 ): OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject {
   if (
@@ -223,7 +489,8 @@ export function resolve(
       type.getNonNullableType(),
       isUndefined,
       isNull,
-      spec
+      spec,
+      type
     )
   }
   // Handle types
@@ -252,11 +519,14 @@ export function resolve(
     }
   }
   if (type.isUnknown() || type.isAny()) {
-    spec.components!.schemas!.AnyValue = {
-      description: 'Can be any value',
-      nullable: true
+    const name = intermediateName(type, spec, 'AnyValue')
+    if (spec.components!.schemas![name] === undefined) {
+      spec.components!.schemas![name] = {
+        description: 'Can be any value',
+        nullable: true
+      }
     }
-    return { $ref: buildRef('AnyValue') }
+    return { $ref: buildRef(name) }
   }
   if (type.isTuple()) {
     return {
@@ -268,7 +538,7 @@ export function resolve(
   }
   if (type.isEnum()) {
     const symbol = type.getSymbolOrThrow()
-    const enumName = symbol.getName()
+    const enumName = componentName(type, spec, symbol.getName())
     const declaration = symbol.getDeclarations()[0] as EnumDeclaration
     // Add to spec components if not already resolved
     if (typeof spec.components!.schemas![enumName] === 'undefined') {
@@ -425,24 +695,15 @@ export function resolve(
       }
       return resolveObjectType(type, spec)
     }
-    const previous = componentTypes.get(spec)?.get(typeName)
-    if (
-      intermediateDocuments.has(spec) &&
-      previous &&
-      previous.compilerType !== type.compilerType
-    ) {
-      const names = intermediateNames.get(spec)!
-      let name = names.get(type.compilerType)
-      if (!name) {
-        name = intermediateName(spec, `${typeName}_Intermediate`)
-        names.set(type.compilerType, name)
-      }
-      typeName = name
-    }
+    typeName = componentName(type, spec, typeName)
     if (typeof spec.components!.schemas![typeName] === 'undefined') {
       if (!componentTypes.has(spec)) componentTypes.set(spec, new Map())
       componentTypes.get(spec)!.set(typeName, type)
-      if (compositionDocuments.has(spec) || intermediateDocuments.has(spec)) {
+      if (
+        compositionDocuments.has(spec) ||
+        intermediateDocuments.has(spec) ||
+        flattenedDocuments.has(spec)
+      ) {
         spec.components!.schemas![typeName] = {}
       }
       spec.components!.schemas![typeName] = resolveSchema()
@@ -668,11 +929,17 @@ function resolveProperties(
       const resolvedType = resolve(
         propertyType,
         spec,
-        (nonNullableType, isUndefined, isNull, spec) => {
+        (nonNullableType, isUndefined, isNull, spec, nullableType) => {
           if (isUndefined) {
             required = false
           }
-          return resolveNullableType(nonNullableType, isUndefined, isNull, spec)
+          return resolveNullableType(
+            nonNullableType,
+            isUndefined,
+            isNull,
+            spec,
+            nullableType
+          )
         }
       )
       if (isReadonly) {

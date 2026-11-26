@@ -24,17 +24,20 @@
         "nullable": true
       },
       "Child": {
-        "additionalProperties": false,
-        "properties": {
-          "count": {
-            "type": "number"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Item"
           },
-          "name": {
-            "type": "string"
+          {
+            "properties": {
+              "count": {
+                "type": "number"
+              }
+            },
+            "required": ["count"],
+            "type": "object"
           }
-        },
-        "required": ["count", "name"],
-        "type": "object"
+        ]
       },
       "ClientValue": {
         "additionalProperties": false,
@@ -156,21 +159,25 @@
         "type": "object"
       },
       "Failure": {
-        "additionalProperties": false,
-        "properties": {
-          "code": {
-            "type": "number"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Envelope"
           },
-          "message": {
-            "type": "string"
-          },
-          "status": {
-            "enum": ["fail"],
-            "type": "string"
+          {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "number"
+              },
+              "status": {
+                "enum": ["fail"],
+                "type": "string"
+              }
+            },
+            "required": ["code", "status"],
+            "type": "object"
           }
-        },
-        "required": ["code", "message", "status"],
-        "type": "object"
+        ]
       },
       "Item": {
         "additionalProperties": false,
@@ -278,30 +285,34 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": false,
-                "properties": {
-                  "items": {
-                    "items": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "name": {
-                          "type": "string"
+                "allOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "items": {
+                        "items": {
+                          "$ref": "#/components/schemas/Item"
                         },
-                        "tags": {
-                          "items": {
-                            "type": "string"
-                          },
-                          "type": "array"
-                        }
-                      },
-                      "required": ["name", "tags"],
-                      "type": "object"
+                        "type": "array"
+                      }
                     },
-                    "type": "array"
+                    "required": ["items"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "items": {
+                        "items": {
+                          "$ref": "#/components/schemas/Tagged"
+                        },
+                        "type": "array"
+                      }
+                    },
+                    "required": ["items"],
+                    "type": "object"
                   }
-                },
-                "required": ["items"],
-                "type": "object"
+                ]
               }
             }
           },
@@ -550,21 +561,25 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "number"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
                     },
-                    "message": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "enum": ["fail"],
-                      "type": "string"
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "number"
+                        },
+                        "status": {
+                          "enum": ["fail"],
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "status"],
+                      "type": "object"
                     }
-                  },
-                  "required": ["code", "message", "status"],
-                  "type": "object"
+                  ]
                 }
               }
             },
@@ -574,21 +589,25 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": {
-                      "type": "number"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
                     },
-                    "message": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "enum": ["fail"],
-                      "type": "string"
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "number"
+                        },
+                        "status": {
+                          "enum": ["fail"],
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "status"],
+                      "type": "object"
                     }
-                  },
-                  "required": ["code", "message", "status"],
-                  "type": "object"
+                  ]
                 }
               }
             },
@@ -671,16 +690,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/AnyValue"
-                },
-                "properties": {
-                  "name": {
-                    "type": "string"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Item"
+                  },
+                  {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/AnyValue"
+                    },
+                    "properties": {},
+                    "type": "object"
                   }
-                },
-                "required": ["name"],
-                "type": "object"
+                ]
               }
             }
           },
@@ -715,20 +736,14 @@
                   "rows": {
                     "items": {
                       "items": {
-                        "additionalProperties": false,
-                        "properties": {
-                          "name": {
-                            "type": "string"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Item"
                           },
-                          "tags": {
-                            "items": {
-                              "type": "string"
-                            },
-                            "type": "array"
+                          {
+                            "$ref": "#/components/schemas/Tagged"
                           }
-                        },
-                        "required": ["name", "tags"],
-                        "type": "object"
+                        ]
                       },
                       "type": "array"
                     },
@@ -779,17 +794,16 @@
                           "enum": ["a"],
                           "type": "string"
                         },
-                        "nullable": true,
                         "type": "array"
                       },
                       {
                         "items": {
                           "$ref": "#/components/schemas/Kind"
                         },
-                        "nullable": true,
                         "type": "array"
                       }
-                    ]
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": ["name", "tags"],

@@ -18,13 +18,18 @@ async function main() {
         `COMPAT RUNTIME: npm ${version}=${before.runtime.hash}; working tree=${after.runtime.hash}; import=typoa/runtime`
       )
       if (legacy) {
+        assert.equal(
+          after.openapiText,
+          before.openapiText,
+          'COMPAT_ALPHA71_OPENAPI_BYTES_MISMATCH'
+        )
         assert.deepEqual(
           canonical(after.http),
           canonical(before.http),
           'COMPAT_ALPHA71_MISMATCH'
         )
         console.log(
-          `COMPAT ALPHA71 PASS: Express ${major}, ${Object.keys(after.http).length} restored/unchanged HTTP cases`
+          `COMPAT ALPHA71 PASS: Express ${major}, byte-identical OpenAPI, ${Object.keys(after.http).length} restored/unchanged HTTP cases`
         )
         const [compositionalBefore, compositionalAfter] = await Promise.all([
           capture(entry, true, true),
@@ -39,16 +44,26 @@ async function main() {
           canonical(compositionalBefore.http),
           'COMPAT_COMPOSITIONAL_ALPHA71_MISMATCH'
         )
+        assert.equal(
+          compositionalAfter.openapiText,
+          compositionalBefore.openapiText,
+          'COMPAT_COMPOSITIONAL_ALPHA71_OPENAPI_BYTES_MISMATCH'
+        )
         console.log(
-          `COMPAT COMPOSITIONAL ALPHA71 PASS: Express ${major}, ${Object.keys(compositionalAfter.http).length} HTTP cases, controller arguments and errors`
+          `COMPAT COMPOSITIONAL ALPHA71 PASS: Express ${major}, byte-identical OpenAPI, ${Object.keys(compositionalAfter.http).length} HTTP cases, controller arguments and errors`
         )
         const [controlBefore, controlAfter] = await Promise.all([
           capture(entry, true, 'nonrecursive'),
           capture(undefined, true, 'nonrecursive')
         ])
         assert.deepEqual(controlAfter.http, controlBefore.http)
+        assert.equal(
+          controlAfter.openapiText,
+          controlBefore.openapiText,
+          'COMPAT_NONRECURSIVE_ALPHA71_OPENAPI_BYTES_MISMATCH'
+        )
         console.log(
-          `COMPAT NONRECURSIVE ALPHA71 PASS: Express ${major}, ${Object.keys(controlAfter.http).length} HTTP cases`
+          `COMPAT NONRECURSIVE ALPHA71 PASS: Express ${major}, byte-identical OpenAPI, ${Object.keys(controlAfter.http).length} HTTP cases`
         )
       } else {
         const entries = JSON.parse(
@@ -58,9 +73,28 @@ async function main() {
           capture(entry, false, 'recursive'),
           capture(undefined, false, 'recursive')
         ])
+        let releaseBefore = mergeSnapshots(
+          before,
+          recursiveBefore,
+          'recursive.openapi'
+        )
+        let releaseAfter = mergeSnapshots(
+          after,
+          recursiveAfter,
+          'recursive.openapi'
+        )
+        for (const group of [true, 'nonrecursive'] as const) {
+          const [documentBefore, documentAfter] = await Promise.all([
+            capture(entry, false, group),
+            capture(undefined, false, group)
+          ])
+          const id = `${group === true ? 'compositional' : group}.openapi`
+          releaseBefore = mergeSnapshots(releaseBefore, documentBefore, id)
+          releaseAfter = mergeSnapshots(releaseAfter, documentAfter, id)
+        }
         const count = assertCompatible(
-          mergeSnapshots(before, recursiveBefore, 'recursive.openapi'),
-          mergeSnapshots(after, recursiveAfter, 'recursive.openapi'),
+          releaseBefore,
+          releaseAfter,
           entries,
           version,
           major

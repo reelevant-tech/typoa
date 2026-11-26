@@ -29,7 +29,10 @@ export function capture(
   legacy = false,
   compositional: boolean | 'recursive' | 'nonrecursive' = false
 ): Promise<
-  Snapshot & { runtime: { entry: string; runtime: string; hash: string } }
+  Snapshot & {
+    openapiText: string
+    runtime: { entry: string; runtime: string; hash: string }
+  }
 > {
   return temporary(async directory => {
     const group = scenarioGroup(compositional)

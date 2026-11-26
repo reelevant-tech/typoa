@@ -1,0 +1,217 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/intermediates/serialized": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Serialized"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Serialized"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Serialized"
+      }
+    },
+    "/intermediates/nested": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Nested"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Nested"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Nested"
+      }
+    },
+    "/intermediates/intersection": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Item_Without_Ignored"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Tagged_With_Tags"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Item_Without_Ignored"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Tagged_With_Tags"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Intersection"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Serialize_Detail": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["count", "name", "tags"],
+        "additionalProperties": false
+      },
+      "Serialized": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Serialize_Detail"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": ["id"]
+          }
+        ]
+      },
+      "Container_T": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "T"
+          }
+        },
+        "required": ["data"],
+        "additionalProperties": false
+      },
+      "InternalResponse_Container": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Container_T"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "number"
+              }
+            },
+            "required": ["code"]
+          }
+        ]
+      },
+      "Nested": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/InternalResponse_Container"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "required": ["active"]
+          }
+        ]
+      },
+      "Item_Without_Ignored": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "Tagged_With_Tags": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["tags"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

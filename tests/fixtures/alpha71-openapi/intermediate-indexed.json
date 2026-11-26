@@ -1,0 +1,88 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/indexed": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Selected"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Selected"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "Create"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Selection_T": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "keyof T"
+          },
+          "id": {
+            "type": "T[\"id\"]"
+          }
+        },
+        "required": ["key", "id"],
+        "additionalProperties": false
+      },
+      "Envelope_Item": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Selection_T"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "T"
+              }
+            },
+            "required": ["data"]
+          }
+        ]
+      },
+      "Selected": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Envelope_Item"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "required": ["active"]
+          }
+        ]
+      }
+    }
+  }
+}

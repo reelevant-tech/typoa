@@ -1,0 +1,933 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "generic",
+    "version": "1"
+  },
+  "paths": {
+    "/inheritance-test/bar": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bar"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetBar"
+      }
+    },
+    "/inheritance-test/baz": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Baz"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetBaz"
+      }
+    },
+    "/inheritance-test/extended": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extended"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetExtended"
+      }
+    },
+    "/inheritance-test/multiple": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultipleInheritance"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetMultiple"
+      }
+    },
+    "/inheritance-test/b": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/B"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetB"
+      },
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/B"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/B"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "PostB"
+      }
+    },
+    "/inheritance-test/article": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerializedArticle"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetArticle"
+      }
+    },
+    "/inheritance-test/intersected": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/A"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "c": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["c"],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetIntersected"
+      }
+    },
+    "/inheritance-test/extends-open": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsOpen"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetExtendsOpen"
+      }
+    },
+    "/inheritance-test/several-bases": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeveralBases"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetSeveralBases"
+      },
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeveralBases"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeveralBases"
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "PostSeveralBases"
+      }
+    },
+    "/inheritance-test/composition": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Composition"
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "security": [],
+        "operationId": "GetComposition"
+      }
+    },
+    "/inheritance-test/playlist": {
+      "post": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tracksIsArray": {
+                      "type": "boolean"
+                    },
+                    "artistIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "matrix": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "required": ["tracksIsArray", "artistIds", "matrix"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "tracks": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["name"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "matrix": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "tracks": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "artistIds": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": ["name", "artistIds"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "matrix": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [],
+        "operationId": "PostPlaylist"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Foo": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "type": "number"
+          }
+        },
+        "required": ["foo"],
+        "additionalProperties": false
+      },
+      "Bar": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Foo"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "bar": {
+                "type": "number"
+              }
+            },
+            "required": ["bar"]
+          }
+        ]
+      },
+      "Baz": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Bar"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "baz": {
+                "type": "string"
+              }
+            },
+            "required": ["baz"]
+          }
+        ]
+      },
+      "Base": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name"],
+        "additionalProperties": false
+      },
+      "Extended": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "required": ["description", "active"]
+          }
+        ]
+      },
+      "AnyValue": {
+        "description": "Can be any value",
+        "nullable": true
+      },
+      "MultipleInheritance": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extended"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "required": ["metadata"]
+          }
+        ]
+      },
+      "A_Without_Undefined": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string"
+          }
+        },
+        "required": ["a"],
+        "additionalProperties": false
+      },
+      "B": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/A_Without_Undefined"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": {
+                "type": "number"
+              }
+            },
+            "required": ["b"]
+          }
+        ]
+      },
+      "Article_Without_Revisions": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "Revision": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "SerializedArticle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Article_Without_Revisions"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "revisions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Revision"
+                }
+              }
+            },
+            "required": ["revisions"]
+          }
+        ]
+      },
+      "A": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string"
+          }
+        },
+        "required": ["a"],
+        "additionalProperties": false
+      },
+      "Open": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "string"
+          }
+        },
+        "required": ["open"],
+        "additionalProperties": true
+      },
+      "ExtendsOpen": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Open"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "closed": {
+                "type": "string"
+              }
+            },
+            "required": ["closed"]
+          }
+        ]
+      },
+      "Timestamps": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": ["createdAt", "updatedAt"],
+        "additionalProperties": false
+      },
+      "SeveralBases": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base"
+          },
+          {
+            "$ref": "#/components/schemas/Timestamps"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ClosesOpen": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Open"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "closed": {
+                "type": "string"
+              }
+            },
+            "required": ["closed"]
+          }
+        ]
+      },
+      "Base_With_Id": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "PickedBase": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base_With_Id"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": ["label"]
+          }
+        ]
+      },
+      "Base_Partial": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartialBase": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base_Partial"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": ["label"]
+          }
+        ]
+      },
+      "Narrowed": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": ["fixed"]
+              }
+            },
+            "required": ["name"]
+          }
+        ]
+      },
+      "Constrained": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "required": ["code"],
+        "additionalProperties": false
+      },
+      "ExtendsConstrained": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Constrained"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "extra": {
+                "type": "number"
+              }
+            },
+            "required": ["extra"]
+          }
+        ]
+      },
+      "Box": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": ["value"],
+        "additionalProperties": false
+      },
+      "StringBox": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Box"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": ["label"]
+          }
+        ]
+      },
+      "Dictionary": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "type": "number"
+        }
+      },
+      "ExtendsDictionary": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Dictionary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number"
+              }
+            },
+            "required": ["total"]
+          }
+        ]
+      },
+      "Composition": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/Base"
+          },
+          "closesOpen": {
+            "$ref": "#/components/schemas/ClosesOpen"
+          },
+          "severalBases": {
+            "$ref": "#/components/schemas/SeveralBases"
+          },
+          "pickedBase": {
+            "$ref": "#/components/schemas/PickedBase"
+          },
+          "partialBase": {
+            "$ref": "#/components/schemas/PartialBase"
+          },
+          "narrowed": {
+            "$ref": "#/components/schemas/Narrowed"
+          },
+          "extendsConstrained": {
+            "$ref": "#/components/schemas/ExtendsConstrained"
+          },
+          "stringBox": {
+            "$ref": "#/components/schemas/StringBox"
+          },
+          "extendsDictionary": {
+            "$ref": "#/components/schemas/ExtendsDictionary"
+          },
+          "overlapping": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                },
+                "required": ["status"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["ok"]
+                  }
+                },
+                "required": ["status"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "threeMembers": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/A"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "b": {
+                    "type": "number"
+                  }
+                },
+                "required": ["b"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "c": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "nullableIntersection": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/A"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "c": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["c"],
+                "additionalProperties": false
+              }
+            ],
+            "nullable": true
+          },
+          "branded": {
+            "allOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "__brand": {
+                    "type": "string",
+                    "enum": ["Id"]
+                  }
+                },
+                "required": ["__brand"],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "base",
+          "closesOpen",
+          "severalBases",
+          "pickedBase",
+          "partialBase",
+          "narrowed",
+          "extendsConstrained",
+          "stringBox",
+          "extendsDictionary",
+          "overlapping",
+          "threeMembers",
+          "nullableIntersection",
+          "branded"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

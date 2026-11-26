@@ -4,7 +4,9 @@ import {
   TypeAliasDeclaration,
   ClassDeclaration,
   InterfaceDeclaration,
-  ExportedDeclarations
+  ExportedDeclarations,
+  Node,
+  ts
 } from 'ts-morph'
 import { glob } from 'glob'
 import path from 'path'
@@ -17,9 +19,15 @@ import { CodeGenControllers } from './types'
 import handlebars from 'handlebars'
 import { getRelativeFilePath, resolveProperty } from './utils'
 import {
+  LegacyRecursionError,
+  SchemaNameCollisionError,
+  checkModelNames,
   keepIntermediateSchemas,
   preserveComposition,
-  resolve
+  preserveFlattening,
+  reserveSchemaNames,
+  SchemaModel,
+  resolveExportedType
 } from './resolve'
 
 export type OpenAPIConfiguration = {
@@ -53,7 +61,8 @@ export type OpenAPIConfiguration = {
      */
     additionalExportedTypeNames?: string[]
     /**
-     * Keep named intermediate types as flattened component schemas (default: true).
+     * Controls additional intermediate schemas for cycle-safe generation.
+     * Alpha.71-compatible documents retain their original schemas regardless.
      */
     keepIntermediateSchemas?: boolean
     /**
@@ -143,23 +152,105 @@ export function getConfig(): OpenAPIConfiguration | undefined {
   return configStore
 }
 
+function discriminatorTargets(project: Project): Set<string> {
+  const targets = new Set<string>()
+  for (const file of project
+    .getSourceFiles()
+    .filter(file => !file.isInNodeModules()))
+    for (const decorator of file.getDescendantsOfKind(
+      ts.SyntaxKind.Decorator
+    )) {
+      if (decorator.getName() !== 'Body') continue
+      const argument = decorator.getArguments()[1]
+      if (!argument || !Node.isIdentifier(argument)) continue
+      for (const declaration of argument.getDefinitionNodes())
+        for (const literal of declaration.getDescendantsOfKind(
+          ts.SyntaxKind.StringLiteral
+        ))
+          targets.add(literal.getLiteralText())
+    }
+  return targets
+}
+
 export async function generate(config: OpenAPIConfiguration) {
   configStore = config
-
-  const root =
-    config.root ?? path.dirname(path.resolve(config.tsconfigFilePath))
-  // initialize
   const project = new Project({
     compilerOptions: getCompilerOptionsFromTsConfig(config.tsconfigFilePath)
       .options
   })
   project.addSourceFilesFromTsConfig(config.tsconfigFilePath)
+  let targets = new Set<string>()
+  let cycleSafe = false
+  let names = new Map<ts.Type, SchemaModel>()
+  while (true) {
+    try {
+      return await generateDocument(config, cycleSafe, names, project, targets)
+    } catch (error) {
+      if (error instanceof LegacyRecursionError && !cycleSafe) {
+        cycleSafe = true
+        targets = discriminatorTargets(project)
+      } else if (error instanceof SchemaNameCollisionError && cycleSafe) {
+        names = error.models
+      } else {
+        throw error
+      }
+    }
+  }
+}
+
+function additionalExport(project: Project, typeName: string) {
+  const declarations = project
+    .getSourceFiles()
+    .map(file => ({
+      file: file.getFilePath(),
+      declaration: file.getExportedDeclarations().get(typeName)?.[0]
+    }))
+    .filter(({ declaration }) => typeof declaration !== 'undefined') as {
+    declaration: ExportedDeclarations
+    file: string
+  }[]
+  if (declarations.length === 0) {
+    throw new Error(
+      `Unable to find the additional exported type named '${typeName}'`
+    )
+  }
+  if (declarations.length > 1) {
+    throw new Error(
+      `We found multiple references for the additional exported type named '${typeName}' in ${declarations.map(({ file }) => file).join(', ')}`
+    )
+  }
+  const declaration = declarations[0].declaration as
+    | TypeAliasDeclaration
+    | ClassDeclaration
+    | InterfaceDeclaration
+  const type = declaration.getType()
+  return {
+    name: declaration.getName()!,
+    type: type.isAny()
+      ? (declaration.getSymbol()?.getDeclaredType() ?? type)
+      : type
+  }
+}
+
+async function generateDocument(
+  config: OpenAPIConfiguration,
+  cycleSafe: boolean,
+  names: Map<ts.Type, SchemaModel>,
+  project: Project,
+  targets: Set<string>
+) {
+  configStore = config
+
+  const root =
+    config.root ?? path.dirname(path.resolve(config.tsconfigFilePath))
+  // initialize
 
   // Init spec
   const spec = createSpec({
     name: config.openapi.service.name,
     version: config.openapi.service.version
   })
+  if (cycleSafe) preserveFlattening(spec)
   if (typeof config.openapi.securitySchemes !== 'undefined') {
     spec.components!.securitySchemes = config.openapi.securitySchemes
   }
@@ -171,6 +262,16 @@ export async function generate(config: OpenAPIConfiguration) {
     version: config.openapi.service.version
   })
   preserveComposition(diagnosticSpec)
+  if (cycleSafe) {
+    const exports = new Map(
+      (config.openapi.additionalExportedTypeNames ?? []).map(name => [
+        name,
+        additionalExport(project, name).type
+      ])
+    )
+    reserveSchemaNames(spec, names, exports, targets)
+    reserveSchemaNames(diagnosticSpec, names, exports, targets)
+  }
   const deferredDiagnostics: (() => void)[] = []
   const controllersPathByName: Record<string, string> = {}
 
@@ -204,47 +305,10 @@ export async function generate(config: OpenAPIConfiguration) {
 
   // additional exported type names
   for (const typeName of config.openapi.additionalExportedTypeNames ?? []) {
-    const sourceFiles = project.getSourceFiles()
-    const declarations = sourceFiles
-      .map(file => ({
-        file: file.getFilePath(),
-        declaration: file.getExportedDeclarations().get(typeName)?.[0]
-      }))
-      .filter(({ declaration }) => typeof declaration !== 'undefined') as {
-      declaration: ExportedDeclarations
-      file: string
-    }[]
-    if (declarations.length === 0) {
-      throw new Error(
-        `Unable to find the additional exported type named '${typeName}'`
-      )
-    }
-    if (declarations.length > 1) {
-      throw new Error(
-        `We found multiple references for the additional exported type named '${typeName}' in ${declarations.map(({ file }) => file).join(', ')}`
-      )
-    }
-    const declaration = declarations[0].declaration as
-      | TypeAliasDeclaration
-      | ClassDeclaration
-      | InterfaceDeclaration
-    // Add to spec
-    const name = declaration.getName()!
-    const type = declaration.getType()
+    const { name, type } = additionalExport(project, typeName)
     for (const target of [spec, diagnosticSpec]) {
       const addExportedType = () => {
-        const resolved = resolve(
-          type.isAny()
-            ? (declaration.getSymbol()?.getDeclaredType() ?? type)
-            : type,
-          target
-        )
-        if (
-          !('$ref' in resolved) ||
-          resolved.$ref.substr('#/components/schemas/'.length) !== name
-        ) {
-          target.components!.schemas![name] = resolved
-        }
+        resolveExportedType(type, target, cycleSafe ? typeName : name)
       }
       if (target === spec) addExportedType()
       else deferredDiagnostics.push(addExportedType)
@@ -361,10 +425,15 @@ export async function generate(config: OpenAPIConfiguration) {
     spec.info.description = `# Errors\n${markdown}`
   }
   const routerSchemas = { ...spec.components!.schemas }
-  for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
-  if (config.openapi.keepIntermediateSchemas !== false) {
-    keepIntermediateSchemas(spec, diagnosticSpec)
+  if (cycleSafe) {
+    for (const generateDiagnostics of deferredDiagnostics) generateDiagnostics()
+  } else {
+    diagnosticSpec.components = spec.components
+    Object.assign(diagnosticControllers, codegenControllers)
   }
+  if (cycleSafe && config.openapi.keepIntermediateSchemas !== false)
+    keepIntermediateSchemas(spec, diagnosticSpec)
+  if (cycleSafe) checkModelNames(spec, diagnosticSpec)
 
   // Write OpenAPI file(s)
   const jsonContent = JSON.stringify(spec, null, '\t')

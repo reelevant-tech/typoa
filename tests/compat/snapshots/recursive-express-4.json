@@ -28,10 +28,9 @@
     },
     "payload": {
       "fields": {
-        "body.box.value": {
+        "body.1.box.value": {
           "details": [],
-          "message": "This property must be one of 1",
-          "value": 2
+          "message": "This property must be one of 1"
         }
       },
       "message": "This property must be one of 1"
@@ -124,10 +123,9 @@
     },
     "payload": {
       "fields": {
-        "body.box.value": {
+        "body.1.box.value": {
           "details": [],
-          "message": "This property must be one of 1",
-          "value": 2
+          "message": "This property must be one of 1"
         }
       },
       "message": "This property must be one of 1"
