@@ -1,0 +1,217 @@
+{
+  "components": {
+    "schemas": {
+      "AnyValue": {
+        "description": "Can be any value",
+        "nullable": true
+      },
+      "Base": {
+        "additionalProperties": false,
+        "properties": {
+          "next": {
+            "additionalProperties": false,
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "Box": {
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "enum": [
+              1
+            ],
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "type": "object"
+      },
+      "Box_Intermediate": {
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "type": "object"
+      },
+      "Child": {
+        "additionalProperties": false,
+        "properties": {
+          "box": {
+            "$ref": "#/components/schemas/Box"
+          }
+        },
+        "required": [
+          "box"
+        ],
+        "type": "object"
+      },
+      "Closed": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Item": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Open": {
+        "additionalProperties": true,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Pair": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Parent": {
+        "additionalProperties": false,
+        "properties": {
+          "box": {
+            "$ref": "#/components/schemas/Box_Intermediate"
+          }
+        },
+        "required": [
+          "box"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "compatibility",
+    "version": "1"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/compat/nonrecursive-box": {
+      "post": {
+        "operationId": "Box",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Child"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/nonrecursive-item": {
+      "post": {
+        "operationId": "Item",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/nonrecursive-strict": {
+      "post": {
+        "operationId": "Strict",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pair"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    }
+  }
+}

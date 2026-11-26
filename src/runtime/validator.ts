@@ -33,6 +33,13 @@ type ValidationRules = {
   bodyDiscriminatorFn?: BodyDiscriminatorFunction
 }
 
+type Schema = OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject
+type ValidationDocument = {
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+  rules: ValidationRules
+}
+const recursiveSchemas = new WeakMap<object, WeakMap<Schema, boolean>>()
+
 export async function validateAndParse(
   req: express.Request,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
@@ -42,41 +49,33 @@ export async function validateAndParse(
     rules: ValidationRules
   }
 ): Promise<any[]> {
+  const runtimeSchemas = diagnostics?.schemas ?? schemas
+  const runtimeRules = diagnostics?.rules ?? rules
   let discriminatorResult: ReturnType<BodyDiscriminatorFunction> | undefined
-  const bodyDiscriminatorFn = rules.bodyDiscriminatorFn
+  const bodyDiscriminatorFn = runtimeRules.bodyDiscriminatorFn
     ? (request: express.Request) =>
         (discriminatorResult ??= Promise.resolve().then(() =>
-          rules.bodyDiscriminatorFn!(request)
+          runtimeRules.bodyDiscriminatorFn!(request)
         ))
     : undefined
-  try {
-    return await validateRequest(req, schemas, {
-      ...rules,
-      bodyDiscriminatorFn
-    })
-  } catch (error) {
-    if (!(error instanceof ValidateError) || !diagnostics) throw error
-    try {
-      await validateRequest(req, diagnostics.schemas, {
-        ...diagnostics.rules,
-        bodyDiscriminatorFn
-      })
-    } catch (diagnosticError) {
-      if (diagnosticError instanceof ValidateError) throw diagnosticError
-    }
-    throw error
-  }
+  return await validateRequest(
+    req,
+    runtimeSchemas,
+    { ...runtimeRules, bodyDiscriminatorFn },
+    diagnostics ? { schemas, rules } : undefined
+  )
 }
 
 async function validateRequest(
   req: express.Request,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
-  rules: ValidationRules
+  rules: ValidationRules,
+  fallback?: ValidationDocument
 ): Promise<any[]> {
   const logger = options.getCustomLogger()
 
   const args: any[] = []
-  for (const param of rules.params || []) {
+  for (const [index, param] of (rules.params || []).entries()) {
     // Handling @Request()
     if (param.in === 'request') {
       args.push(req)
@@ -90,7 +89,8 @@ async function validateRequest(
           rules.body!,
           rules.bodyDiscriminatorFn,
           schemas,
-          logger
+          logger,
+          fallback
         )
       )
       continue
@@ -112,7 +112,11 @@ async function validateRequest(
         ) {
           value = 'true' // allow empty values for param boolean
         }
-        if (isArraySchema(schema, schemas) && typeof value === 'string') {
+        if (
+          'type' in schema &&
+          schema.type === 'array' &&
+          typeof value === 'string'
+        ) {
           value = [value]
         }
         break
@@ -137,13 +141,16 @@ async function validateRequest(
       args.push(undefined)
       continue
     }
-    const validationResponse = validateAndParseValueAgainstSchema(
+    const validationResponse = validateRequestValue(
       param.name,
       value,
       param.schema!,
       schemas,
-      'unknown',
-      logger
+      logger,
+      fallback && {
+        schema: fallback.rules.params[index]?.schema,
+        schemas: fallback.schemas
+      }
     )
     if (!validationResponse.succeed) {
       throw new ValidateError(
@@ -218,7 +225,8 @@ async function validateBody(
   rule: OpenAPIV3.RequestBodyObject,
   discriminatorFn: BodyDiscriminatorFunction | undefined,
   schemas: OpenAPIV3.ComponentsObject['schemas'],
-  logger: CustomLogger
+  logger: CustomLogger,
+  fallback?: ValidationDocument
 ): Promise<unknown> {
   const body = req.body
   const contentType = (req.headers['content-type'] ?? 'application/json').split(
@@ -238,13 +246,16 @@ async function validateBody(
 
   if (discriminatorFn) {
     const schemaName = await discriminatorFn(req)
-    const validationResult = validateAndParseValueAgainstSchema(
+    const validationResult = validateRequestValue(
       'body',
       body,
       { $ref: buildRef(schemaName) },
       schemas,
-      'unknown',
-      logger
+      logger,
+      fallback && {
+        schema: { $ref: buildRef(schemaName) },
+        schemas: fallback.schemas
+      }
     )
     if (validationResult.succeed) {
       return validationResult.value
@@ -273,13 +284,16 @@ async function validateBody(
       validationResult.errorMessage
     )
   }
-  const validationResult = validateAndParseValueAgainstSchema(
+  const validationResult = validateRequestValue(
     'body',
     body,
     expectedSchema,
     schemas,
-    'unknown',
-    logger
+    logger,
+    fallback && {
+      schema: fallback.rules.body?.content[contentType]?.schema,
+      schemas: fallback.schemas
+    }
   )
   if (validationResult.succeed) {
     return validationResult.value
@@ -306,6 +320,85 @@ async function validateBody(
     },
     validationResult.errorMessage
   )
+}
+
+function validateRequestValue(
+  name: string,
+  value: unknown,
+  schema: Schema,
+  schemas: OpenAPIV3.ComponentsObject['schemas'],
+  logger: CustomLogger,
+  fallback?: { schema?: Schema; schemas: OpenAPIV3.ComponentsObject['schemas'] }
+): SafeValidatedValue {
+  if (fallback?.schema && hasSchemaCycle(schema, schemas)) {
+    const result = validateAndParseValueAgainstSchema(
+      name,
+      value,
+      fallback.schema,
+      fallback.schemas,
+      'unknown',
+      logger
+    )
+    if (result.succeed) return result
+    const diagnostic = validateAndParseValueAgainstSchema(
+      name,
+      value,
+      schema,
+      schemas,
+      'unknown',
+      logger
+    )
+    return diagnostic.succeed ? result : diagnostic
+  }
+  return validateAndParseValueAgainstSchema(
+    name,
+    value,
+    schema,
+    schemas,
+    'unknown',
+    logger
+  )
+}
+
+function hasSchemaCycle(
+  schema: Schema,
+  schemas: OpenAPIV3.ComponentsObject['schemas']
+): boolean {
+  if (!schemas) return false
+  let cache = recursiveSchemas.get(schemas)
+  if (!cache) {
+    cache = new WeakMap()
+    recursiveSchemas.set(schemas, cache)
+  }
+  const active = new Set<Schema>()
+  const visit = (current: Schema): boolean => {
+    const cached = cache.get(current)
+    if (cached !== undefined) return cached
+    if (active.has(current)) return true
+    active.add(current)
+    let children: Schema[]
+    if ('$ref' in current) {
+      const target = schemas[current.$ref.slice('#/components/schemas/'.length)]
+      children = target ? [target] : []
+    } else {
+      children = [
+        ...Object.values(current.properties ?? {}),
+        ...(current.allOf ?? []),
+        ...(current.anyOf ?? []),
+        ...(current.oneOf ?? []),
+        ...(current.not ? [current.not] : []),
+        ...('items' in current ? [current.items] : []),
+        ...(typeof current.additionalProperties === 'object'
+          ? [current.additionalProperties]
+          : [])
+      ]
+    }
+    const recursive = children.some(visit)
+    active.delete(current)
+    cache.set(current, recursive)
+    return recursive
+  }
+  return visit(schema)
 }
 
 function getFromRef(
@@ -341,19 +434,6 @@ function getNestedValue(obj: any, path: string): any {
     }
   }
   return current
-}
-
-function isArraySchema(
-  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
-  schemas: OpenAPIV3.ComponentsObject['schemas']
-): boolean {
-  const resolved = getFromRef(schema, schemas)
-  return (
-    resolved.type === 'array' ||
-    (resolved.allOf !== undefined &&
-      resolved.allOf.length > 0 &&
-      resolved.allOf.every(member => isArraySchema(member, schemas)))
-  )
 }
 
 function isNullableSchema(
@@ -556,7 +636,7 @@ function validateAndParseValueAgainstSchema(
     }
   }
   // Array
-  if (isArraySchema(currentSchema, schemas)) {
+  if (currentSchema.type === 'array') {
     if (!Array.isArray(value)) {
       return {
         succeed: false,
@@ -771,7 +851,7 @@ function validateAndParseValueAgainstSchema(
     // All succeeded, merge values
     return {
       succeed: true,
-      value: mergeAllOfValues(schemasValues.map(v => v.value))
+      value: Object.assign({}, ...schemasValues.map(v => v.value))
     }
   }
   // OneOf
@@ -830,32 +910,6 @@ function validateAndParseValueAgainstSchema(
   }
 
   return { succeed: true, value }
-}
-
-/**
- * Merges the values parsed by every member of an `allOf`. Each member only keeps
- * the properties it declares, so objects are merged together. `Object.assign` must
- * not be applied to anything else: it turns an array into `{ 0: ..., 1: ... }` and
- * a string into an object of characters. Arrays are merged item by item, and any
- * other value (string, number, Date, ...) is kept as parsed by the last member.
- */
-function mergeAllOfValues(values: unknown[]): unknown {
-  if (values.every(value => Array.isArray(value))) {
-    const arrays = values as unknown[][]
-    return arrays[0].map((_, i) =>
-      mergeAllOfValues(arrays.map(array => array[i]))
-    )
-  }
-  const isObject = (value: unknown) =>
-    typeof value === 'object' &&
-    value !== null &&
-    Array.isArray(value) === false &&
-    value instanceof Date === false &&
-    Buffer.isBuffer(value) === false
-  if (values.every(isObject)) {
-    return Object.assign({}, ...(values as Record<string, unknown>[]))
-  }
-  return values[values.length - 1]
 }
 
 function validateAndParseFormat(

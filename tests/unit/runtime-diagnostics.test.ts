@@ -13,29 +13,20 @@ const rules = {
   body: { content: { 'application/json': { schema: object } } }
 } as any
 
-test('Should retain new validation errors if diagnostic validation succeeds', async () => {
-  await assert.rejects(
-    validateAndParse(request, {}, rules, {
+test('Should accept requests allowed by compositional validation', async () => {
+  assert.deepEqual(
+    await validateAndParse(request, {}, rules, {
       schemas: {},
       rules: {
         ...rules,
         body: { content: { 'application/json': { schema: {} } } }
       }
     }),
-    {
-      name: 'ValidateError',
-      fields: {
-        'body.value': {
-          message: 'This property must be a string',
-          details: [],
-          value: 1
-        }
-      }
-    }
+    [{ value: 1 }]
   )
 })
 
-test('Should retain validation errors if a diagnostic schema is unavailable', async () => {
+test('Should not mask unavailable compositional schemas with flat validation', async () => {
   await assert.rejects(
     validateAndParse(request, {}, rules, {
       schemas: {},
@@ -50,7 +41,7 @@ test('Should retain validation errors if a diagnostic schema is unavailable', as
         }
       }
     }),
-    { name: 'ValidateError', message: 'This property must be a string' }
+    /Missing/
   )
 })
 
@@ -81,7 +72,7 @@ test('Should evaluate the discriminator only once when formatting errors', async
   assert.equal(calls, 1)
 })
 
-test('Should not run diagnostic validation on successful requests', async () => {
+test('Should use compositional rules on successful requests', async () => {
   let calls = 0
   const args = await validateAndParse(
     { ...request, body: { value: 'a' } } as express.Request,
@@ -96,7 +87,7 @@ test('Should not run diagnostic validation on successful requests', async () => 
     }
   )
   assert.deepEqual(args, [{ value: 'a' }])
-  assert.equal(calls, 0)
+  assert.equal(calls, 1)
 })
 
 for (const asynchronous of [false, true]) {

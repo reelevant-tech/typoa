@@ -1,3 +1,5 @@
+import { strict as assert } from 'node:assert'
+
 export type Scenario = {
   id: string
   method?: string
@@ -12,7 +14,7 @@ const json = (
   id: string,
   path: string,
   body: unknown,
-  legacy = false
+  legacy?: boolean
 ): Scenario => ({
   id,
   path,
@@ -21,6 +23,139 @@ const json = (
   legacy
 })
 const empty = { 'content-type': 'application/json', 'content-length': '0' }
+
+export function scenarioGroup(fixture: boolean | 'recursive' | 'nonrecursive') {
+  return typeof fixture === 'string'
+    ? fixture
+    : fixture
+      ? 'compositional'
+      : 'default'
+}
+
+export function scenariosFor(group: ReturnType<typeof scenarioGroup>) {
+  switch (group) {
+    case 'recursive':
+      return recursiveScenarios
+    case 'nonrecursive':
+      return nonrecursiveScenarios
+    case 'compositional':
+      return compositionalScenarios
+    default:
+      return scenarios
+  }
+}
+
+export const recursiveScenarios: Scenario[] = [
+  ...['recursive-box', 'recursive-discriminated'].flatMap(path => [
+    json(`${path}.empty`, path, {}),
+    json(`${path}.valid`, path, { box: { value: 1 } }),
+    json(`${path}.narrowed`, path, { box: { value: 2 } }),
+    json(`${path}.wrong-type`, path, { box: { value: 'invalid' } }),
+    json(`${path}.next`, path, { box: { value: 1, next: { value: 2 } } })
+  ]),
+  json('recursive-item.empty', 'recursive-item', {}),
+  json('recursive-item.valid', 'recursive-item', { name: 'Item' }),
+  json('recursive-item.next', 'recursive-item', { name: 'Item', next: {} }),
+  json('recursive-item.nested', 'recursive-item', {
+    name: 'Item',
+    next: { next: {} }
+  }),
+  json('recursive-item.number', 'recursive-item', { name: 'Item', next: 1 }),
+  json('recursive-item.wrong-type', 'recursive-item', { name: 1 })
+]
+
+export const nonrecursiveScenarios: Scenario[] = [
+  ...[
+    json(
+      'nonrecursive-strict.valid',
+      'nonrecursive-strict',
+      { name: 'Item' },
+      true
+    ),
+    json(
+      'nonrecursive-strict.extra',
+      'nonrecursive-strict',
+      { name: 'Item', extra: true },
+      true
+    )
+  ].map(scenario => ({ ...scenario, strict: true })),
+  json(
+    'nonrecursive-box.valid',
+    'nonrecursive-box',
+    { box: { value: 1 } },
+    true
+  ),
+  json(
+    'nonrecursive-box.broad',
+    'nonrecursive-box',
+    { box: { value: 2 } },
+    true
+  ),
+  json(
+    'nonrecursive-box.wrong-type',
+    'nonrecursive-box',
+    { box: { value: 'invalid' } },
+    true
+  ),
+  json('nonrecursive-item.empty', 'nonrecursive-item', {}, true),
+  json('nonrecursive-item.valid', 'nonrecursive-item', { name: 'Item' }, true),
+  json(
+    'nonrecursive-item.next',
+    'nonrecursive-item',
+    { name: 'Item', next: {} },
+    true
+  )
+]
+
+export const compositionalScenarios: Scenario[] = [
+  ...[
+    json('compositional.inherited-strict', 'compositional-inherited', {
+      name: 'Item',
+      count: 1
+    }),
+    json('compositional.inherited-strict-extra', 'compositional-inherited', {
+      name: 'Item',
+      count: 1,
+      extra: true
+    }),
+    json('compositional.array-strict', 'compositional-array', {
+      items: [{ name: 'Item', tags: ['a'] }]
+    }),
+    json('compositional.array-strict-extra', 'compositional-array', {
+      items: [{ name: 'Item', tags: ['a'], extra: true }]
+    })
+  ].map(scenario => ({ ...scenario, strict: true, legacy: true })),
+  ...['compositional', 'compositional-discriminated'].flatMap(path => [
+    json(`${path}.empty`, path, {}, true),
+    json(
+      `${path}.valid-date`,
+      path,
+      { stamp: '2026-01-02T03:04:05.000Z' },
+      true
+    ),
+    ...['not-a-date', 123, {}].map((stamp, index) =>
+      json(`${path}.invalid-date-${index}`, path, { stamp }, true)
+    ),
+    json(
+      `${path}.dictionary`,
+      path,
+      {
+        tags: {
+          kinds: { item: { required: true, foo: 'x', nested: { a: 1 } } }
+        }
+      },
+      true
+    ),
+    json(
+      `${path}.invalid-dictionary`,
+      path,
+      {
+        tags: { kinds: { item: { required: 'invalid' } } }
+      },
+      true
+    )
+  ])
+]
 
 export const scenarios: Scenario[] = [
   ...['GET', 'POST', 'DELETE', 'HEAD'].flatMap(method => [
@@ -104,9 +239,14 @@ export const scenarios: Scenario[] = [
   json('inheritance.invalid', 'inherited', { count: 1 }, true),
   json('nested.valid', 'nested', { rows: [[{ name: 'a', tags: ['b'] }]] }),
   json('nested.invalid', 'nested', { rows: [[{ name: 'a', tags: 1 }]] }, true),
-  json('arrays.valid', 'array-intersection', {
-    items: [{ name: 'a', tags: ['b'] }]
-  }),
+  json(
+    'arrays.valid',
+    'array-intersection',
+    {
+      items: [{ name: 'a', tags: ['b'] }]
+    },
+    true
+  ),
   json(
     'arrays.invalid',
     'array-intersection',
@@ -200,3 +340,23 @@ export const scenarios: Scenario[] = [
   { id: 'response.required-code', method: 'GET', path: 'failure' },
   { id: 'response.serialization', method: 'GET', path: 'response' }
 ]
+
+export function markLegacy(scenario: Scenario, legacy: boolean): void {
+  assert.ok(
+    scenario.legacy === undefined || scenario.legacy === legacy,
+    `Conflicting legacy marker: ${scenario.id}`
+  )
+  scenario.legacy = legacy
+}
+
+for (const scenario of scenarios) {
+  markLegacy(
+    scenario,
+    ![
+      'path.valid',
+      'path.regex-miss',
+      'header.invalid',
+      'header.missing'
+    ].includes(scenario.id)
+  )
+}

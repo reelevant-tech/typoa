@@ -1,18 +1,98 @@
 [
   {
-    "caseId": "openapi",
+    "caseId": "arrays.valid",
+    "before": "7d48e6867ee38922d5a8d8e0c75c8b8fd529a996c8edde3c5a32a94e96319f77",
+    "after": "97fc95d18123eb24e4c4345af6220fc206274fee4faef81bf2411ed7c9156c7f",
     "expressMajor": "4",
-    "reason": "Keep named intermediate component schemas by default; only Envelope and Tagged are added, with all existing schemas and operations unchanged.",
-    "sinceVersion": "1.0.0-alpha.82",
-    "before": "b174938e3cf9d1976f7fc43b15ea794e9e55bc3a98daa5d405b2b5f0d8a74a20",
-    "after": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7"
+    "reason": "Restore alpha.71 compositional parsing: later object members supply their parsed item arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
   },
   {
-    "caseId": "openapi",
+    "caseId": "enum.empty",
+    "before": "27408fe86e6780cc566a38d759408158b4c6d2e16300bb3f15ad0eade37071d7",
+    "after": "06b27fdf7ebf31573aeebfdb26644f0b94ff865b174a35fa2b3a8d9ba0415318",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 shallow allOf parsing: array results are merged into indexed objects, including empty objects for empty arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "enum.valid",
+    "before": "398e60a69893ae748b3167c3ad072492a8e3ad6cc2a248726c68eb645624c070",
+    "after": "74557fcf16cd12db54ca8d6b29723d9472306b9a29ca32f31c757b255d1a2311",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 shallow allOf parsing: array results are merged into indexed objects, including empty objects for empty arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nullable.values",
+    "before": "c11dd4ba6532b0b953cc6e447c0d0a92dcc23b3dae9e838c2c03022aac621f55",
+    "after": "48fddb67cd13ad8f4df909e8a84157767daf0bc93a8354f5d4eb0a2ebfa07c12",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71 shallow allOf parsing: array results are merged into indexed objects, including empty objects for empty arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "query.intersection-invalid",
+    "before": "8489437dcf0a9dc95c128f14081e9c0db8dac8764e8ea4abb0251080cf223e99",
+    "after": "5817df1f490f11669cec3c748693f3e37cfd941fe0edc64b88bf670897ec74ce",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71: scalar query values are not wrapped for allOf array schemas, preserving acceptance and error values.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "query.intersection-single",
+    "before": "cca9c60f4e68742f249f906b0445583e86dc2ff8a1ccd3b725dea10b645d7aeb",
+    "after": "55f4c6c57439a4cd22c38a347266585529287c7ffddc00da02619ffc1a2f0955",
+    "expressMajor": "4",
+    "reason": "Restore alpha.71: scalar query values are not wrapped for allOf array schemas, preserving acceptance and error values.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "arrays.valid",
+    "before": "7d48e6867ee38922d5a8d8e0c75c8b8fd529a996c8edde3c5a32a94e96319f77",
+    "after": "97fc95d18123eb24e4c4345af6220fc206274fee4faef81bf2411ed7c9156c7f",
     "expressMajor": "5",
-    "reason": "Keep named intermediate component schemas by default; only Envelope and Tagged are added, with all existing schemas and operations unchanged.",
-    "sinceVersion": "1.0.0-alpha.82",
-    "before": "b174938e3cf9d1976f7fc43b15ea794e9e55bc3a98daa5d405b2b5f0d8a74a20",
-    "after": "9342385ae2b723a2d417df9a8e65cfeb19bdf7f7505f8391e4ceead8df6ee6c7"
+    "reason": "Restore alpha.71 compositional parsing: later object members supply their parsed item arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "enum.empty",
+    "before": "27408fe86e6780cc566a38d759408158b4c6d2e16300bb3f15ad0eade37071d7",
+    "after": "06b27fdf7ebf31573aeebfdb26644f0b94ff865b174a35fa2b3a8d9ba0415318",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 shallow allOf parsing: array results are merged into indexed objects, including empty objects for empty arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "enum.valid",
+    "before": "398e60a69893ae748b3167c3ad072492a8e3ad6cc2a248726c68eb645624c070",
+    "after": "74557fcf16cd12db54ca8d6b29723d9472306b9a29ca32f31c757b255d1a2311",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 shallow allOf parsing: array results are merged into indexed objects, including empty objects for empty arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "nullable.values",
+    "before": "c11dd4ba6532b0b953cc6e447c0d0a92dcc23b3dae9e838c2c03022aac621f55",
+    "after": "48fddb67cd13ad8f4df909e8a84157767daf0bc93a8354f5d4eb0a2ebfa07c12",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71 shallow allOf parsing: array results are merged into indexed objects, including empty objects for empty arrays.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "query.intersection-invalid",
+    "before": "8489437dcf0a9dc95c128f14081e9c0db8dac8764e8ea4abb0251080cf223e99",
+    "after": "5817df1f490f11669cec3c748693f3e37cfd941fe0edc64b88bf670897ec74ce",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71: scalar query values are not wrapped for allOf array schemas, preserving acceptance and error values.",
+    "sinceVersion": "1.0.0-alpha.83"
+  },
+  {
+    "caseId": "query.intersection-single",
+    "before": "cca9c60f4e68742f249f906b0445583e86dc2ff8a1ccd3b725dea10b645d7aeb",
+    "after": "55f4c6c57439a4cd22c38a347266585529287c7ffddc00da02619ffc1a2f0955",
+    "expressMajor": "5",
+    "reason": "Restore alpha.71: scalar query values are not wrapped for allOf array schemas, preserving acceptance and error values.",
+    "sinceVersion": "1.0.0-alpha.83"
   }
 ]

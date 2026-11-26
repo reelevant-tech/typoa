@@ -3,7 +3,7 @@ import path from 'node:path'
 import http from 'node:http'
 import { createRequire } from 'node:module'
 import { strict as assert } from 'node:assert'
-import { scenarios } from './cases'
+import { scenariosFor } from './cases'
 import { canonical, digest } from './policy'
 
 async function run() {
@@ -28,13 +28,21 @@ async function run() {
   const express = load(config.express)
   await api.generate({
     tsconfigFilePath: file('tsconfig.json'),
-    controllers: [
-      file('controllers.ts'),
-      ...(config.legacy ? [] : [file('pattern-controller.ts')])
-    ],
+    controllers:
+      config.group === 'default'
+        ? [
+            file('controllers.ts'),
+            ...(config.legacy ? [] : [file('pattern-controller.ts')])
+          ]
+        : [file(`${config.group}-controller.ts`)],
     openapi: {
       filePath: file('openapi.json'),
-      additionalExportedTypeNames: ['Failure'],
+      additionalExportedTypeNames:
+        config.group === 'compositional'
+          ? ['PatchItem']
+          : config.group === 'default'
+            ? ['Failure']
+            : [],
       service: { name: 'compatibility', version: '1' }
     },
     router: {
@@ -71,7 +79,9 @@ async function run() {
   try {
     const address = server.address()
     assert.ok(address && typeof address !== 'string')
-    for (const scenario of scenarios.filter(s => !config.legacy || s.legacy)) {
+    for (const scenario of scenariosFor(config.group).filter(
+      s => !config.legacy || s.legacy
+    )) {
       state.reset()
       api.setRuntimeOptions({
         features: {

@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { strict as assert } from 'node:assert'
 import { capture, installRelease, major } from './contract'
-import { assertCompatible, canonical } from './policy'
+import { assertCompatible, canonical, mergeSnapshots } from './policy'
 
 async function main() {
   const legacy = process.argv.includes('--legacy')
@@ -26,13 +26,50 @@ async function main() {
         console.log(
           `COMPAT ALPHA71 PASS: Express ${major}, ${Object.keys(after.http).length} restored/unchanged HTTP cases`
         )
+        const [compositionalBefore, compositionalAfter] = await Promise.all([
+          capture(entry, true, true),
+          capture(undefined, true, true)
+        ])
+        assert.notEqual(
+          compositionalBefore.runtime.entry,
+          compositionalAfter.runtime.entry
+        )
+        assert.deepEqual(
+          canonical(compositionalAfter.http),
+          canonical(compositionalBefore.http),
+          'COMPAT_COMPOSITIONAL_ALPHA71_MISMATCH'
+        )
+        console.log(
+          `COMPAT COMPOSITIONAL ALPHA71 PASS: Express ${major}, ${Object.keys(compositionalAfter.http).length} HTTP cases, controller arguments and errors`
+        )
+        const [controlBefore, controlAfter] = await Promise.all([
+          capture(entry, true, 'nonrecursive'),
+          capture(undefined, true, 'nonrecursive')
+        ])
+        assert.deepEqual(controlAfter.http, controlBefore.http)
+        console.log(
+          `COMPAT NONRECURSIVE ALPHA71 PASS: Express ${major}, ${Object.keys(controlAfter.http).length} HTTP cases`
+        )
       } else {
         const entries = JSON.parse(
           fs.readFileSync(path.join(__dirname, 'accepted-changes.json'), 'utf8')
         )
-        const count = assertCompatible(before, after, entries, version, major)
+        const [recursiveBefore, recursiveAfter] = await Promise.all([
+          capture(entry, false, 'recursive'),
+          capture(undefined, false, 'recursive')
+        ])
+        const count = assertCompatible(
+          mergeSnapshots(before, recursiveBefore, 'recursive.openapi'),
+          mergeSnapshots(after, recursiveAfter, 'recursive.openapi'),
+          entries,
+          version,
+          major
+        )
         console.log(
           `COMPAT RELEASE PASS: typoa@${version}, Express ${major}, ${count} exact accepted changes`
+        )
+        console.log(
+          `COMPAT RECURSIVE RELEASE PASS: typoa@${version}, Express ${major}, ${Object.keys(recursiveAfter.http).length} HTTP cases`
         )
       }
     }

@@ -1,0 +1,328 @@
+{
+  "components": {
+    "schemas": {
+      "AnyValue": {
+        "description": "Can be any value",
+        "nullable": true
+      },
+      "Base_Partial": {
+        "additionalProperties": false,
+        "properties": {
+          "stamp": {
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Child": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["count", "name"],
+        "type": "object"
+      },
+      "Item": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "type": "object"
+      },
+      "Item_Without_Undefined": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "type": "object"
+      },
+      "Part_Partial": {
+        "additionalProperties": false,
+        "properties": {
+          "stamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "tags": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AnyValue"
+            },
+            "properties": {
+              "kinds": {
+                "additionalProperties": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "required": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["required"],
+                  "type": "object"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "PatchItem": {
+        "additionalProperties": false,
+        "properties": {
+          "stamp": {
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "tags": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AnyValue"
+            },
+            "properties": {
+              "kinds": {
+                "additionalProperties": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "required": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["required"],
+                  "type": "object"
+                },
+                "properties": {},
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "compatibility",
+    "version": "1"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/compat/compositional": {
+      "post": {
+        "operationId": "Update",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "stamp": {
+                    "format": "date-time",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "tags": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/AnyValue"
+                    },
+                    "properties": {
+                      "kinds": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "required": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": ["required"],
+                          "type": "object"
+                        },
+                        "properties": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/compositional-array": {
+      "post": {
+        "operationId": "Arrays",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "items": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "tags": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": ["name", "tags"],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/compositional-discriminated": {
+      "post": {
+        "operationId": "Discriminated",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "stamp": {
+                    "format": "date-time",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "tags": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/AnyValue"
+                    },
+                    "properties": {
+                      "kinds": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "required": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": ["required"],
+                          "type": "object"
+                        },
+                        "properties": {},
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    },
+    "/compat/compositional-inherited": {
+      "post": {
+        "operationId": "Inherited",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Child"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnyValue"
+                }
+              }
+            },
+            "description": "Ok"
+          }
+        },
+        "security": [],
+        "tags": []
+      }
+    }
+  }
+}

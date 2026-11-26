@@ -5,7 +5,8 @@ import {
   assertCompatible,
   compareVersions,
   differences,
-  digest
+  digest,
+  mergeSnapshots
 } from './policy'
 
 const before = { openapi: { type: 'object' }, http: { body: { status: 200 } } }
@@ -16,6 +17,55 @@ const change: AcceptedChange = {
   reason: 'Restore the published contract',
   sinceVersion: '1.0.0-alpha.80'
 }
+
+test('Contract units reject duplicate IDs within documents and across fixture groups', () => {
+  for (const snapshot of [
+    { ...before, http: { openapi: { status: 200 } } },
+    { ...before, documents: { openapi: {} } },
+    { ...before, documents: { body: {} } }
+  ]) {
+    assert.throws(
+      () => differences(snapshot, snapshot),
+      /Duplicate contract unit ID:/
+    )
+  }
+  assert.throws(
+    () => mergeSnapshots(before, before, 'recursive.openapi'),
+    /Duplicate contract unit ID: body/
+  )
+  assert.throws(
+    () =>
+      mergeSnapshots(
+        { ...before, documents: { 'recursive.openapi': {} } },
+        { openapi: {}, http: {} },
+        'recursive.openapi'
+      ),
+    /Duplicate contract unit ID: recursive.openapi/
+  )
+  assert.throws(
+    () =>
+      mergeSnapshots(
+        { ...before, http: { 'recursive.openapi': { status: 200 } } },
+        { openapi: {}, http: {} },
+        'recursive.openapi'
+      ),
+    /Duplicate contract unit ID: recursive.openapi/
+  )
+})
+
+test('Merging uniquely named contracts retains every HTTP case and document', () => {
+  const recursive = {
+    openapi: { type: 'array' },
+    http: { 'recursive-box.narrowed': { status: 400 } }
+  }
+  const merged = mergeSnapshots(before, recursive, 'recursive.openapi')
+  assert.deepEqual(merged, {
+    ...before,
+    documents: { 'recursive.openapi': recursive.openapi },
+    http: { ...before.http, ...recursive.http }
+  })
+  assert.equal(assertCompatible(merged, merged, [], '1.0.0-alpha.79', '5'), 0)
+})
 
 test('Compatibility policy accepts identical and explicitly approved contracts', () => {
   assert.equal(assertCompatible(before, before, [], '1.0.0-alpha.79', '5'), 0)
@@ -58,6 +108,93 @@ test('Approved cases cannot hide a different regression or its reversion', () =>
   assert.throws(
     () => assertCompatible(before, before, [change], '1.0.0-alpha.79', '5'),
     /Accepted change no longer differs/
+  )
+})
+
+test('Recursive HTTP and document changes share approval and expiry policy with ordinary cases', () => {
+  const recursiveBefore = {
+    ...before,
+    documents: { 'recursive.openapi': { type: 'object' } },
+    http: { ...before.http, 'recursive-box.narrowed': { status: 200 } }
+  }
+  const recursiveAfter = {
+    ...recursiveBefore,
+    http: { ...after.http, 'recursive-box.narrowed': { status: 400 } }
+  }
+  const approved = differences(recursiveBefore, recursiveAfter).map(diff => ({
+    ...change,
+    ...diff
+  }))
+  assert.throws(
+    () =>
+      assertCompatible(
+        recursiveBefore,
+        recursiveAfter,
+        [change],
+        '1.0.0-alpha.79',
+        '5'
+      ),
+    /Unaccepted difference: recursive-box.narrowed/
+  )
+  assert.equal(
+    assertCompatible(
+      recursiveBefore,
+      recursiveAfter,
+      approved,
+      '1.0.0-alpha.79',
+      '5'
+    ),
+    2
+  )
+  assert.throws(
+    () =>
+      assertCompatible(
+        recursiveBefore,
+        recursiveBefore,
+        approved,
+        '1.0.0-alpha.79',
+        '5'
+      ),
+    /Accepted change no longer differs: recursive-box.narrowed/
+  )
+  assert.throws(
+    () =>
+      assertCompatible(
+        recursiveBefore,
+        recursiveAfter,
+        approved.filter(entry => entry.caseId === 'recursive-box.narrowed'),
+        '1.0.0-alpha.80',
+        '4'
+      ),
+    /Stale accepted change: recursive-box.narrowed/
+  )
+  const changedDocument = {
+    ...recursiveBefore,
+    documents: { 'recursive.openapi': {} }
+  }
+  assert.throws(
+    () =>
+      assertCompatible(
+        recursiveBefore,
+        changedDocument,
+        [],
+        '1.0.0-alpha.79',
+        '5'
+      ),
+    /Unaccepted difference: recursive.openapi/
+  )
+  assert.equal(
+    assertCompatible(
+      recursiveBefore,
+      changedDocument,
+      differences(recursiveBefore, changedDocument).map(diff => ({
+        ...change,
+        ...diff
+      })),
+      '1.0.0-alpha.79',
+      '5'
+    ),
+    1
   )
 })
 
